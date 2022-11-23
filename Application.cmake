@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.9)
 
 #============ WIN ========================
+# SET(QWT_BUILD_DIR ../qwt-git)
 
 IF(WIN32)
    # NOTE: a branch of QWT is used for double axis display:
    # https://sourceforge.net/p/qwt/code/HEAD/tree/branches/qwt-6.1-multiaxes/
-    SET(QWT_BUILD_DIR "c:/qt/qwt-6.1-ma")          # <= give your own folder names here
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # <= give your own folder names here
 
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
@@ -31,7 +31,6 @@ ENDIF()
 
 # linux ubuntu, qwt installation should be in usr if you followed the instructions, version nr may be different
 IF(UNIX AND NOT CYGWIN)
-    SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -39,15 +38,17 @@ IF(UNIX AND NOT CYGWIN)
 
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
+    message("GDAL: ${GDAL_INCLUDE_DIRS}")
+    message("QWT: ${QWT_INCLUDE_DIRS} | ${QWT_LIBRARIES}")
+    message("OMP: ${OMP_INCLUDE_DIRS}")
 ENDIF()
-
 #============ INCLDUES ====================
 
 INCLUDE_DIRECTORIES(
+    SYSTEM
     ${GDAL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
     ${OMP_INCLUDE_DIRS}
-    SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
     ${CMAKE_CURRENT_BINARY_DIR}/.

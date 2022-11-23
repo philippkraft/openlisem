@@ -12,6 +12,7 @@ find_package(Qt5Widgets)
 find_package(Qt5Core)
 find_package(Qt5Gui)
 
+message(Qt5Widgets ${Qt5Widgets_VERSION})
 
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
 include_directories(${Qt5Core_INCLUDE_DIRS})
@@ -34,6 +35,6 @@ SET(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake
 )
-
+SET(QWT_BUILD_DIR "../qwt-git" CACHE PATH "QWT Multiaxes Directory")
 # Include application makefile
 INCLUDE(Application)
