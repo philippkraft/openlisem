@@ -167,10 +167,28 @@ void TWorld::CalcVelDisch()//(int r, int c)
     double alpha;
     double WHr = WHrunoff->Drc;
     double FW = FlowWidth->Drc;
+    // PK@JLU 221124: get plant height
+    double PH = PlantHeight->Drc;
 
     if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
         NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
     // slow down water in flood zone, if hmx = 0 then factor = 1
+
+    // PK@JLU 221124: First depth modified Manning equation
+    // Modify Manning Strickler k (=1/NN) in and top of vegetation
+    // by Philipp Kraft, based on Oberle et al 2021
+    // (https://hdl.handle.net/20.500.11970/107539)
+    if (jluManningFunctionType==1 && PH > 0.01 ) {
+        double kst = 1.0 / NN;
+        if (WHr <= PH) {
+            // use 5 times slower runoff between stems
+            NN = 5 / kst;
+        } else if (WHr <= 5 * PH) {
+            // Linear interpolation from k/5 to k from PH to 5 * PH
+            NN = 1.0 / (kst / 5 + kst * (WHr - PH) / (5 * PH));
+        } // else do not change NN
+    }
+    // end PK@JLU
 
     if (Grad->Drc > MIN_SLOPE)
         alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
