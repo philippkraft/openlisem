@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 
 #============ WIN ========================
-# SET(QWT_BUILD_DIR ../qwt-git)
 
 IF(WIN32)
    # NOTE: a branch of QWT is used for double axis display:
@@ -38,17 +37,14 @@ IF(UNIX AND NOT CYGWIN)
 
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
-    message("GDAL: ${GDAL_INCLUDE_DIRS}")
-    message("QWT: ${QWT_INCLUDE_DIRS} | ${QWT_LIBRARIES}")
-    message("OMP: ${OMP_INCLUDE_DIRS}")
 ENDIF()
 #============ INCLDUES ====================
 
 INCLUDE_DIRECTORIES(
-    SYSTEM
     ${GDAL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
     ${OMP_INCLUDE_DIRS}
+    SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
     ${CMAKE_CURRENT_BINARY_DIR}/.
