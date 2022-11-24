@@ -969,6 +969,8 @@ public:
     double courant_factorSed;
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
+    // PK@JLU: Add Manning function type
+    int jluManningFunctionType;
     void correctMassBalance(double sum1, cTMap *M, double th);
     void correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);

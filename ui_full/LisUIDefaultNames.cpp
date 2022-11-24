@@ -399,6 +399,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[Flow]");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flow Boundary 2D");
+    // PK@JLU 221124 Added Manning function type
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Manning Roughness function");
+    // PK@JLU 221124 end
     namelist[i].value = QString("0.05");
     namelist[i++].name = QString("Minimum reported flood height");
     namelist[i].value = QString("1");

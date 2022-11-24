@@ -334,6 +334,8 @@ void TWorld::InitParameters(void)
 
     // VJ 170923 moved all 2D switches here
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
+    // PK@JLU 221124 getting Manning-Function indicator
+    jluManningFunctionType = getvalueint("Manning Roughness function");
     courant_factor = getvaluedouble("Flooding courant factor");
     courant_factorSed = std::min(0.2,courant_factor);
     // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
