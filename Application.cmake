@@ -151,6 +151,7 @@ SET(APP_SOURCES
     include/csfattr.h
     include/csfimpl.h
     include/csftypes.h
+    include/jluManning2DFlow.h
     openlisemico.rc
 )
 

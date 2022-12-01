@@ -1,4 +1,4 @@
 build
 *.autosave
-CMakeLists.txt.user
+CMakeLists.txt.*
 
