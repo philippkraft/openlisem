@@ -35,7 +35,7 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "6.88-JLU"
+#define VERSIONNR "6.88-JLU2"
 #define DATE "2022/11/24"
 
 
