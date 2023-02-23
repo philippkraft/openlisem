@@ -7,19 +7,23 @@
 /// Modify Manning Strickler k (=1/NN) in and top of vegetation
 /// by Philipp Kraft, based on Oberle et al 2021
 /// (https://hdl.handle.net/20.500.11970/107539)
-double calcManningType_1(int r, int c, double NN, double WHr, double PH) {
+double calcManningType_1(double NN, double WHr, double PH) {
     double kst = 1.0 / NN;
     if (WHr <= PH) {
         // use 5 times slower runoff between stems
-        NN = 5 / kst;
+        kst /=5;
     } else if (WHr <= 5 * PH) {
         // Linear interpolation from k/5 to k from PH to 5 * PH
-        NN = 1.0 / (kst / 5 + kst * (WHr - PH) / (5 * PH));
-    } else return NN;
+        kst = kst / 5 + kst * (WHr - PH) / (4 * PH);
+    } else {
+        // kst stays the same
+        kst = kst;
+    }
+    return 1.0 / kst;
 }
 
 
-double calcManningType_2(int r, int c, double NN, double WHr, double PH, double coverc) {
+double calcManningType_2(double NN, double WHr, double PH, double coverc) {
     /**
      * Calculate Manning n for partial vegetated channels Luhar and Nepf (2012)
      *
@@ -30,17 +34,17 @@ double calcManningType_2(int r, int c, double NN, double WHr, double PH, double 
             C=0.052, // The range of this parameter is 0.05–0.13 (Luhar and Nepf, 2012).
             grav_sqrt=pow(9.81, 0.5),
             kLN=1;
-
+    double NNveg=0;
     if (WHr <= PH) {
         if (coverc < 0.8) {
             // Eq. 24
-            return (kLN * pow(WHr,1./6.)) / grav_sqrt  * pow(C/2, 0.5) * pow(1 - coverc, -3./2.);
+            NNveg = (kLN * pow(WHr,1./6.)) / grav_sqrt  * pow(C/2, 0.5) * pow(1 - coverc, -3./2.);
         } else {
             // Eq. 26
-            return (kLN * pow(WHr,1./6.)) / grav_sqrt * pow(CDrag * a * WHr * 0.5, 0.5);
+            NNveg = (kLN * pow(WHr,1./6.)) / grav_sqrt * pow(CDrag * a * WHr * 0.5, 0.5);
         }
     } else {
-        return // Eq. 29
+        NNveg = // Eq. 29
             (kLN * pow(WHr, 1./6.)) / grav_sqrt
             * ( 1 / (
                       pow(2 / C, 0.5)
@@ -50,6 +54,7 @@ double calcManningType_2(int r, int c, double NN, double WHr, double PH, double 
                     )
               );
     }
+    return coverc * NNveg + (1 - coverc) * NN;
 }
 
 double calcManning(TWorld * model, int r, int c, double NN) {
@@ -59,13 +64,14 @@ double calcManning(TWorld * model, int r, int c, double NN) {
     double PH = model->PlantHeight->Drc;
     double coverc = model->Cover->Drc;
 
+
     switch (model->jluManningFunctionType) {
     case 0:
         return NN;
     case 1:
-        return calcManningType_1(r, c, NN, model->WHrunoff->Drc, model->PlantHeight->Drc);
+        return calcManningType_1(NN, model->WHrunoff->Drc, model->PlantHeight->Drc);
     case 2:
-        return calcManningType_2(r, c, NN, model->WHrunoff->Drc, model->PlantHeight->Drc, model->Cover->Drc);
+        return calcManningType_2(NN, model->WHrunoff->Drc, model->PlantHeight->Drc, model->Cover->Drc);
     }
 }
 
