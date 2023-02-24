@@ -29,6 +29,9 @@
 #include "model.h"
 #include "operation.h"
 #include "global.h"
+// PK@JLU 230224: Depth modified Manning equations
+#include "jlu_manning_lisem.h"
+
 
 #define he_ca 1e-10
 #define ve_ca 1e-10
@@ -320,7 +323,8 @@ void TWorld::KinematicSWOFopen(cTMap *_h, cTMap *_V)
             double H = _h->Drc;
             double V = _V->Drc;
             double W = ChannelAdj->Drc;//FlowWidth->Drc;
-            double n = N->Drc;
+            // PK@JLU 230224: Depth modified Manning equations
+            double n = calcManning(this, r, c, N->Drc);
 
             if(V == 0)
                 V = pow(H, 2.0/3.0)/n*sqrt(Grad->Drc);

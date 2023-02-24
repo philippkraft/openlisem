@@ -4,6 +4,9 @@
 //#include "model.h"
 #include "operation.h"
 #include "global.h"
+// PK@JLU 230224: Depth modified Manning equations
+#include "jlu_manning_lisem.h"
+
 
 #define he_ca 1e-10
 #define ve_ca 1e-10
@@ -449,9 +452,11 @@ void TWorld::correctSpuriousVelocities(int r, int c, cTMap *hes, cTMap *ves1, cT
         if (r < _nrRows-1 && !MV(r+1, c))
             s2 = sin(atan(fabs(hes->Drc-hes->data[r+1][c])));
     }
+    // PK@JLU 230224: Depth modified Manning equations
+    double NN = calcManning(this, r, c, N->Drc);
 
-    double U1 =  (pow(hes->Drc,2.0/3.0)*sqrt(s1+Grad->Drc)/N->Drc + G);
-    double V1 =  (pow(hes->Drc,2.0/3.0)*sqrt(s2+Grad->Drc)/N->Drc + G);
+    double U1 =  (pow(hes->Drc,2.0/3.0)*sqrt(s1+Grad->Drc)/NN + G);
+    double V1 =  (pow(hes->Drc,2.0/3.0)*sqrt(s2+Grad->Drc)/NN + G);
 
     ves1->Drc = sign1 * std::min(fabs(ves1->Drc), U1);
     ves2->Drc = sign2 * std::min(fabs(ves2->Drc), V1);
@@ -883,7 +888,9 @@ void TWorld::maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap
                         GRAV*0.5*((h2g_-h2l_)*(h2g_+h2l_) + (h2r_-h2d_)*(h2r_+h2d_) + (h2l_+h2r_)*delzc2->Drc));
 
             double sqUV = qSqrt(ve1_*ve1_+ve2_*ve2_);
-            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.001, qPow(Hes,4.0/3.0));
+            // PK@JLU 230224: Depth modified Manning equations
+            double NN = calcManning(this, r, c, N->Drc);
+            double nsq1 = (0.001+NN)*(0.001+NN)*GRAV/std::max(0.001, qPow(Hes,4.0/3.0));
             double nsq = nsq1*sqUV*dt;
 
             Ves1 = (qes1/(1.0+nsq))/std::max(0.001,Hes);

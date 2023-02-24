@@ -28,6 +28,9 @@
 #include "operation.h"
 #include "global.h"
 
+// PK@JLU 230224: Depth modified Manning equations
+#include "jlu_manning_lisem.h"
+
 #define he_ca 1e-10
 #define ve_ca 1e-10
 
@@ -338,7 +341,10 @@ void TWorld::maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,
 
 
             double sqUV = qSqrt(ve1->Drc*ve1->Drc+ve2->Drc*ve2->Drc);
-            double nsq1 = (0.001+N->Drc)*(0.001+N->Drc)*GRAV/std::max(0.01, qPow(hes->Drc,4.0/3.0));
+            // PK@JLU 230224: Depth modified Manning equations
+            double NN = calcManning(this, r, c, N->Drc);
+
+            double nsq1 = (0.001+NN)*(0.001+NN)*GRAV/std::max(0.01, qPow(hes->Drc,4.0/3.0));
             double nsq = nsq1*sqUV*dt;
 
             ves1->Drc = (qes1/(1.0+nsq))/std::max(0.01, hes->Drc);

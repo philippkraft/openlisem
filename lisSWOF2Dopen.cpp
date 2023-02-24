@@ -29,6 +29,9 @@
 #include "model.h"
 #include "operation.h"
 #include "global.h"
+// PK@JLU 230224: Depth modified Manning equations
+#include "jlu_manning_lisem.h"
+
 
 #define he_ca 1e-10
 #define ve_ca 1e-10
@@ -252,7 +255,9 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
                     double dy = _dx;//DX->Drc;
 
                     double H = hs->Drc;
-                    double n = N->Drc;
+                    // PK@JLU 230224: Depth modified Manning equations
+                    double n = calcManning(this, r, c, N->Drc);
+                    // double n = N->Drc;
                     double Z = z->Drc;
                     double Vx = vxs->Drc;
                     double Vy = vys->Drc;
@@ -466,7 +471,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z)
 
                 // get the outflow for all outlets, do not decrease the level here because of the mass balance correction
                 FOR_ROW_COL_LDD5 {
-                   double Vv =pow(h->Drc, 2.0/3.0)*qSqrt(h->Drc/_dx*Grad->Drc)/N->Drc;
+                    // PK@JLU 230224: Depth modified Manning equations
+                    double NN = calcManning(this, r, c, N->Drc);
+
+                   double Vv =pow(h->Drc, 2.0/3.0)*qSqrt(h->Drc/_dx*Grad->Drc)/NN;
                    double dh = Vv*h->Drc/DX->Drc*dt_req_min; // *H*dx / dx *DX
                    if (h->Drc-dh < 0)
                        dh = h->Drc;

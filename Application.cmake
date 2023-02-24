@@ -47,6 +47,7 @@ INCLUDE_DIRECTORIES(
     SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
+    ${CMAKE_CURRENT_SOURCE_DIR}/jlu_manning
     ${CMAKE_CURRENT_BINARY_DIR}/.
 )
 
@@ -151,8 +152,9 @@ SET(APP_SOURCES
     include/csfattr.h
     include/csfimpl.h
     include/csftypes.h
-    include/jluManning2DFlow.h
     openlisemico.rc
+    jlu_manning/jlu_manning_lisem.cpp
+    jlu_manning/jlu_manning.cpp
 )
 
 SET(PCR_SOURCES

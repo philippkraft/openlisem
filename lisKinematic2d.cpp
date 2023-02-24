@@ -54,6 +54,9 @@ void TWorld::K2DDEMA()\n
 
 #include "model.h"
 #include "operation.h"
+// PK@JLU 230224: Depth modified Manning equations
+#include "jlu_manning_lisem.h"
+
 
 #define MINGRAD 0.001
 
@@ -139,15 +142,17 @@ void TWorld::K2DInit()
                 R->Drc = hrunoff;// *dy/Perim;
             else
                 R->Drc = 0;
+            // PK@JLU 230224: Depth modified Manning equations
+            double NN = calcManning(this, r, c, N->Drc);
 
-            Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
+            Alpha->Drc = pow(NN/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
 
             if (Alpha->Drc == 0)
                 K2DQ->Drc = 0;
             else
                 K2DQ->Drc = pow((dy*hrunoff)/Alpha->Drc, 1.0/0.6);
 
-            K2DQ->Drc = pow(R->Drc, 2.0/3.0)*sqrt(K2DSlope->Drc)/N->Drc *dy*hrunoff;
+            K2DQ->Drc = pow(R->Drc, 2.0/3.0)*sqrt(K2DSlope->Drc)/NN *dy*hrunoff;
 
             //temporarily store in Qn (new)
             Qn->Drc = K2DQ->Drc;
@@ -202,8 +207,10 @@ double TWorld::K2DFlux(double t, double tmax)
 
         // Q = V*A
        // K2DQ->Drc = sqrt(K2DSlope->Drc)/N->Drc * pow(R->Drc,2.0/3.0) * hrunoff*cdy;
+        // PK@JLU 230224: Depth modified Manning equations
+       double NN = calcManning(this, r, c, N->Drc);
 
-        Alpha->Drc = pow(N->Drc/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
+        Alpha->Drc = pow(NN/sqrt(K2DSlope->Drc) * pow(Perim, (2.0/3.0)),0.6);
 
         if(Alpha->Drc > 0)
             K2DQ->Drc = /* 2.0 * */ pow((cdy*hrunoff)/Alpha->Drc, 1.0/0.6);
@@ -751,11 +758,12 @@ void TWorld::K2DCalcVelDisch(int thread)
             const double beta = 0.6;
             const double _23 = 2.0/3.0;
             double beta1 = 1/beta;
-            double NN = N->Drc;
+            // PK@JLU 230224: Depth modified Manning equations
+            double NN = calcManning(this, r, c, N->Drc);
 
 
             if (SwitchChannelFlood)
-                NN = N->Drc * qExp(mixing_coefficient*hmx->Drc);
+                NN = NN * qExp(mixing_coefficient*hmx->Drc);
             // slow down water in flood zone
             //    tma->Drc = hmx->Drc * UVflood->Drc/kinvisc;
             // Reynolds number ==> turbulent
@@ -1466,7 +1474,9 @@ void TWorld::OverlandFlow2D(void)
 
         if (vs1 > thv || fv1) {
             double vh = WHrunoff->Drc/dt;
-            double vkin = sqrt(qPow(WHrunoff->Drc, 2.0/3.0)*sqrt(Grad->Drc)/N->Drc);
+            // PK@JLU 230224: Depth modified Manning equations
+            double NN = calcManning(this, r, c, N->Drc);
+            double vkin = sqrt(qPow(WHrunoff->Drc, 2.0/3.0)*sqrt(Grad->Drc)/NN);
             V->Drc = std::min(std::min(vh, vkin), vs1);
             Q->Drc = V->Drc * WHrunoff->Drc*ChannelAdj->Drc;
         }
@@ -1541,7 +1551,9 @@ void TWorld::correctWH(cTMap *_WH)
         FOR_ROW_COL_MV {
             if (_WH->Drc > 0)
             {
-                V->Drc = pow(_WH->Drc, 2.0/3.0)*sqrt(Grad->Drc)/N->Drc;
+                // PK@JLU 230224: Depth modified Manning equations
+                double NN = calcManning(this, r, c, N->Drc);
+                V->Drc = pow(_WH->Drc, 2.0/3.0)*sqrt(Grad->Drc)/NN;
                 Qn->Drc = V->Drc*_WH->Drc*FlowWidth->Drc;
             }
         }

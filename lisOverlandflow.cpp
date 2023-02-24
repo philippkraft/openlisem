@@ -31,8 +31,8 @@
 #include "operation.h"
 #define tiny 1e-8
 
-// PK@JLU 221124: Depth modified Manning equations
-#include "jluManning2DFlow.h"
+// PK@JLU 230224: Depth modified Manning equations
+#include "jlu_manning_lisem.h"
 
 //--------------------------------------------------------------------------------------------
 /**
@@ -166,18 +166,16 @@ void TWorld::CalcVelDisch()//(int r, int c)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
-    double NN = N->Drc;
+    // PK@JLU 230224: Depth modified Manning equations
+    double NN = calcManning(this, r, c, N->Drc);
     double alpha;
     double WHr = WHrunoff->Drc;
     double FW = FlowWidth->Drc;
 
-    if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
-        NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
-    // slow down water in flood zone, if hmx = 0 then factor = 1
 
-    // PK@JLU 221124: Depth modified Manning equations
-    if (jluManningFunctionType) NN = calcManning(this, r, c, NN);
-    // end PK@JLU
+    if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
+        NN = NN * (2.0-qExp(-mixing_coefficient*hmx->Drc));
+    // slow down water in flood zone, if hmx = 0 then factor = 1
 
     if (Grad->Drc > MIN_SLOPE)
         alpha = pow(NN/sqrtGrad->Drc * pow(FW, 2.0/3.0),0.6);
@@ -339,8 +337,12 @@ void TWorld::OverlandFlow1D(void)
         //Q->Drc = Qn->Drc;
        // double Perim = FlowWidth->Drc;// > 0 ? 2*WHrunoff->Drc + FlowWidth->Drc : 0.0;
         //double R = WHrunoff->Drc;//*FlowWidth->Drc/Perim;
-        Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(FlowWidth->Drc, 2.0/3.0),0.6); // for erosion
-        V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+
+        // PK@JLU 230224: Depth modified Manning equations
+        double NN = calcManning(this, r, c, N->Drc);
+
+        Alpha->Drc = pow(NN/sqrtGrad->Drc * pow(FlowWidth->Drc, 2.0/3.0),0.6); // for erosion
+        V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/NN;
 
         WHroad->Drc = WHrunoff->Drc;
         // set road to average outflowing wh, no surface storage.
@@ -539,7 +541,9 @@ void TWorld::Boundary2Ddyn()
 
             double Vold = V->Drc;
             //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
-            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/N->Drc;
+            // PK@JLU 230224: Depth modified Manning equations
+            double NN = calcManning(this, r, c, N->Drc);
+            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/NN;
             if (Vold > 1e-6) {
                 _U->Drc *= V->Drc/Vold;
                 _V->Drc *= V->Drc/Vold;
@@ -609,7 +613,9 @@ void TWorld::Boundary2Ddyn()
 
             double Vold = V->Drc;
             //V->Drc = pow(h->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
-            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/N->Drc;
+            // PK@JLU 230224: Depth modified Manning equations
+            double NN = calcManning(this, r, c, N->Drc);
+            V->Drc = pow(h->Drc, 2.0/3.0) * qSqrt(h->Drc/_dx + Grad->Drc)/NN;
             if (Vold > 1e-6) {
                 _U->Drc *= V->Drc/Vold;
                 _V->Drc *= V->Drc/Vold;
