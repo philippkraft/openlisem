@@ -42,6 +42,7 @@ double calcManningType_2(double NN, double WHr, double PH, double coverc) {
             grav_sqrt=pow(9.81, 0.5),
             kLN=1;
     double NNveg=0;
+
     if (WHr <= PH) {
         if (coverc < 0.8) {
             // Eq. 24

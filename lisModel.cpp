@@ -31,7 +31,7 @@
   - void TWorld::stop() Stops the loop on user request.\n
 
 */
-
+#include <iostream>
 #include <QtGui>
 #include "lisemqt.h"
 #include "model.h"
@@ -148,6 +148,8 @@ void TWorld::DoModel()
         double btm = getvaluedouble("Begin time");
         double etd = getvaluedouble("End time day");
         double etm = getvaluedouble("End time");
+        int maxstep = (int) ((EndTime-BeginTime)/_dt);
+
         if (SwitchEventbased) {
             DEBUG("Day in start and end time is ignored.");
         }
@@ -315,9 +317,14 @@ void TWorld::DoModel()
             Totals();            // calculate all totals and cumulative values
 
             MassBalance();       // check water and sed mass balance
-
-            OutputUI();          // fill the "op" structure for screen output and calc some output maps
-
+            if (QProcessEnvironment::systemEnvironment().contains("LISEM_CONSOLE")) {
+                int progress = 100 * (time - BeginTime) / (EndTime - BeginTime);
+                std::cout << progress << "% ";
+                for (int i=0; i<100; i+=2) std::cout << (i < progress ? "#" : " ");
+                std::cout << "|\r";
+            } else {
+                OutputUI();          // fill the "op" structure for screen output and calc some output maps
+            }
             reportAll();         // report maps and files to screen and disk
 
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
