@@ -36,6 +36,7 @@
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
+#include "version.h"
 
 
 //---------------------------------------------------------------------------
@@ -130,6 +131,9 @@ void TWorld::DoModel()
     try
     {
         DEBUG("reading and initializing data");
+        if (QProcessEnvironment::systemEnvironment().contains("LISEM_CONSOLE")) {
+            std::cout << VERSION.toStdString() << "\n";
+        }
 
         IntializeOptions(); // reset all options
 
@@ -317,17 +321,19 @@ void TWorld::DoModel()
             Totals();            // calculate all totals and cumulative values
 
             MassBalance();       // check water and sed mass balance
+            OutputUI();          // fill the "op" structure for screen output and calc some output maps
+            reportAll();         // report maps and files to screen and disk
+
+            // Philipp Kraft@JLU: Added a progress bar on the terminal, if LISEM_CONSOLE is an env-variable
+            // do not emit show (speed up for headless systems)
             if (QProcessEnvironment::systemEnvironment().contains("LISEM_CONSOLE")) {
                 int progress = 100 * (time - BeginTime) / (EndTime - BeginTime);
                 std::cout << progress << "% ";
                 for (int i=0; i<100; i+=2) std::cout << (i < progress ? "#" : " ");
                 std::cout << "|\r";
             } else {
-                OutputUI();          // fill the "op" structure for screen output and calc some output maps
+                emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
             }
-            reportAll();         // report maps and files to screen and disk
-
-            emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
             saveMBerror2file(saveMBerror, false);
 
@@ -343,11 +349,19 @@ void TWorld::DoModel()
         DestroyData();  // destroy all maps automatically
         op.nrMapsCreated = maplistnr;
         emit done("finished");
+        // Philipp Kraft@JLU 2023-07-17: print "finished" to terminal, if LISEM_CONSOLE is an env-variable
+        if (QProcessEnvironment::systemEnvironment().contains("LISEM_CONSOLE")) {
+            std::cout << "\nLisem finished\n";
+        }
     }
     catch(...)  // if an error occurred
     {
         op.nrMapsCreated = maplistnr;
         DestroyData();
+        // Philipp Kraft@JLU 2023-07-17: print error message to terminal, if LISEM_CONSOLE is an env-variable
+        if (QProcessEnvironment::systemEnvironment().contains("LISEM_CONSOLE")) {
+            std::cout << "\n" << "ERROR STOP: " << ErrorString.toStdString() << "\n";
+        }
 
         emit done("ERROR STOP: "+ErrorString);
     }
