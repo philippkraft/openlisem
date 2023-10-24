@@ -402,6 +402,10 @@ void lisemqt::defaultRunFile()
     // PK@JLU 221124 Added Manning function type
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Manning Roughness function");
+    namelist[i].value = QString("0.00");
+    namelist[i++].name = QString("Manning Roughness function P1");
+    namelist[i].value = QString("0.00");
+    namelist[i++].name = QString("Manning Roughness function P2");
     // PK@JLU 221124 end
     namelist[i].value = QString("0.05");
     namelist[i++].name = QString("Minimum reported flood height");

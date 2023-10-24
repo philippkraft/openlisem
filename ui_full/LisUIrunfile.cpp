@@ -280,7 +280,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Routing Kin Wave 2D")==0)            dummykinwave = iii;
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
         // PK@JLU Added Manning function type
-        if (p1.compare("Manning Roughness function")==0)     E_ManningFunction->setValue(iii);
+        if (p1.compare("Manning Roughness function")==0)    E_ManningFunction->setValue(iii);
+        if (p1.compare("Manning Roughness function P1")==0)          E_ManningFunctionParam1->setValue(valc);
+        if (p1.compare("Manning Roughness function P2")==0)          E_ManningFunctionParam2->setValue(valc);
         if (p1.compare("Correct DEM")==0)                    checkCorrectDem->setChecked(check);
         if (p1.compare("Use 2D Diagonal flow")==0)           check2DDiagonalFlow->setChecked(check);
         if (p1.compare("Use 2D Diagonal flow new")==0)       check2DDiagonalFlowNew->setChecked(check);
@@ -829,6 +831,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         // PK@JLU Added Manning function type
         if (p1.compare("Manning Roughness function")==0)     namelist[j].value = E_ManningFunction->text();
+        if (p1.compare("Manning Roughness function P1")==0)     namelist[j].value = E_ManningFunctionParam1->text();
+        if (p1.compare("Manning Roughness function P2")==0)     namelist[j].value = E_ManningFunctionParam2->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         if (p1.compare("Use gravity flow")==0)               namelist[j].value.setNum((int)checkGravityToChannel->isChecked());
       //  if (p1.compare("Angle flow to channel")==0)          namelist[j].value = E_angleToChannel->text();

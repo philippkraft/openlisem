@@ -971,6 +971,8 @@ public:
     double minReportFloodHeight;
     // PK@JLU: Add Manning function type
     int jluManningFunctionType;
+    double jluManningFunctionParam1;
+    double jluManningFunctionParam2;
     void correctMassBalance(double sum1, cTMap *M, double th);
     void correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);

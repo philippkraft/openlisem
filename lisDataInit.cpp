@@ -336,6 +336,8 @@ void TWorld::InitParameters(void)
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
     // PK@JLU 221124 getting Manning-Function indicator
     jluManningFunctionType = getvalueint("Manning Roughness function");
+    jluManningFunctionParam1 = getvaluedouble("Manning Roughness function P1");
+    jluManningFunctionParam2 = getvaluedouble("Manning Roughness function P2");
     courant_factor = getvaluedouble("Flooding courant factor");
     courant_factorSed = std::min(0.2,courant_factor);
     // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");

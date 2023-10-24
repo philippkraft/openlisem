@@ -65,14 +65,72 @@ double calcManningType_2(double NN, double WHr, double PH, double coverc) {
     return NN + NNveg;
 }
 
+/**
+ * Exponential equation (Feldmann et al 2023, eq 16)
+ *
+ * https://doi.org/10.1016/j.jhydrol.2022.128786
+ *
+ * @param NN
+ * @param WHr
+ * @param PH
+ * @param coverc
+ * @param Param1 c in Feldmann et al 2023, eq 15
+ * @param Param2 din Feldmann et al 2023, eq 15
+ * @return
+ */
+double calcManningType_3(double NN, double WHr, double PH, double coverc, double Param1, double Param2) {
+    return 1.0 / (Param1 + exp(Param2 * WHr));
+}
+
+/**
+ * Kadlec's Power Law (Feldmann et al 2023, eq 16)
+ *
+ * https://doi.org/10.1016/j.jhydrol.2022.128786
+ *
+ * @param NN
+ * @param WHr
+ * @param PH
+ * @param coverc
+ * @param Param1 epsilon in Feldmann et al 2023, eq 16
+ * @param Param2 h0/Plant height in Feldmann et al 2023, eq 16
+ * @return
+ */
+double calcManningType_4(double NN, double WHr, double PH, double coverc, double Param1, double Param2) {
+    return NN * pow(WHr / (PH * Param2), Param1);
+}
+/**
+ * Fu's equation (Feldmann et al 2023, eq 17)
+ *
+ * \$ n = \frac 1 {c+e^{dh}} \$
+ *
+ * @param NN
+ * @param WHr
+ * @param PH
+ * @param coverc
+ * @param Param1 c in Feldmann et al 2023, eq 17
+ * @param Param2 d in Feldmann et al 2023, eq 17
+ * @return
+ */
+double calcManningType_5(double NN, double WHr, double PH, double coverc, double Param1, double Param2) {
+    return (Param1 + Param2 * pow(1 - exp(-0.061 * coverc), 1.668) * pow(WHr, 0.604-0.710 * exp(-0.219*coverc)));
+}
+
+
 extern "C" {
 
-double calcManningDispatch(int functiontype, double NN, double WHr, double PH, double coverc) {
+double calcManningDispatch(int functiontype, double NN, double WHr, double PH, double coverc, double Param1, double Param2) {
     switch (functiontype) {
         case 1:
             return calcManningType_1(NN, WHr, PH);
         case 2:
             return calcManningType_2(NN, WHr, PH, coverc);
+        case 3:
+            return calcManningType_3(NN, WHr, PH, coverc, Param1, Param2);
+        case 4:
+            return calcManningType_4(NN, WHr, PH, coverc, Param1, Param2);
+        case 5:
+            return calcManningType_5(NN, WHr, PH, coverc, Param1, Param2);
+
         default:
             return NN;
     }

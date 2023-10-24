@@ -32,7 +32,7 @@ class JLUManning:
         self.cdll = ctypes.CDLL(self.cdll_file)
         self.cdll.calcManningDispatch.restype = ctypes.c_double
 
-    def __call__(self, NN: float, WHr: float=0, PH:float=0, coverc: float=0):
+    def __call__(self, NN: float, WHr: float=0, PH:float=0, coverc: float=0, Param1: float=0.0, Param2: float=0.0):
         """
         Calls the wrpped C++ function
         :param NN: Manning's N : scope of it depends on the function
@@ -46,7 +46,9 @@ class JLUManning:
             ctypes.c_double(NN),
             ctypes.c_double(WHr),
             ctypes.c_double(PH),
-            ctypes.c_double(coverc)
+            ctypes.c_double(coverc),
+            ctypes.c_double(Param1),
+            ctypes.c_double(Param2),
         )
 
 

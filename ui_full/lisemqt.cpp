@@ -1614,6 +1614,8 @@ void lisemqt::resetTabFlow()
     E_FlowBoundary->setValue(1);
     E_floodMinHeight->setValue(0.05);
     E_ManningFunction->setValue(0);
+    E_ManningFunctionParam1->setValue(0.0);
+    E_ManningFunctionParam2->setValue(0.0);
     checkFloodInitial->setChecked(false);
     checkFlowBarriers->setChecked(false);
     line_FlowBarriers->setText("flowbarriers.txt");
