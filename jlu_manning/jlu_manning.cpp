@@ -96,7 +96,7 @@ double calcManningType_3(double NN, double WHr, double PH, double coverc, double
  * @return
  */
 double calcManningType_4(double NN, double WHr, double PH, double coverc, double Param1, double Param2) {
-    return NN * pow(WHr / (PH * Param2), Param1);
+    return NN * pow(WHr / Param2, -Param1);
 }
 /**
  * Fu's equation (Feldmann et al 2023, eq 17)

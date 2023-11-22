@@ -39,6 +39,8 @@
 #include "global.h"
 #include "option.h"
 
+// PK@JLU 2023-10-27: Adding iostream for terminal output
+#include <iostream>
 //---------------------------------------------------------------------------
 //! fill namelist with the actual runfile data but correct for old runfiles
 //! so that faulty data or obsolete vars are ignored
@@ -1137,9 +1139,15 @@ void lisemqt::updateModelData()
     if (saveRunFileOnce) {
         savefile(op.runfilename);
         saveRunFileOnce = false;
-        QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
-            QString("obsolete options are removed and missing options use default values. ") +
-            QString("The new run files has your choices where applicable."));
+        // PK@JLU 2023-10-27: Do not open window if Console mode
+        if (QProcessEnvironment::systemEnvironment().contains("LISEM_CONSOLE")) {
+            std::cout << "The run file has changed" << "\n";
+        } else {
+            QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
+                                                  QString("obsolete options are removed and missing options use default values. ") +
+                                                  QString("The new run files has your choices where applicable."));
+
+        }
     }
 
 }
