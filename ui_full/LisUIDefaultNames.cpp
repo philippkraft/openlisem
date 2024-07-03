@@ -41,7 +41,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;ID;ID.map;Raingauge zone ID numbers (e.g. Tiessen polyg.), corresponding to columns (1,2,...) in rainfall file;ID");
     DEFmaps.append("2;Gauges;IDgauge.map;Raingauge ID numbers for inv.dist. interpolation, corresponding to columns (1,2,...) in rainfall file;IDGauges");
     DEFmaps.append("2;ET ID;ETID.map;ET zone ID numbers, correspond to columns (1,2,...) in EvapoTranspiration file;ETID");
-    DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
+   // DEFmaps.append("2;Snowmelt ID;snowid.map;Snowmelt zone ID number for snowmelt file starting with 1 (0 is non-snow area);SnowID");
 
     DEFmaps.append("0;Catchment");
     DEFmaps.append("2;DEM;dem.map;Digital elevation model (m);dem");
@@ -79,18 +79,19 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Repellency;repel.map;Gridcells included in water repellency (1/0);repelcell");
 
     DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange");
-
-  //  DEFmaps.append("2;thetasub;thetasub.map;Minimum moisture content at the bottom of the profile, below which there is no Percolation (-);thetasub");
     DEFmaps.append("2;Ksat1;ksat1.map;Layer 1: Saturated Hydraulic Conductivity (mm/h);ksat1");
-    DEFmaps.append("2;Psi1;psi1.map;Layer 1: Average suction at the wetting front (cm);psi1");
+    DEFmaps.append("2;Psi1;psi1.map;Layer 1: Suction at the wetting front (cm);psi1");
     DEFmaps.append("2;Thetas1;thetas1.map;Layer 1: Porosity (-);thetas1");
     DEFmaps.append("2;Thetai1;thetai1.map;Layer 1: Initial moisture content (-);thetai1");
+    //DEFmaps.append("2;Lambda1;lambda1.map;Layer 1: Brooks-Corey pore parameter (-);lambda1");
     DEFmaps.append("2;Depth1;soildep1.map;Layer 1: Depth (mm) to bottom of layer 1;soildep1");
+
     DEFmaps.append("1;2nd layer Green&Ampt/Smith&Parlange");
     DEFmaps.append("2;Ksat2;ksat2.map;Layer 2: Saturated Hydraulic Conductivity (mm/h);ksat2");
-    DEFmaps.append("2;Psi2;psi2.map;Layer 2: Average suction at the wetting front (cm);psi2");
+    DEFmaps.append("2;Psi2;psi2.map;Layer 2: Suction at the wetting front (cm);psi2");
     DEFmaps.append("2;Thetas2;thetas2.map;Layer 2: Porosity (-);thetas2");
     DEFmaps.append("2;Thetai2;thetai2.map;Layer 2: Initial moisture content (-);thetai2");
+   // DEFmaps.append("2;Lambda2;lambda2.map;Layer 2: Brooks-Corey pore parameter (-);lambda2");
     DEFmaps.append("2;Depth2;soildep2.map;Layer 2: Depth (mm) to bottom of layer 2;soildep2");
 
     DEFmaps.append("1;Special surfaces");
@@ -98,9 +99,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Porosity Crust;porecrst.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
     DEFmaps.append("2;Ksat Compact;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
     DEFmaps.append("2;Porosity Compact;porecomp.map;Porosity of compacted areas (all models except SWATRE) (-);porecomp");
-//    DEFmaps.append("2;Initial moisture Crust;thetacrust.map;Initial moisture content of crusted areas (all models except SWATRE) (-);thetacrst");
-//    DEFmaps.append("2;Initial moisture Compact;thetacomp.map;Initial moisture content of compacted areas (all models except SWATRE) (-);thetacomp");
-//    DEFmaps.append("2;Initial moisture Grass;thetagrass.map;Initial moisture content of grasstrips (all models except SWATRE) (-);thetagras");
 
     DEFmaps.append("0;Channels");
     DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
@@ -111,16 +109,15 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
     DEFmaps.append("2;ChannelMaxQ;chanmaxq.map;Maximum limiting channel discharge, e.g. in culverts (m3/s);chanmaxq");
+    DEFmaps.append("2;QinPoints;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Stationary baseflow;baseflow.map;Stationary baseflow maintained in the run (m3/s at the outlet);baseflow");
     DEFmaps.append("2;Baseflow network;lddbaseflow.map;LDD perpendicular to the river;lddbase");
     DEFmaps.append("2;Baseflow contrib. area;basedistance.map;Distance to river (m);basereach");
     DEFmaps.append("2;WHInit;WHinit.map;Initial floodlevel (m);whinit");
-//    DEFmaps.append("2;Initial level;gwlevel.map;Initial groundwater level (m);gwlevel");
 
-    // DEFmaps.append("2;Dscharge input;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
-    //    DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
-    //    DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
+//        DEFmaps.append("2;Channelmaterial;chandetmat.map;Detacheable material per square meter (kg/m2) (-1 = infinite);chandetmat");
+//        DEFmaps.append("2;ChannelMixingDepth;chansedmixdepth.map; Mixing depth for deposited sediment in channel (m);chansedmixdepth");
 
     //houses
     DEFmaps.append("0;Buildings and roads");
@@ -193,8 +190,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("satImage file");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Advanced Options");
-    namelist[i++].name = QString("Discharge inflow directory");
-    namelist[i++].name = QString("Discharge inflow file");
 
     //###
     namelist[i++].name = QString("");
@@ -288,14 +283,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include main channels");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel infil");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include channel baseflow");
+//    namelist[i].value = QString("0");
+//    namelist[i++].name = QString("Include channel baseflow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include stationary baseflow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel culverts");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include channel inflow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Hard Surfaces");
     namelist[i].value = QString("1");
@@ -342,6 +335,11 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("ET Bias Correction");
     namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Rainfall ET threshold");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include channel inflow");
+    namelist[i++].name = QString("Discharge inflow file");
+    namelist[i++].name = QString("Discharge inflow directory");
+
 //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Include Snowmelt");
 //    namelist[i++].name = QString("Snowmelt file");
@@ -376,11 +374,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Impermeable sublayer");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Two layer");
-//    namelist[i].value = QString("1");
-    // obsolete
-//    namelist[i++].name = QString("Include percolation");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Subsoil drainage");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Psi user input");
     namelist[i].value = QString("c:\\");
     namelist[i++].name = QString("Table Directory");
     namelist[i].value = QString("profile.inp");
@@ -432,24 +427,24 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("GW flow SWAT");
+    namelist[i++].name = QString("Include GW flow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow explicit");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("GW flow LDD");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("GW flow SWAT");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW recharge factor");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW flow factor");
-    namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("GW river inflow factor");
+//    namelist[i].value = QString("1.0");
+//    namelist[i++].name = QString("GW river inflow factor");
     namelist[i].value = QString("0.2");
     namelist[i++].name = QString("GW threshold factor");
-//    namelist[i].value = QString("0.0");
-//    namelist[i++].name = QString("GW initial level");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("GW slope factor");
-//    namelist[i].value = QString("0.2");
-//    namelist[i++].name = QString("GW lag factor");
-    namelist[i].value = QString("1.0");
+    namelist[i].value = QString("0.0");
     namelist[i++].name = QString("GW deep percolation");
 
     //###
@@ -477,8 +472,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Particle Cohesion of Deposited Layer");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Calculate erosion inside 2D loop");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use linked list");
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Sediment]");
     namelist[i].value = QString("1");
@@ -540,6 +533,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Smax calibration");
     namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("RR calibration");
+    namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Ksat calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Ksat2 calibration");
@@ -549,6 +544,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Theta calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Psi calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("SoilDepth1 calibration");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("SoilDepth2 calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Channel Ksat calibration");
     namelist[i].value = QString("1.0");
@@ -614,6 +613,8 @@ void lisemqt::defaultRunFile()
     //###
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Advanced]");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Nr user Cores");
     namelist[i].value = QString("4"); //HLL2
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("1"); //minmod
@@ -622,16 +623,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Flood max iterations");
     namelist[i].value = QString("0.0001");
     namelist[i++].name = QString("Min WH flow");
-    namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Flooding mixing coefficient");
-    namelist[i].value = QString("2.0");
-    namelist[i++].name = QString("Flooding runoff partitioning");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use gravity flow");
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Pit Value");
- //  namelist[i].value = QString("0");
- //   namelist[i++].name = QString("Variable Timestep");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use 2D Diagonal flow new");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use linked list");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use Channel Kinwave dt");
     namelist[i].value = QString("60.0");
@@ -641,13 +638,12 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Channel Max V");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use 2D Diagonal flow new");
+    namelist[i++].name = QString("Channel 2D flow connect");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Nr user Cores");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Use Avg Channel KinWave");
-//    namelist[i].value = QString("0");
-//    namelist[i++].name = QString("Minimum Timestep Method");
+    namelist[i++].name = QString("Channel WF inflow");
+//    namelist[i].value = QString("1");
+//    namelist[i++].name = QString("GW layer change SD");
+
 
     // output maps have standard names
     // input maps names are defined in DEFmaps

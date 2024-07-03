@@ -201,8 +201,7 @@ void lisemqt::onOutletChanged(int point)
             showPlot(); // show main plot for point X
 
             HPlot->setTitle(QString("Catchment outlet(s)"));
-                //HPlot->setTitle(QString("Hydrograph %1").arg(outletpoint));
-                //outletgroup->setTitle(QString("Catchment outlet %1").arg(outletpoint));
+
         } else {
             if(point > outletpoint)
             {
@@ -409,19 +408,19 @@ void lisemqt::initOutputData()
 {
 
     //textGraph->setMaximumBlockCount(4);
-    textGraph->setWordWrapMode(QTextOption::NoWrap);
-    textGraph->setMaximumHeight(80);
-    textGraph->clear();
+//    textGraph->setWordWrapMode(QTextOption::NoWrap);
+//    textGraph->setMaximumHeight(80);
+//    textGraph->clear();
 
-    textGraph->setVisible(false);
-    label_headerTextGraph->setVisible(false);
+//    textGraph->setVisible(false);
+//    label_headerTextGraph->setVisible(false);
 }
 
 //---------------------------------------------------------------------------
 // max 6 line text output below hydrographs
 void lisemqt::SetTextHydrographs()
 {
-
+/*
    // textGraph->clear();
     QStringList SL;
 
@@ -493,7 +492,7 @@ void lisemqt::SetTextHydrographs()
         SL << outS;
     }
  //   textGraph->appendPlainText(SL.join('\n'));
-
+*/
 }
 //---------------------------------------------------------------------------
 
@@ -538,7 +537,15 @@ void lisemqt::showOutputData()
     label_ETatot->setText(format.arg(QString::number(op.ETaTotmm,'f',dig)));
     label_raintot->setText(format.arg(QString::number(op.RainTotmm,'f',dig)));
     label_watervoltot->setText(format.arg(QString::number(op.WaterVolTotmm,'f',dig)));
-    label_stormdraintot->setText(format.arg(QString::number(op.StormDrainTotmm,'f',dig)));
+    if (checkStormDrains->isChecked()) {
+        label_99->setText("Storm drains");
+        label_stormdraintot->setText(format.arg(QString::number(op.StormDrainTotmm,'f',dig)));
+    } else
+    if (checkChannelBaseflow->isChecked()) {
+        label_99->setText("Chan. inflow");
+        label_stormdraintot->setText(format.arg(QString::number(op.BaseFlowTotmm,'f',dig)));
+    }
+
     label_qtot->setText(format.arg(QString::number(op.Qtotmm,'f',dig)));
     label_infiltot->setText(format.arg(QString::number(op.InfilTotmm,'f',dig)));
     label_surfstor->setText(format.arg(QString::number(op.SurfStormm,'f',dig)));
@@ -591,6 +598,11 @@ void lisemqt::showOutputData()
         label_54->setText("Q (m3/s)");
         label_dischargesub->setText(format.arg(QString::number(vv,'f',3)));
     }
+
+    if (checkUnits_ls->isChecked())
+        checkBox_OutRunoff->setText("ro - runoff + channel discharge (l/s)");
+    else
+        checkBox_OutRunoff->setText("ro - runoff + channel discharge (m3/s)");
 
     label_soillosssub->setEnabled(checkDoErosion->isChecked());
     label_94->setEnabled(checkDoErosion->isChecked());

@@ -1,7 +1,8 @@
+.idea
 build
 *.autosave
 CMakeLists.txt.*
-.idea
 jlu_manning/lib*.so
 cmake-build-debug/
+
 

@@ -82,7 +82,6 @@ void TWorld::GetETData(QString name)
     tmp = countUnits(*ETZone);
     int nrmap = tmp.count();
 
-
     if (nrmap > nrStations)
     {
         ErrorString = QString("Number of stations in ET file (%1) < nr of ET zones in ID map (%2)").arg(nrStations).arg(nrmap);
@@ -103,23 +102,35 @@ void TWorld::GetETData(QString name)
         // initialize ET record structure
         rl.time = 0;
         rl.intensity.clear();
+        int r_ = r+nrStations+skiprows;
 
         // split ET record row with whitespace
-        QStringList SL = ETRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        QStringList SL = ETRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
+        time = rl.time;
 
-        if (r == 0)
-            time = rl.time;
-
-        if (r > 0 && rl.time <= time)
-        {
-            ErrorString = QString("ET records at row %1 has unreadable value.").arg(r);
-            throw 1;
+        // check is time is increasing with next row
+        if (r+1 < nrSeries) {
+            QStringList SL1 = ETRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+            int time1 = getTimefromString(SL1[0]);
+            if (time1 < time) {
+                ErrorString = QString("Time in evaporation records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);
+                throw 1;
+            }
         }
-        else
-            time = rl.time;
+
+//        if (r == 0)
+//            time = rl.time;
+
+//        if (r > 0 && rl.time <= time)
+//        {
+//            ErrorString = QString("ET records at row %1 has unreadable value.").arg(r);
+//            throw 1;
+//        }
+//        else
+//            time = rl.time;
 
         // record is a assumed to be a double
         for (int i = 1; i <= nrStations; i++)
@@ -128,7 +139,7 @@ void TWorld::GetETData(QString name)
             rl.intensity << SL[i].toDouble(&ok);
             if (!ok)
             {
-                ErrorString = QString("ET records at time %1 has unreadable value.").arg(SL[0]);
+                ErrorString = QString("ET records at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);
                 throw 1;
             }
         }
@@ -137,12 +148,12 @@ void TWorld::GetETData(QString name)
     }
 
     // sometimes not an increasing timeseries
-    for(int i = 1; i < nrSeries; i++){
-        if (ETSeries [i].time <= ETSeries[i-1].time) {
-            ErrorString = QString("ET records time is not increasing at row %1.").arg(i);
-            throw 1;
-        }
-    }
+//    for(int i = 1; i < nrSeries; i++){
+//        if (ETSeries [i].time <= ETSeries[i-1].time) {
+//            ErrorString = QString("ET records time is not increasing at row %1.").arg(i);
+//            throw 1;
+//        }
+//    }
 
     nrETseries = ETSeries.size();//nrSeries;
 }
@@ -339,6 +350,7 @@ void TWorld::doETa()
                 double pore = Poreeff->Drc;
                 double theta = Thetaeff->Drc;
                 double thetar = ThetaR1->Drc;
+                double thetafc = ThetaFC1->Drc;
                 double Lw_ = Lw->Drc;
                 double theta_e = (theta-thetar)/(pore-thetar);
                 double f = 1.0/(1.0+qPow(theta_e/0.4,8.0));
@@ -346,36 +358,54 @@ void TWorld::doETa()
                 double ETa_soil = (1.0-f)*etanet*Cover_ + theta_e*ETp_*(1-Cover_);   //Transpiration + Evaporation
 
                 // there is an infiltration front
+
+
+
                 if (Lw_ > 0) {
-                    if(!SwitchTwoLayer || Lw_ < SoilDepth1->Drc) {
-                        double moist = Lw_ * (pore-thetar);
+                    if(Lw_ < SoilDepth1->Drc) {
+                        double moist = Lw_ * (pore-thetafc);
                         eta = std::min(moist, ETa_soil);
                         moist = moist - eta;
-                        Lw->Drc = moist/(pore-thetar);
+                        Lw->Drc = moist/(pore-thetafc);
                         tot = tot + eta;
                         tma->Drc += eta;
+                        // adjust moisture content layer 1
                         double dL = std::max(0.0,Lw_-Lw->Drc);
-                        //get the eta from the entore profile because it includes transpiration
-                        double m1= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
-                        double m2 = dL*thetar;
+                        double m1 = dL*thetafc; // av moist freed layer
+                        double m2= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
+                        // av moist below old wetting front
                         Thetaeff->Drc = (m1+m2)/(SoilDepth1->Drc - Lw->Drc)+thetar;
-//                        if(c == 200 && r == 200)
-//                            qDebug() << "m" << m1 << m2 << Thetaeff->Drc << Lw->Drc << dL;
-                    } else {
-                        if (SwitchTwoLayer){
-                            thetar = ThetaR2->Drc;
-                            double moist = (Lw_-SoilDepth1->Drc) * (ThetaS2->Drc-thetar);
-                            eta = std::min(moist, ETa_soil);
-                            moist = moist - eta;
-                            Lw->Drc = moist/(ThetaS2->Drc-thetar)+SoilDepth1->Drc;
-                            tot = tot + eta;
-                            tma->Drc += eta;
-                            double dL = std::max(0.0,Lw_-Lw->Drc);
-                            double m1= (SoilDepth2->Drc-Lw_)*(ThetaI2->Drc-thetar);
-                            double m2 = dL*thetar;
-                            ThetaI2->Drc = (m1+m2)/(SoilDepth2->Drc - Lw->Drc) + thetar;
-                        }
+                        // new average moisture below new WF
                     }
+
+
+//                    if(!SwitchTwoLayer || Lw_ < SoilDepth1->Drc) {
+//                        double moist = Lw_ * (pore-thetar);
+//                        eta = std::min(moist, ETa_soil);
+//                        moist = moist - eta;
+//                        Lw->Drc = moist/(pore-thetar);
+//                        tot = tot + eta;
+//                        tma->Drc += eta;
+//                        double dL = std::max(0.0,Lw_-Lw->Drc);
+//                        //get the eta from the entore profile because it includes transpiration
+//                        double m1= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
+//                        double m2 = dL*thetar;
+//                        Thetaeff->Drc = (m1+m2)/(SoilDepth1->Drc - Lw->Drc)+thetar;
+//                    } else {
+//                        if (SwitchTwoLayer){
+//                            thetar = ThetaR2->Drc;
+//                            double moist = (Lw_-SoilDepth1->Drc) * (ThetaS2->Drc-thetar);
+//                            eta = std::min(moist, ETa_soil);
+//                            moist = moist - eta;
+//                            Lw->Drc = moist/(ThetaS2->Drc-thetar)+SoilDepth1->Drc;
+//                            tot = tot + eta;
+//                            tma->Drc += eta;
+//                            double dL = std::max(0.0,Lw_-Lw->Drc);
+//                            double m1= (SoilDepth2->Drc-Lw_)*(ThetaI2->Drc-thetar);
+//                            double m2 = dL*thetar;
+//                            ThetaI2->Drc = (m1+m2)/(SoilDepth2->Drc - Lw->Drc) + thetar;
+//                        }
+//                    }
                 } else {
                     // soil moisture evaporation dry surface
                     double moist = (theta-thetar) * SoilDepth1->Drc;
@@ -424,7 +454,7 @@ void TWorld::doETa()
 //                }
 
                 tot = tot + eta;
-                WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + WHstore->Drc*SoilWidthDX->Drc*DX->Drc;
+                WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
             }
 
             // put total Eta in Eta map

@@ -61,10 +61,7 @@ void lisemqt::runmodel()
         return;
     }
 
-    label_runfilename->setText(QFileInfo(op.runfilename).fileName());
-    QString S = E_ResultDir->text() + QFileInfo(op.runfilename).fileName();
-    savefile(S);
-    //show runfile name on screen en save runfile to result dir
+    lastOptionSceen = tabWidgetOptions->currentIndex();
 
     updateModelData();
     QFile f(QString(op.LisemDir+"openlisemtmp.run"));
@@ -91,11 +88,9 @@ void lisemqt::runmodel()
 
     checkMapBuildings->setChecked(false);
     checkMapBuildings->setEnabled(checkHouses->isChecked());
-    transparencyHouse->setVisible(false);
 
     checkMapRoads->setChecked(false);
     checkMapRoads->setEnabled(checkRoadsystem->isChecked());
-    transparencyRoad->setVisible(false);
 
     checkMapHardSurface->setChecked(false);
     checkMapHardSurface->setEnabled(checkHardsurface->isChecked());
@@ -103,6 +98,10 @@ void lisemqt::runmodel()
     //transparencyHardSurface->setVisible(false);
 
     sedgroup->setVisible(checkDoErosion->isChecked());
+    tabWidget_totout->setTabEnabled(1,checkDoErosion->isChecked() );
+
+    showInfoAct->setChecked(true);
+    setOutputInfo(true);
 
     // initialize output graphs
     initPlot();
@@ -137,12 +136,11 @@ void lisemqt::runmodel()
     W->noInterface = true;
     W->noOutput = false;
     W->batchmode = false;
-    // run without Qt interface on openlisemtmp.run only
+    // run without Qt interface on original runfile only
 
     op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
 
     if (checkAddDatetime->isChecked()) {
-      //  E_ResultDir->text() =
         screenShotDir = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
         QDir(screenShotDir).mkpath(QString("screens/"));
         screenShotDir = screenShotDir + QString("screens/");
@@ -152,6 +150,14 @@ void lisemqt::runmodel()
         screenShotDir = screenShotDir + QString("screens"+op.timeStartRun+"/");
     }
     //qDebug() << screenShotDir;
+
+    tabWidget->setCurrentIndex(0);
+    for (int i = 0; i < 9; i++) {
+        tabWidgetOptions->setCurrentIndex(i);
+        shootScreen();
+    }
+    tabWidget->setCurrentIndex(2);
+    //switch to output screen
 
     W->start();
     // start the model thread, executes W->run()
@@ -241,16 +247,12 @@ void lisemqt::worldDone(const QString &results)
     if (results.contains("ERROR"))
         QMessageBox::critical(this,QString("openLISEM"), results, QMessageBox::Ok );
 
+    tabWidgetOptions->setCurrentIndex(lastOptionSceen);
+
     tabWidget->setCurrentIndex(2);
+    tabWidget_out->setCurrentIndex(0);
     shootScreen();
-    tabWidget->setCurrentIndex(0);
-    tabWidgetOptions->setCurrentIndex(6);
-    shootScreen();
-    tabWidgetOptions->setCurrentIndex(5);
-    shootScreen();
-    tabWidgetOptions->setCurrentIndex(4);
-    shootScreen();
-    tabWidgetOptions->setCurrentIndex(1);
+    tabWidget_out->setCurrentIndex(1);
     shootScreen();
 
 
@@ -375,7 +377,7 @@ void lisemqt::initOP()
     op.FloodAreaMax = 0;
     op.BaseFlowTotmm = 0;
     op.IntercLitterTotmm = 0;
-    op.WaterVolTotchannelmm = 0;
+    //op.WaterVolTotchannelmm = 0;
     op.Qtotmm = 0;
     op.IntercTotmm = 0;
     op.IntercHouseTotmm = 0;

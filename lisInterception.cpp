@@ -43,11 +43,12 @@ functions: \n
 void TWorld::cell_Interception(int r, int c)
 {
     // all variables are in m
-    double Cv = Cover->Drc;
     double Rainc_ = Rainc->Drc;
     double RainNet_ = Rainc_;
-    double Smax = CanopyStorage->Drc;
 
+    // canopy interception
+    double Cv = Cover->Drc;
+    double Smax = CanopyStorage->Drc;
     if (Cv > 0 && Rainc_ > 0 && Smax > 0)
     {
         double CS = CStor->Drc;
@@ -60,6 +61,7 @@ void TWorld::cell_Interception(int r, int c)
         // canopy leaf drain, overflow of rain - dS, not cell
 
         CStor->Drc = CS;
+        // new storage back in CStor
 
         Interc->Drc =  Cv * CS * CHAdjDX->Drc;
         // storage in cell in m3
@@ -82,16 +84,16 @@ void TWorld::cell_Interception(int r, int c)
             LCS = std::min(LCS + RainNet_, Smax);
             // add water to the storage, not more than max
 
-            double drain = CvL*  std::max(0.0, (RainNet_ - (LCS - LCStor->Drc)));
+            double drain = std::max(0.0, (RainNet_ - (LCS - LCStor->Drc)));
             // diff between new and old storage is subtracted from leafdrip
 
             LCStor->Drc = LCS;
             // put new storage back in map for next dt
 
-            LInterc->Drc =  CvL * LCS * SoilWidthDX->Drc * DX->Drc;
+            LInterc->Drc =  CvL * LCS * CHAdjDX->Drc;
             // only on soil surface, not channels or roads, in m3
 
-            RainNet_ = drain + (1-CvL)*RainNet_;
+            RainNet_ = CvL*drain + (1-CvL)*RainNet_;
             //recalc
         }
     }
@@ -110,6 +112,7 @@ void TWorld::cell_Interception(int r, int c)
             //max roof storage in m
 
             HS = std::min(HS + RainNet_, Hmax);
+            // new roof storage
 
             double housedrain = std::max(0.0, (RainNet_ - (HS - HStor->Drc)));
             // overflow in m3/m2 of house
@@ -117,29 +120,29 @@ void TWorld::cell_Interception(int r, int c)
             HStor->Drc = HS;
             // put new storage back in maps in m
 
-            double roofsurface = (_dx * DX->Drc * CvH); // m2
+            double roofsurface = CHAdjDX->Drc * CvH; // m2
             // user should assure housecover is correct with respect to channel and roads
             IntercHouse->Drc =  roofsurface * HS;
             // total interception in m3,exclude roads, channels
 
-            RainNet_ = CvH *housedrain + (1-CvH)*RainNet_;
+            RainNet_ = CvH*housedrain + (1-CvH)*RainNet_;
             // net rainfall is direct rainfall + drainage
             // rainfall that falls on the soil, used in infiltration
 
             // filling raindrums with surplus drainage from roofs
             // drum is recalculated to m based on roof surface
             double DS = 0;
-            if (SwitchRaindrum && DrumStore->Drc > 0)
+            if (SwitchRaindrum && DrumStore->Drc > 0 && roofsurface > 0)
             {
                 double Dmax = DrumStore->Drc/roofsurface;
-                //max drum storage in m as if roof storage is more
+                //max drum storage in m
 
                 DS = DStor->Drc;
                 //actual drum storage in m
 
                 DS = std::min(DS + RainNet_, Dmax);
                 // fill tank to max
-                double drumdrain = std::max(0.0, HouseCover->Drc * (RainNet_ - (DS - DStor->Drc)));
+                double drumdrain = std::max(0.0, RainNet_ - (DS - DStor->Drc));
 
                 DStor->Drc = DS;
                 // put new drum storage back in maps in m3
@@ -147,7 +150,7 @@ void TWorld::cell_Interception(int r, int c)
                 IntercHouse->Drc += roofsurface * DS;
                 // total interception in m3,exclude roads, channels
 
-                RainNet_ = drumdrain + (1-CvH)*RainNet_;
+                RainNet_ = CvH*drumdrain + (1-CvH)*RainNet_;
             }
         }
     }

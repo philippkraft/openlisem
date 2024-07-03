@@ -186,22 +186,22 @@ void lisemqt::ParseInputData()
         // GENERAL
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
         if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
-        if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
+     //   if (p1.compare("Include channel baseflow")==0)       checkChannelBaseflow->setChecked(check);
         if (p1.compare("Include stationary baseflow")==0)       checkStationaryBaseflow->setChecked(check);
       //  if (p1.compare("Adjust channel crosssection")==0)     checkChannelAdjustCHW->setChecked(check);
+        if (p1.compare("Include GW flow")==0)               checkGWflow->setChecked(check);
         if (p1.compare("GW flow explicit")==0)              checkGWflowexplicit->setChecked(check);
+        if (p1.compare("GW flow LDD")==0)                   checkGWflowLDD->setChecked(check);
         if (p1.compare("GW flow SWAT")==0)                  checkGWflowSWAT->setChecked(check);
         if (p1.compare("GW recharge factor")==0)            GW_recharge->setValue(valc);
         if (p1.compare("GW flow factor")==0)                GW_flow->setValue(valc);
-        if (p1.compare("GW river inflow factor")==0)           GW_inflow->setValue(valc);
+       // if (p1.compare("GW river inflow factor")==0)           GW_inflow->setValue(valc);
         if (p1.compare("GW slope factor")==0)               GW_slope->setValue(valc);
-      //  if (p1.compare("GW lag factor")==0)               GW_lag->setValue(valc);
         if (p1.compare("GW deep percolation")==0)           GW_deep->setValue(valc);
         if (p1.compare("GW threshold factor")==0)           GW_threshold->setValue(valc);
-        if (p1.compare("GW initial level")==0)              GW_initlevel->setValue(valc);
 
         if (p1.compare("Include channel culverts")==0)      checkChannelCulverts->setChecked(check);
-        if (p1.compare("Include channel inflow")==0)        checkChannelInflow->setChecked(check);
+        if (p1.compare("Include channel inflow")==0)        checkDischargeUser->setChecked(check);
         if (p1.compare("Include Erosion simulation")==0)    checkDoErosion->setChecked(check);
         if (p1.compare("Include road system")==0)           checkRoadsystem->setChecked(check);
         if (p1.compare("Include storm drains")==0)          checkStormDrains->setChecked(check);
@@ -253,17 +253,10 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
         if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
         if (p1.compare("Two layer")==0)                      checkInfil2layer->setChecked(check);
+        if (p1.compare("Psi user input")==0)                      checkPsiUser->setChecked(check);
         if (p1.compare("Geometric mean Ksat")==0)            checkGeometric->setChecked(check);
         //	  if (p1.compare("Matric head files")==0)              checkDumphead->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)           E_SedTrapN->setValue(valc);
-
-        //VJ 111120 water repellency
-//        if (p1.compare("Use Water Repellency")==0)      checkWaterRepellency->setChecked(check);
-//        if (p1.compare("Water Repellency A")==0)        E_waterRep_a->setValue(valc);
-//        if (p1.compare("Water Repellency B")==0)        E_waterRep_b->setValue(valc);
-//        if (p1.compare("Water Repellency C")==0)        E_waterRep_c->setValue(valc);
-//        if (p1.compare("Water Repellency D")==0)        E_waterRep_d->setValue(valc);
-
 
         // FLOW
         if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
@@ -386,20 +379,19 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
-        if (p1.compare("Flooding mixing coefficient")==0)    E_mixingFactor->setValue(valc);
-        if (p1.compare("Flooding runoff partitioning")==0)   E_runoffPartitioning->setValue(valc);
         if (p1.compare("Flood max iterations")==0)           E_FloodMaxIter->setValue(iii);
         if (p1.compare("Min WH flow")==0)                    E_minWHflow->setText(p);
-        if (p1.compare("Use gravity flow")==0)               checkGravityToChannel->setChecked(check);
-     //   if (p1.compare("Angle flow to channel")==0)          E_angleToChannel->setValue(valc);
-       // if (p1.compare("Use fixed angle")==0)                checkFixedAngle->setChecked(check);
         if (p1.compare("Use Channel Kinwave dt")==0)         checkKinWaveChannel->setChecked(check);
         if (p1.compare("Channel KinWave dt")==0)             E_ChannelKinWaveDt->setValue(valc);
         if (p1.compare("Use Channel Max V")==0)         checkChanMaxVelocity->setChecked(check);
         if (p1.compare("Channel Max V")==0)             E_chanMaxVelocity->setValue(valc);
+        if (p1.compare("Channel 2D flow connect")==0)        checkChannel2DflowConnect->setChecked(check);
+        if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
+//        if (p1.compare("GW layer change SD")==0)        checkGWChangeSD->setChecked(check);
 
         //CALIBRATION
         if (p1.compare("Smax calibration")==0)         E_CalibrateSmax->setValue(valc);
+        if (p1.compare("RR calibration")==0)         E_CalibrateRR->setValue(valc);
         if (p1.compare("Ksat calibration")==0)         E_CalibrateKsat->setValue(valc);
         if (p1.compare("Ksat2 calibration")==0)         E_CalibrateKsat2->setValue(valc);
         if (p1.compare("Grain Size calibration D50")==0)   E_CalibrateD50->setValue(valc);
@@ -407,6 +399,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("N calibration")==0)            E_CalibrateN->setValue(valc);
         if (p1.compare("Theta calibration")==0)        E_CalibrateTheta->setValue(valc);
         if (p1.compare("Psi calibration")==0)          E_CalibratePsi->setValue(valc);
+        if (p1.compare("SoilDepth1 calibration")==0)          E_CalibrateSD1->setValue(valc);
+        if (p1.compare("SoilDepth2 calibration")==0)          E_CalibrateSD2->setValue(valc);
         if (p1.compare("Channel Ksat calibration")==0) E_CalibrateChKsat->setValue(valc);
         if (p1.compare("Channel N calibration")==0)    E_CalibrateChN->setValue(valc);
         if (p1.compare("Channel tortuosity")==0)    E_CalibrateChTor->setValue(valc);
@@ -448,9 +442,13 @@ void lisemqt::ParseInputData()
     radioRainFile->setChecked(!Rainmaps);
     radioRainSatFile->setChecked(Rainmaps);
 
+    checkChannelBaseflow->setChecked(checkGWflow->isChecked() || checkStationaryBaseflow->isChecked());
     groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
+    GW_widget->setEnabled(checkGWflow->isChecked());
+    widget_GWparams->setEnabled(checkGWflow->isChecked());
 
     on_checkIncludeET_toggled(checkIncludeET->isChecked());
+    on_checkDischargeUser_toggled(checkDischargeUser->isChecked());
 
     if (checkSedtrap->isChecked())
         on_checkSedtrap_clicked();
@@ -460,10 +458,10 @@ void lisemqt::ParseInputData()
     E_SigmaDiffusion->setEnabled(checkDiffusion->isChecked());
 
     checkOverlandFlow1D->setChecked(dummykinwave == 1);
-    checkOverlandFlow2Ddyn->setChecked(dummykinwave == 3);
-    checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 4);
+    checkOverlandFlow2Dkindyn->setChecked(dummykinwave == 3);
+    checkOverlandFlow2Ddyn->setChecked(dummykinwave == 2);
     setFloodTab(true);//dummykinwave > 1);
-    setErosionTab();
+    setErosionTab(false);
 
     // first guess
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
@@ -534,31 +532,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p);
         if (p1.compare("ET maplist name")==0) ETSatFileName = p;
 
-        if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
-        if (p1.compare("Snowmelt file")==0) SnowmeltFileName = p;
+        //if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
+        //if (p1.compare("Snowmelt file")==0) SnowmeltFileName = p;
 
-//        if (p1.compare("Snowmelt Map Directory")==0) SnowmeltSatFileDir = CheckDir(p);
-//        if (p1.compare("Snowmelt maplist name")==0) {
-//            SnowmeltSatFileName = p;
-//            E_SnowmeltSatName->setText(SnowmeltSatFileDir + SnowmeltSatFileName);
-//            if (!QFileInfo(E_SnowmeltSatName->text()).exists())
-//            {
-//                SnowmeltSatFileDir = QString(E_WorkDir + "rain/");
-//                E_SnowmeltSatName->setText(SnowmeltSatFileDir + p);
-//            }
-//        }
-
-//        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
-//        if (p1.compare("Discharge inflow file")==0)
-//        {
-//            E_DischargeInName->setText(DischargeinDir + p);
-//            DischargeinFileName = p;
-//            if (!QFileInfo(E_DischargeInName->text()).exists())
-//            {
-//                DischargeinDir = QString(E_WorkDir + "rain/");
-//                E_DischargeInName->setText(DischargeinDir + p);
-//            }
-//        }
+        if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
+        if (p1.compare("Discharge inflow file")==0) DischargeinFileName = p;
 
         if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
         if (p1.compare("satImage file")==0) satImageFileName = p;
@@ -631,6 +609,15 @@ void lisemqt::ParseInputData()
         {
             ETSatFileDir = QString(E_WorkDir + "rain/");
             E_ETsatName->setText(ETSatFileDir + ETSatFileName);
+        }
+    }
+
+    if (checkDischargeUser->isChecked()) {
+        E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
+        if (!QFileInfo(E_DischargeInName->text()).exists() && !E_DischargeInName->text().isEmpty())
+        {
+            DischargeinDir = QString(E_WorkDir + "rain/");
+            E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
         }
     }
 
@@ -800,23 +787,22 @@ void lisemqt::updateModelData()
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
-        if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
+     //   if (p1.compare("Include channel baseflow")==0)       namelist[j].value.setNum((int)checkChannelBaseflow->isChecked());
         if (p1.compare("Include stationary baseflow")==0)    namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
       //  if (p1.compare("Adjust channel crosssection")==0)    namelist[j].value.setNum((int)checkChannelAdjustCHW->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
-        if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkChannelInflow->isChecked());
+        if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
         // groundwater
+        if (p1.compare("Include GW flow")==0)               namelist[j].value.setNum((int)checkGWflow->isChecked());
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
-        if (p1.compare("GW flow SWAT")==0)               namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
+        if (p1.compare("GW flow LDD")==0)                    namelist[j].value.setNum((int)checkGWflowLDD->isChecked());
+        if (p1.compare("GW flow SWAT")==0)                    namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
         if (p1.compare("GW flow factor")==0)                 namelist[j].value = GW_flow->text();
-        if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_inflow->text();
+      //  if (p1.compare("GW river inflow factor")==0)                 namelist[j].value = GW_inflow->text();
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
-   //     if (p1.compare("GW lag factor")==0)                  namelist[j].value = GW_lag->text();
         if (p1.compare("GW deep percolation")==0)            namelist[j].value = GW_deep->text();
         if (p1.compare("GW threshold factor")==0)            namelist[j].value = GW_threshold->text();
-   //     if (p1.compare("GW initial level")==0)               namelist[j].value = GW_initlevel->text();
-
         if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
         if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
@@ -827,8 +813,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Routing Kin Wave 2D")==0)
         {
             if (checkOverlandFlow1D->isChecked())  namelist[j].value = "1";
-            if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "3";
-            if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "4";
+            if (checkOverlandFlow2Dkindyn->isChecked())  namelist[j].value = "3";
+            if (checkOverlandFlow2Ddyn->isChecked())  namelist[j].value = "2";
         }
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         // PK@JLU Added Manning function type
@@ -836,24 +822,22 @@ void lisemqt::updateModelData()
         if (p1.compare("Manning Roughness function P1")==0)     namelist[j].value = E_ManningFunctionParam1->text();
         if (p1.compare("Manning Roughness function P2")==0)     namelist[j].value = E_ManningFunctionParam2->text();
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Use gravity flow")==0)               namelist[j].value.setNum((int)checkGravityToChannel->isChecked());
-      //  if (p1.compare("Angle flow to channel")==0)          namelist[j].value = E_angleToChannel->text();
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Include River diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
-        if (p1.compare("Flooding mixing coefficient")==0)    namelist[j].value = E_mixingFactor->text();
-        if (p1.compare("Flooding runoff partitioning")==0)   namelist[j].value = E_runoffPartitioning->text();
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
         if (p1.compare("Pit Value")==0)                      namelist[j].value = E_pitValue->text();
-   //     if (p1.compare("Calculate erosion inside 2D loop")==0) namelist[j].value.setNum((int)checkErosionInsideLoop->isChecked());
         if (p1.compare("Use linked list")==0)                namelist[j].value.setNum((int)checkLinkedList->isChecked());
         if (p1.compare("Use Channel Kinwave dt")==0)         namelist[j].value.setNum((int)checkKinWaveChannel->isChecked());
         if (p1.compare("Channel KinWave dt")==0)             namelist[j].value = E_ChannelKinWaveDt->text();
         if (p1.compare("Use Channel Max V")==0)              namelist[j].value.setNum((int)checkChanMaxVelocity->isChecked());
         if (p1.compare("Channel Max V")==0)                  namelist[j].value = E_chanMaxVelocity->text();
+        if (p1.compare("Channel 2D flow connect")==0)        namelist[j].value.setNum((int)checkChannel2DflowConnect->isChecked());
+        if (p1.compare("Channel WF inflow")==0)              namelist[j].value.setNum((int)checkChannelWFinflow->isChecked());
+//        if (p1.compare("GW layer change SD")==0)             namelist[j].value.setNum((int)checkGWChangeSD->isChecked());
 
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
         if (p1.compare("Min WH flow")==0)                    namelist[j].value = E_minWHflow->text();
@@ -924,6 +908,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
         if (p1.compare("Two layer")==0)                     namelist[j].value.setNum((int)checkInfil2layer->isChecked());
+        if (p1.compare("Psi user input")==0)                     namelist[j].value.setNum((int)checkPsiUser->isChecked());
         //if (p1.compare("Matric head files")==0)              namelist[j].value.setNum((int)checkDumphead->isChecked());
         if (p1.compare("Geometric mean Ksat")==0)            namelist[j].value.setNum((int)checkGeometric->isChecked());
         if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
@@ -998,6 +983,10 @@ void lisemqt::updateModelData()
         if (p1.compare("ET Bias Correction")==0) namelist[j].value = E_biasCorrectionET->text();
         if (p1.compare("Rainfall ET threshold")==0) namelist[j].value = E_rainfallETA_threshold->text();
 
+        if (p1.compare("Discharge inflow directory")==0) namelist[j].value=DischargeinDir;
+        if (p1.compare("Discharge inflow file")==0) namelist[j].value=DischargeinFileName;
+
+
       //  if (p1.compare("Snowmelt Directory")==0) namelist[j].value = SnowmeltFileDir;
       //  if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;
 
@@ -1030,19 +1019,23 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel detachment map")==0) namelist[j].value = E_ChanDetachmentMap->text();
         if (p1.compare("Channel deposition map")==0) namelist[j].value = E_ChanDepositionMap->text();
 
-        if (p1.compare("Grain Size calibration D50")==0)   namelist[j].value = E_CalibrateD50->text();
-        if (p1.compare("Grain Size calibration D90")==0)   namelist[j].value = E_CalibrateD90->text();
         if (p1.compare("Smax calibration")==0) namelist[j].value = E_CalibrateSmax->text();
+        if (p1.compare("RR calibration")==0) namelist[j].value = E_CalibrateRR->text();
         if (p1.compare("Ksat calibration")==0) namelist[j].value = E_CalibrateKsat->text();
         if (p1.compare("Ksat2 calibration")==0) namelist[j].value = E_CalibrateKsat2->text();
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
         if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();
+        if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
+        if (p1.compare("SoilDepth1 calibration")==0) namelist[j].value = E_CalibrateSD1->text();
+        if (p1.compare("SoilDepth2 calibration")==0) namelist[j].value = E_CalibrateSD2->text();
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
         if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
         if (p1.compare("Channel tortuosity")==0) namelist[j].value = E_CalibrateChTor->text();
         if (p1.compare("Cohesion calibration")==0) namelist[j].value = E_CalibrateCOH->text();
         if (p1.compare("Cohesion Channel calibration")==0) namelist[j].value = E_CalibrateCHCOH->text();
+        if (p1.compare("Grain Size calibration D50")==0)   namelist[j].value = E_CalibrateD50->text();
+        if (p1.compare("Grain Size calibration D90")==0)   namelist[j].value = E_CalibrateD90->text();
         if (p1.compare("Ucr Channel calibration")==0) namelist[j].value = E_CalibrateCHUcr->text();
         if (p1.compare("SV calibration")==0) namelist[j].value = E_CalibrateCHSV->text();
         if (p1.compare("Aggregate stability calibration")==0) namelist[j].value = E_CalibrateAS->text();
@@ -1136,17 +1129,36 @@ void lisemqt::updateModelData()
     currentDir = E_WorkDir;
     QDir::setCurrent(currentDir);
 
+
     if (saveRunFileOnce) {
         savefile(op.runfilename);
         saveRunFileOnce = false;
+//        QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
+//            QString("obsolete options are removed and missing options use default values. ") +
+//            QString("The new run files has your choices where applicable."));
+
         // PK@JLU 2023-10-27: Do not open window if Console mode
         if (QProcessEnvironment::systemEnvironment().contains("LISEM_CONSOLE")) {
             std::cout << "The run file has changed" << "\n";
         } else {
-            QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
-                                                  QString("obsolete options are removed and missing options use default values. ") +
-                                                  QString("The new run files has your choices where applicable."));
 
+            QMessageBox msg;
+            msg.setText("The run file has changed: \nobsolete options are removed and missing options use default values. \nThe new run files has your choices where applicable.");
+
+            int cnt = 5;
+
+            QTimer cntDown;
+            QObject::connect(&cntDown, &QTimer::timeout, [&msg,&cnt, &cntDown]()->void{
+                if(--cnt < 0){
+                    cntDown.stop();
+                    msg.close();
+                }
+    //            else {
+    //                msg.setText(QString("This closes in %1 seconds").arg(cnt));
+    //            }
+            });
+            cntDown.start(500);
+            msg.exec();
         }
     }
 
