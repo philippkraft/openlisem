@@ -70,7 +70,7 @@ ENDIF()
 #============ sourcecode files ===============
 
 SET(APP_SOURCES
-    fixesandbugs.txt
+    fixesandbugs.txt    
     main.cpp
     CsfMap.cpp
     CsfRGBMap.cpp
@@ -95,6 +95,7 @@ SET(APP_SOURCES
     swatre/lutio.cpp
     swatre/lookup.cpp
     swatre/swatinp.cpp    
+    lisBoundary.cpp
     lisChannelErosion.cpp
     lisChannelflood.cpp
     lisChannelflow.cpp
@@ -238,4 +239,3 @@ add_executable(Lisem WIN32
 )
 
 target_link_libraries(Lisem Qt5::Widgets Qt5::Gui Qt5::Core ${GDAL_LIBRARIES} ${QWT_LIBRARIES} OpenMP::OpenMP_CXX)
-

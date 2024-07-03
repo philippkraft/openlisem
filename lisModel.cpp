@@ -68,25 +68,10 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream eout(&efout);
-        eout << "#water mass balance error (%)\n";
-        eout << "2\n";
-        eout << "run step\n";
-        eout << "error\n";
-        //  eout << "runtime\n";
+        eout << "#mass balance error (%)\n";
+
         efout.flush();
         efout.close();
-
-        if (SwitchErosion) {
-            QFile esfout(resultDir+errorSedFileName);
-            esfout.open(QIODevice::WriteOnly | QIODevice::Text);
-            QTextStream esout(&esfout);
-            esout << "#sediment mass balance error (%)\n";
-            esout << "2\n";
-            esout << "run step\n";
-            esout << "MBs error\n";
-            esfout.flush();
-            esfout.close();
-        }
     }
 
 
@@ -94,18 +79,9 @@ void TWorld::saveMBerror2file(bool doError, bool start)
         QFile efout(resultDir+errorFileName);
         efout.open(QIODevice::Append | QIODevice::Text);
         QTextStream eout(&efout);
-        eout << " " << runstep << " " << MB << /*" " << op.t <<*/ "\n";
+        eout << " " << runstep << "," << MB << "," << (SwitchErosion ? MBs : 0.0) << "\n";
         efout.flush();
         efout.close();
-
-        if (SwitchErosion) {
-            QFile esfout(resultDir+errorSedFileName);
-            esfout.open(QIODevice::Append | QIODevice::Text);
-            QTextStream esout(&esfout);
-            esout << " " << runstep << " " << MBs <<  "\n";
-            esfout.flush();
-            esfout.close();
-        }
     }
 
 }
@@ -121,8 +97,8 @@ void TWorld::DoModel()
 
     mapFormat = "PCRaster";
 
-    errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".txt");
-    errorSedFileName = QString(resultDir + "errorsed-"+ op.timeStartRun +".txt");
+    errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".csv");
+    //errorSedFileName = QString(resultDir + "errorsed-"+ op.timeStartRun +".txt");
     time_ms.start();
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
@@ -141,6 +117,10 @@ void TWorld::DoModel()
         DEBUG("Parse Runfile");
         ParseRunfileData();
         // get and parse runfile
+
+
+        QString S = resultDir + QFileInfo(op.runfilename).fileName();
+        QFile::copy(op.runfilename, S);
 
         //BeginTime = getTimefromString(bt)*60; // in seconds!
         //EndTime = getTimefromString(et)*60;
@@ -182,7 +162,7 @@ void TWorld::DoModel()
             RainfallSeries.clear();
             RainfallSeriesMaps.clear();
             calibRainfallinFile = false;
-           // qDebug() << rainSatFileName << rainFileName;
+
             DEBUG("Get Rainfall Data Information");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
@@ -191,8 +171,7 @@ void TWorld::DoModel()
                     rainplace++;
                 if (rainplace > 0) rainplace--;
             }
-            else
-            {
+            else {
                 GetRainfallData(rainFileName);
                 rainplace = 0;
                 while (BeginTime/60 >= RainfallSeries[rainplace].time && rainplace < nrRainfallseries)
@@ -243,10 +222,10 @@ void TWorld::DoModel()
             }
         }
 
-        if (SwitchChannelInflow)
+        if (SwitchDischargeUser)
         {
             DEBUG("GetDischargeData()");
-            GetDischargeData(dischargeinFileName);
+            GetDischargeDataNew(dischargeinFileName);
         }
 
         // get all input data and create and initialize all maps and variables
@@ -258,9 +237,9 @@ void TWorld::DoModel()
         printstep = 1; // printstep determines report frquency
 
       //  DEBUG("setupHydrographData()");
-        setupHydrographData();
+        setupHydrographData(); // reset hydrograph display
 
-        bool saveMBerror = false;
+        bool saveMBerror = true;
         saveMBerror2file(saveMBerror, true);
 
       //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
@@ -269,7 +248,7 @@ void TWorld::DoModel()
 
         _dt_user = _dt;
 
-        DEBUG("Running...");
+        DEBUG(" ");
 
         GetComboMaps(); // moved to outside timeloop!
 
@@ -305,11 +284,11 @@ void TWorld::DoModel()
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // these are all non-threaded
-              ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
+            ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-              TileFlow();          // tile drain flow kin wave
+            TileFlow();          // tile drain flow kin wave
 
-              StormDrainFlow();    // storm drain flow kin wave
+            StormDrainFlow();    // storm drain flow kin wave
             // these are all non-threaded
 
             Totals();            // calculate all totals and cumulative values
@@ -325,7 +304,16 @@ void TWorld::DoModel()
             saveMBerror2file(saveMBerror, false);
 
             if(stopRequested)
-                time = EndTime;                       
+                time = EndTime;
+
+            // show progress in console without GUI
+            if (op.doBatchmode) {
+                int x;
+                x = std::round((op.t / op.maxtime) * 100) ;
+                printf("\rprogress: %d %%                     ", x);
+                //fflush(stdout);
+            }
+             // MC - maybe not the most sophisticated solution but noInterface works again
         }
 
         if (SwitchEndRun)
@@ -336,6 +324,13 @@ void TWorld::DoModel()
         DestroyData();  // destroy all maps automatically
         op.nrMapsCreated = maplistnr;
         emit done("finished");
+
+        if (op.doBatchmode)
+        {
+            qDebug() << "\nfinished after "<< op.maxtime << "minutes\n";
+            QApplication::quit();
+            // close the world model
+        }
     }
     catch(...)  // if an error occurred
     {
@@ -343,6 +338,9 @@ void TWorld::DoModel()
         DestroyData();
 
         emit done("ERROR STOP: "+ErrorString);
+        if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
+            QApplication::quit();
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -361,6 +359,10 @@ void TWorld::GetInputTimeseries()
             GetETMap();   // get rainfall from stations
     }
 
+    if (SwitchDischargeUser) {
+        GetDischargeMapfromStations();
+    }
+
 //    if (SwitchSnowmelt) {
 //        if (SwitchSnowmeltSatellite)
 //            ; //TODO snowmelt satellite
@@ -373,6 +375,8 @@ void TWorld::GetInputTimeseries()
 // all hydrologuical processes in one big parallel loop for speed
 void TWorld::HydrologyProcesses()
 {
+    double soiltot1 = SoilWaterMass();
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         cell_Interception(r,c);
@@ -380,9 +384,9 @@ void TWorld::HydrologyProcesses()
         // result is rainnet (and leafdrip for erosion)
 
         if (FloodDomain->Drc > 0) {            
-            hmx->Drc += RainNet->Drc + Snowmeltc->Drc;
+            hmx->Drc += RainNet->Drc + Snowmeltc->Drc; // only used in kin wave pluf flood from channel, hmx is flood water
         } else {
-            WH->Drc += RainNet->Drc + Snowmeltc->Drc;
+            WH->Drc += RainNet->Drc + Snowmeltc->Drc;  // used in 2D flow and kin wave
         }
         // add net to water rainfall on soil surface (in m)
         // when kin wave and flooded hmx exists else always WH
@@ -396,18 +400,26 @@ void TWorld::HydrologyProcesses()
            cell_InfilSwatre(r, c);
         } else {
             if (InfilMethod != INFIL_NONE) {
-               cell_InfilMethods(r, c);
 
-               cell_Redistribution(r, c);
+                cell_InfilMethods(r, c);
 
-               if (!SwitchImpermeable)// && !SwitchChannelBaseflow)
-                   Perc->Drc = cell_Percolation(r, c, 1.0);
+                if (SwitchTwoLayer) {
+                    cell_Redistribution2(r, c);
+                    //cell_Channelinfow2(r, c);
+                } else {
+                    cell_Redistribution1(r, c);
+                    //cell_Channelinfow1(r, c);
+                }
+
+                if (!SwitchImpermeable)
+                    Perc->Drc = cell_Percolation(r, c, 1.0);
                 // if baseflow is active percollation is done there, so do not do it here
             }
         }
 
-        cell_depositInfil(r,c);
+        //  cell_depositInfil(r,c);
         // deposit all sediment still in flow when infiltration causes WH to become minimum
+        // gives huge MBs errors!
 
         cell_SurfaceStorage(r, c);
         //calc surf storage and total watervol and WHrunoff
@@ -426,6 +438,8 @@ void TWorld::HydrologyProcesses()
     // divided over 12 hours in a day with sine curve
 
     //MoistureContent();
+    double soiltot2 = SoilWaterMass();
+    SoilMoistDiff = soiltot2 - soiltot1;
 
 }
 //---------------------------------------------------------------------------

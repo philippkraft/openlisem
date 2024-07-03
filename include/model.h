@@ -54,6 +54,18 @@
 #define PI 3.14159265
 
 #define HMIN 1e-6
+#define DO_SEDDEP 0
+#define GRAV 9.8067
+
+
+#define Aavg(a,b)  (0.5*(a+b))
+#define Savg(a,b)  qSqrt(a*b)
+#define Havg(a,b)  (2.0/(1.0/a+1.0/b))
+
+#define Aavg(a,b)  (0.5*(a+b))
+#define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
+#define Savg(a,b)  sqrt(a * b)
+#define Mavg(a,b)  std::min(a,b)
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
@@ -145,7 +157,7 @@
 #define MIN_HEIGHT 1e-6 /// \def minimum water height (m) for transport of sediment
 #define MAXCONC 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
 #define MAXCONCBL 848.0    /// \def max concentration susp. sed. in kg/m3 0.32 * 2650 = max vol conc from experiments Govers x bulk density
-#define MIN_SLOPE 1e-6
+#define MIN_SLOPE 1e-3
 
 #define INFIL_NONE 0
 #define INFIL_SWATRE 1
@@ -166,22 +178,17 @@
 #define VANLEER 2
 
 #define FSGOVERS 0
+#define FSHAIRSINEROSE 1
+
 #define FSRIJN 1
 #define FSRIJNFULL 2
 #define FENGELUND 3
-
-#define FSHAIRSINEROSE 11
 #define FSWUWANGJIA 10
 //#define FSWUWANGJIABL 3
 
-#define RGOVERS 0
-#define RRIJN 1
-#define RRIJNFULL 2
-#define RWUWANGJIA 3
-
 #define K2D_METHOD_KIN   1
-#define K2D_METHOD_KINDYN  2
-#define K2D_METHOD_DYN   3
+#define K2D_METHOD_KINDYN  3
+#define K2D_METHOD_DYN   2
 
 
 //---------------------------------------------------------------------------
@@ -273,16 +280,17 @@ typedef struct RAIN_LIST {
     QVector <double> intensity;
 } RAIN_LIST;
 //---------------------------------------------------------------------------
-/// Structure to store rain station values of rainfile mapnames
+/// Structure to store meteo station values of rainfile mapnames
 typedef struct METEO_LIST {
     double time;
     QString name;
     double calib;
 } METEO_LIST;
 //---------------------------------------------------------------------------
-/// Structure to store rain station values of rainfile mapnames
+/// Structure to store discharge station values of rainfile mapnames
 typedef struct Q_LIST {
     double time;
+    QList <int> stationnr;
     QVector <double> Qin;
 } Q_LIST;
 //---------------------------------------------------------------------------
@@ -347,6 +355,7 @@ public:
   //  QVector <IDI_POINT> IDIpoints;
     QVector <IDI_POINT> IDIpointsRC;
     QList <int> stationID;
+    QList <int> stationQID;
     QVector <double> IDIpointsV;
 
     /// map management structure, automatic adding and deleting of all cTMap variables
@@ -367,19 +376,20 @@ public:
  int SwitchFlood1D2DCoupling;SwitchPercolation, SwitchInfilGA2, SwitchCompactPresent, SwitchNutrients, SwitchPestout, SwitchDrainage,
 */
 
-    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow,SwitchChannelInflow, SwitchChannelAdjustCHW,
+    bool SwitchRoadsystem, SwitchHardsurface, SwitchIncludeChannel, SwitchChannelBaseflow, SwitchChannelAdjustCHW,
     SwitchChannelBaseflowStationary, SwitchRainfallSatellite, SwitchIncludeET, SwitchETSatellite, SwitchSnowmelt, SwitchSnowmeltSatellite,
     SwitchRainfall, SwitchEventbased, SwitchIDinterpolation, SwitchDailyET, SwitchChannelInfil,  SwitchErosion, SwitchLinkedList, SwitchSedtrap, SwitchInfilCompact,
-    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead, SwitchWaterRepellency,
+    SwitchInfilCrust, SwitchGrassStrip, SwitchImpermeable, SwitchDumphead,SwitchWaterRepellency,
     SwitchMulticlass,  SwitchOutputTimeStep, SwitchOutputTimeUser, SwitchWriteCommaDelimited, SwitchWritePCRtimeplot,
-    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,  SwitchChannelKinWave,
-    SwitchPCRoutput, SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
+    SwitchSeparateOutput, SwitchEndRun, SwitchInterceptionLAI, SwitchTwoLayer,SwitchThreeLayer,   SwitchChannelKinWave, SwitchPsiUser,
+    SwitchWriteHeaders, SwitchGeometric, SwitchIncludeTile, SwitchIncludeStormDrains, SwitchKETimebased,
     SwitchHouses, SwitchRaindrum, SwitchLitter, Switchheaderpest, SwitchPesticide, SwitchAddBuildingsDEM,
     SwitchTimeavgV, SwitchCorrectDEM, Switch2DDiagonalFlow, Switch2DDiagonalFlowNew, SwitchSWOFopen, SwitchMUSCL,  SwitchFloodInitial, SwitchFlowBarriers, SwitchBuffers,
     SwitchCulverts, SwitchUserCores, SwitchVariableTimestep,  SwitchHeun,  SwitchImage, SwitchResultDatetime,SwitchOutputTimestamp,
     SwitchChannelKinwaveDt, SwitchChannelKinwaveAvg,SwitchSWOFWatersheds,SwitchGravityToChannel,
     SwitchDumpH,SwitchDumpTheta,SwitchDumpK, SwitchIncludeDiffusion, SwitchIncludeRiverDiffusion, SwitchAdvancedOptions, SwitchFixedAngle,
-    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchExplicitGWflow,SwitchSWATGWflow;
+    SwitchSlopeStability, SwitchdoRrainAverage, SwitchUseIDmap,SwitchChannelMaxV, SwitchGWflow, SwitchGW2Dflow,SwitchLDDGWflow,SwitchSWATGWflow,
+    SwitchChannel2DflowConnect, SwitchChannelWFinflow, SwitchGWChangeSD, SwitchDischargeUser;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
@@ -433,11 +443,11 @@ public:
     double ETBiasCorrection;
     double SoilETMBcorrection;
 
+    //Groundwater flow parameters
     double GW_recharge;
     double GW_flow;
-    double GW_inflow;
+    //double GW_inflow;
     double GW_slope;
-    double GW_lag;
     double GW_deep;
     double GW_threshold;
     double GW_initlevel;
@@ -445,18 +455,18 @@ public:
     double rainfallETa_threshold;
     double rainIDIfactor;
 
-    double totetafac;
-
-    /// calibration parameters
+    // calibration parameters
     double gsizeCalibrationD50;
     double gsizeCalibrationD90;
     double SmaxCalibration;
+    double RRCalibration;
     double ksatCalibration;
-    double ksatCalibration2;
     double ksat2Calibration;
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
+    double SD1Calibration;
+    double SD2Calibration;
     double ChnCalibration;
     double ChnTortuosity;
     double ChKsatCalibration;
@@ -480,15 +490,15 @@ public:
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
-    double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowTotmm, Qfloodout,QfloodoutTot;
+    double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowInitmm, BaseFlowTotmm, PeakFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
-    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot;
+    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot, SoilMoistTot, SoilMoistDiff, SoilMoistTotmm, QSideVolTot;
     /// Sediment totals for mass balance and output (in kg)
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
     /// Water totals for output in file and UI (in mm), copied to 'op' structure
-    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, FloodBoundarymm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, WaterVolRunoffmm_F;
+    double RainTotmm, SnowTotmm, IntercTotmm, IntercETaTotmm, WaterVolTotmm, WaterVolRunoffmm, Qboundtotmm, InfilTotmm, Qtotmm, RainAvgmm, SnowAvgmm, GWdeeptot;
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
@@ -497,7 +507,7 @@ public:
     double ETstartTime;
     double BulkDens;
     double nrCells, CatchmentArea, nrFloodedCells;
-    double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel;
+    double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel, GWleveltot;
     double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
 
     double maxRainaxis;
@@ -529,12 +539,14 @@ public:
     int currentRainfallrow;
     int currentETrow;
     int currentSnowmeltrow;
+    int currentDischargerow;
     int rainplace;
     int ETplace;
     int snowmeltplace;
     QVector <RAIN_LIST> RainfallSeries;  // rainfall vector of records
     QVector <RAIN_LIST> ETSeries;
     QVector <RAIN_LIST> SnowmeltSeries;
+    QVector <Q_LIST> DischargeSeries;
     QVector <METEO_LIST> RainfallSeriesMaps;  // rainfall vector of records
     bool calibRainfallinFile;
     QVector <METEO_LIST> ETSeriesMaps;  // rainfall vector of records
@@ -698,15 +710,13 @@ public:
     void maincalcschemeOF(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
     void dynOutflowPoints(void);
     void OverlandFlow2Ddyn(void);
-    void SolveDeepWH(void);
+    void updateWHandHmx(void);
     void Boundary2Ddyn();
     void MUSCLOF(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void setZeroOF(cTMap *_h, cTMap *_u, cTMap *_v);
     void simpleSchemeOF(cTMap *_h,cTMap *_u,cTMap *_v);
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
-
-    void infilInWave(cTMap *_h, double dt1);
 
     void MUSCL(cTMap *_h, cTMap *_u, cTMap *_v, cTMap *_z);
     void maincalcscheme(double dt, cTMap *he, cTMap *ve1, cTMap *ve2,cTMap *hes, cTMap *ves1, cTMap *ves2);
@@ -819,7 +829,7 @@ public:
     double GetTotalDW(int r, int c,QList<cTMap *> *M);
     double GetSV(double d);
     void SplashDetachment();
-    double MaxConcentration(double watvol, double *sedvol, double *dep);
+    double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachmentNew();
 
 
@@ -851,6 +861,8 @@ public:
     //input timeseries
     void GetInputTimeseries();
     void GetDischargeData(QString name);
+    void GetDischargeDataNew(QString name);
+    void GetDischargeMapfromStations();
     void GetRainfallData(QString name);   // get input timeseries
     void GetSpatialMeteoData(QString name, int type);   // get input timeseries
     void GetETData(QString name);   // get input timeseries
@@ -880,25 +892,31 @@ public:
 
     void cell_Interception(int r, int c);
     double cell_Percolation(int r, int c, double factor);
-    double cell_Percolation1(int r, int c, double factor);
-    void cell_SlopeStability(int r, int c);
-    void cell_Redistribution(int r, int c);
+    double cell_PercolationMulti(int r, int c, double factor);
+    void cell_Redistribution0(int r, int c);
+    void cell_Redistribution1(int r, int c);
+    void cell_Redistribution2(int r, int c);
+   // void cell_Redistribution2psi(int r, int c);
+    void cell_Channelinfow1(int r, int c);
+    void cell_Channelinfow2(int r, int c);
+
+    double SoilWaterMass();
+
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
     void cell_InfilSwatre(int r, int c);
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
-    void MoistureContent();
+
+    void cell_SlopeStability(int r, int c);
 
     void InfilEffectiveKsat(bool first);
     void Infiltration();
     void InfilSwatre();
-
-    double IncreaseInfiltrationDepthNew(double fact_, int r, int c);
-
-    double IncreaseInfiltrationDepthNew0(double fact_, int r, int c);
-    //OBSOLETE CONTAINS ERRORS
+    double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
 
     void SoilWater();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
@@ -918,11 +936,13 @@ public:
     void ChannelRainandInfil();
     void ChannelSedimentFlow();
     void ChannelFlowandErosion();
+    void ChannelVelocityandDischarge();
 
     void GroundwaterRecharge();
     void GroundwaterFlow();
-    void GWFlow2D();
-    void GWFlowLDD();
+    void GWFlow2D(double factor);
+    void GWFlowSWAT();
+    void GWFlowLDDKsat();
 
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
@@ -963,7 +983,7 @@ public:
     void FloodMaxandTiming();
     void ChannelFloodStatistics(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
-    void ChannelOverflowNew(cTMap *_h, cTMap *_V, bool doOF);
+    void ChannelOverflowIteration(cTMap *_h, cTMap *_V);
 
     double courant_factor;
     double courant_factorSed;
@@ -1041,12 +1061,17 @@ public:
                          double drainfraction, double *repel, double *Theta, SOIL_MODEL *s);
 
 
+    void Fill(cTMap &M, double value);
     double MapTotal(cTMap &M);
+    void Average3x3(cTMap &M, cTMap &mask, bool only);
+    void Average2x2(cTMap &M, cTMap &mask);
     void Totals(void);
     void MassBalance(void);
     void OutputUI(void);
     void reportAll(void);
     void ReportTimeseriesNew(void);
+    void ReportTimeseriesPCR(void);
+    void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
 
     void ReportMaps(void);

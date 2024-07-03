@@ -159,8 +159,8 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     if (type == 2)
         nrSnowmeltseries = nrSeries;
 }
-
 //---------------------------------------------------------------------------
+// get station data for ID interpolation or tiesen polyhon map
 void TWorld::GetRainfallData(QString name)
 {
     RAIN_LIST rl;
@@ -172,7 +172,6 @@ void TWorld::GetRainfallData(QString name)
     bool ok;
     int nrStations = 0;
     int nrSeries = 0;
-    int skiprows = 0;
     double time = 0.0;
     bool oldformat = true;
 
@@ -191,8 +190,11 @@ void TWorld::GetRainfallData(QString name)
     while (!fff.atEnd())
     {
         S = fff.readLine();
+        if (S.contains("\r\n"))
+            S.remove(S.count()-2,2);
         if (S.contains("\n"))
             S.remove(S.count()-1,1);
+
         if (!S.trimmed().isEmpty())
             rainRecs << S.trimmed();
     }
@@ -209,7 +211,6 @@ void TWorld::GetRainfallData(QString name)
     int count = rainRecs[1].toInt(&ok, 10); // nr of cols in file
     // header
     // second line is only an integer
-
     if (ok)
     {
         SL = rainRecs[count+2].split(QRegExp("\\s+"));
@@ -221,10 +222,8 @@ void TWorld::GetRainfallData(QString name)
 
         //if the number of columns equals the integer then new format
         nrStations = count-1;
-        // nr stations is count-1 for time as forst column
+        // nr stations is count-1 for time as first column
     }
-
-    skiprows = 3;
 
     // get station numbers from header, or fill in 1,2 ... n
     stationID.clear();
@@ -235,8 +234,8 @@ void TWorld::GetRainfallData(QString name)
             stationID << tmp;
         else
             stationID << i+1;
-    }  
 
+    }
    // qDebug() << "stations" << stationID;
 
     if (stationID.count() == 1) {
@@ -247,7 +246,6 @@ void TWorld::GetRainfallData(QString name)
     if (SwitchIDinterpolation) {
 
         IDIpointsRC.clear();
-
 
         if (SwitchUseIDmap) {
             // read points in the IDgauge.map and check if a corresponding number exists in the rainfall file
@@ -308,9 +306,7 @@ void TWorld::GetRainfallData(QString name)
         }
     }
 
-    nrSeries = rainRecs.size() - nrStations - skiprows;
-    // count rainfall or snowmelt records
-
+    nrSeries = rainRecs.size() - nrStations - 3;
     if (nrSeries <= 1)
     {
         ErrorString = "Rainfall records <= 1, must at least have one interval with 2 rows: a begin and end time.";
@@ -323,32 +319,34 @@ void TWorld::GetRainfallData(QString name)
         rl.time = 0;
         rl.intensity.clear();
         rl.stationnr.clear();
+        int r_ = r+nrStations+3;
 
         // split rainfall record row with whitespace
-        QStringList SL = rainRecs[r+nrStations+skiprows].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        QStringList SL = rainRecs[r_].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
 
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
-        if (r == 0)
-            time = rl.time;
+        time = rl.time;
 
-        if (r > 0 && rl.time <= time)
-        {
-            //qDebug() <<"e"<< r << time << rl.time;
-            ErrorString = QString("Rainfall records at time %1 has unreadable value.").arg(rl.time);
-            throw 1;
+        // check if time is increasing with next row
+        if (r+1 < nrSeries) {
+            QStringList SL1 = rainRecs[r_+1].split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+            int time1 = getTimefromString(SL1[0]);
+            if (time1 < time) {
+                ErrorString = QString("Time in rainfall records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);
+                throw 1;
+            }
         }
-        else
-            time = rl.time;
 
-        // rainfall values
+        // rainfall values in this row
         for (int i = 1; i <= nrStations; i++)
         {
             bool ok = false;
+
             rl.intensity << SL[i].toDouble(&ok);
             if (!ok)
             {
-                ErrorString = QString("Rainfall records at time %1 has unreadable value.").arg(SL[0]);
+                ErrorString = QString("Rainfall records at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);
                 throw 1;
             }
             rl.stationnr << stationID.at(i-1);
@@ -358,12 +356,12 @@ void TWorld::GetRainfallData(QString name)
     }
 
     // sometimes not an increasing timeseries
-    for(int i = 1; i < nrSeries; i++){
-        if (RainfallSeries[i].time <= RainfallSeries[i-1].time) {
-            ErrorString = QString("Rainfall records time is not increasing at row %1.").arg(i);
-            throw 1;
-        }
-    }
+//    for(int i = 1; i < nrSeries; i++){
+//        if (RainfallSeries[i].time <= RainfallSeries[i-1].time) {
+//            ErrorString = QString("Rainfall records time is not increasing at row %1.").arg(i);
+//            throw 1;
+//        }
+//    }
 
     nrRainfallseries = RainfallSeries.size();//nrSeries;
 }
@@ -508,13 +506,6 @@ void TWorld::GetRainfallMap(void)
 
     int currentrow = rainplace;
     // find current record
-//    while (currenttime >= RainfallSeriesMaps[rainplace].time
-//        && currenttime < RainfallSeriesMaps[rainplace+1].time)
-//    {
-//        currentrow = rainplace;
-//        rainplace++;
-//    }
-
     for (int j = 0; j < RainfallSeriesMaps.count(); j++) {
         if (currenttime >= RainfallSeriesMaps[j].time && currenttime < RainfallSeriesMaps[j+1].time) {
             currentrow = j;
@@ -531,7 +522,7 @@ void TWorld::GetRainfallMap(void)
     if (!samerain) {
         // create an empty map and read the file
         auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
-       //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
+        //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
         double calibration = RainfallSeriesMaps[currentrow].calib;
 
         if (_M->nrCols() != _nrCols || _M->nrRows() != _nrRows) {
@@ -555,18 +546,19 @@ void TWorld::GetRainfallMap(void)
                 rain_ = 0;
             if (rain_ > 0)
                 rainStarted = true;
-         if (!SwitchdoRrainAverage)
-            Rain->Drc= rain_ * calibration;
-         else
-            tma->Drc = rain_ * calibration;
+            if (!SwitchdoRrainAverage)
+                Rain->Drc= rain_ * calibration;
+            else
+                tma->Drc = rain_ * calibration;
         }}
-    if (SwitchdoRrainAverage) {
-        double avg = mapAverage(*tma);
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            Rain->Drc = avg;
-        }}
-    }
+
+        if (SwitchdoRrainAverage) {
+            double avg = mapAverage(*tma);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                Rain->Drc = avg;
+            }}
+        }
 
       //  delete _M;
     } //samerain
@@ -686,6 +678,3 @@ void TWorld::IDInterpolation()
         }
     }
 }
-
-//---------------------------------------------------------------------------
-

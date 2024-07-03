@@ -217,6 +217,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
     }}
 
  //  #pragma omp parallel for ordered num_threads(userCores)
+ // parallel doesn't work here
     for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
         int r = _crlinked_.at(i_).r;
@@ -307,7 +308,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
     QVector <LDD_COORIN> _crlinked_;
     _crlinked_.clear();
 
-    fill(*tma, -1); // flag
+    Fill(*tma, -1); // flag
 
     FOR_ROW_COL_MV {
         if (_LDD->Drc == 5) {

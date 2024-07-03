@@ -199,7 +199,11 @@ void lisemqt::setupMapPlot()
     baseMap->attach( MPlot );
     // shaded relief
 
-
+    // 3 data
+    drawMap = new QwtPlotSpectrogram();
+    drawMap->setRenderThreadCount( 0 );
+    drawMap->attach( MPlot );
+    //map for runoff, infil, flood etc
 
     // 5
     roadMap = new QwtPlotSpectrogram();
@@ -218,11 +222,6 @@ void lisemqt::setupMapPlot()
     houseMap->attach( MPlot );
     // building structure map
 
-    // 3 data
-    drawMap = new QwtPlotSpectrogram();
-    drawMap->setRenderThreadCount( 0 );
-    drawMap->attach( MPlot );
-    //map for runoff, infil, flood etc
     //7
     outletMap = new QwtPlotSpectrogram();
     outletMap->setRenderThreadCount( 0 );
@@ -270,7 +269,7 @@ void lisemqt::setupMapPlot()
     // exclude right axis legend from panning
 
     picker = new MyPicker( (QwtPlotCanvas *) MPlot->canvas() );
-    picker->setEnabled(false);
+    picker->setEnabled(true);
 
     mapRescaler = new QwtPlotRescaler( MPlot->canvas() );
  //   mapRescaler->setReferenceAxis( QwtPlot::xBottom );
@@ -548,10 +547,12 @@ void lisemqt::showComboMap(int i)
 
     if (op.ComboSymColor.at(i)) // symetric coloring for soilloss
     {
-
+        if (ma == 0) mi = 0;
         mi = -ma;
         if (ComboMaxSpinBox2->value() > 0)
             ComboMinSpinBox2->setValue(mi);
+        else
+            ComboMinSpinBox2->setValue(0);
 
     }
    // qDebug() << mi << ma << MinV << MaxV;
