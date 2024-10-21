@@ -24,7 +24,7 @@ IF(WIN32)
 ENDIF()
 
 IF(UNIX AND NOT CYGWIN)
-    SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
+    SET(QWT_BUILD_DIR "/usr/local/qwt-6.4.0-ma")
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -59,10 +59,10 @@ set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
 
 # Cache the autogen output in a specific directory
 set(CMAKE_AUTOGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/autogen")
-set_source_files_properties(ui_full/LisUIDialogs.cpp PROPERTIES AUTOMOC ON)
+set_source_files_properties(ui_full/LisUIdialogs.cpp PROPERTIES AUTOMOC ON)
 set_source_files_properties(ui_full/lisemqt.cpp PROPERTIES AUTOMOC ON)
 set_source_files_properties(ui_full/LisUItreemodel.cpp PROPERTIES AUTOMOC ON)
-set_source_files_properties(ui_full/Lismpeg.cpp PROPERTIES AUTOUIC ON)
+set_source_files_properties(ui_full/lismpeg.cpp PROPERTIES AUTOUIC ON)
 set_source_files_properties(resources/openlisem.qrc PROPERTIES AUTORCC ON)
 
 # Compiler flags
@@ -84,7 +84,7 @@ SET(APP_SOURCES
     fixture.cpp
     io.cpp
     operation.cpp
-    ui_full/LisUIDialogs.cpp
+    ui_full/LisUIdialogs.cpp
     ui_full/LisUIScreenshot.cpp
     ui_full/LisUItreecheck.cpp
     ui_full/LisUIModel.cpp
@@ -97,9 +97,9 @@ SET(APP_SOURCES
     ui_full/LisUIplot.cpp
     ui_full/LisUImapplot.cpp
     ui_full/LisUImapplot.h
-    ui_full/Lismpeg.cpp
+    ui_full/lismpeg.cpp
     ui_full/lisUIStyle.cpp
-    ui_full/Lismpeg.h
+    ui_full/lismpeg.h
     ui_full/lisemqt.h
     swatre/swatstep.cpp
     swatre/swatinit.cpp
