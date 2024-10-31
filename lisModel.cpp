@@ -359,7 +359,7 @@ void TWorld::DoModel()
 
       //  op.nrMapsCreated = maplistnr;
       //  DestroyData();
-
+qDebug() << ErrorString;
         emit done("ERROR STOP: "+ErrorString);
         if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
             QApplication::quit();

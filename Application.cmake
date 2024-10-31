@@ -48,9 +48,9 @@ INCLUDE_DIRECTORIES(
 find_package(OpenMP REQUIRED)
 
 # Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
-set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
-set(CMAKE_AUTOUIC_DEPEND_FILTERS "ui" "*.ui")
-set(CMAKE_AUTORCC_DEPEND_FILTERS "qrc" "*.qrc")
+#set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
+#set(CMAKE_AUTOUIC_DEPEND_FILTERS "ui" "*.ui")
+#set(CMAKE_AUTORCC_DEPEND_FILTERS "qrc" "*.qrc")
 
 # Optionally skip rule dependency checks to avoid timestamp issues
 set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
@@ -58,14 +58,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
 
 # Cache the autogen output in a specific directory
-set(CMAKE_AUTOGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/autogen")
+#set(CMAKE_AUTOGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/autogen")
 #set_source_files_properties(ui_full/LisUIDialogs.cpp PROPERTIES AUTOMOC ON)
 #set_source_files_properties(ui_full/lisemqt.cpp PROPERTIES AUTOMOC ON)
 #set_source_files_properties(ui_full/LisUItreemodel.cpp PROPERTIES AUTOMOC ON)
 #set_source_files_properties(ui_full/Lismpeg.cpp PROPERTIES AUTOUIC ON)
 #set_source_files_properties(resources/openlisem.qrc PROPERTIES AUTORCC ON)
-set_property(SOURCE ui_full/lisemqt.ui PROPERTY SKIP_AUTOUIC ON)
-set_property(SOURCE ui_full/lismpeg.ui PROPERTY SKIP_AUTOUIC ON)
+#set_property(SOURCE ui_full/lisemqt.ui PROPERTY SKIP_AUTOUIC ON)
+#set_property(SOURCE ui_full/lismpeg.ui PROPERTY SKIP_AUTOUIC ON)
 
 # Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")

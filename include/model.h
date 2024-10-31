@@ -1186,6 +1186,7 @@ public:
     PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
     HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
     LUT *ReadSoilTableNew(QString fileName);
+    void checkFileForInvalidLetters(const QString &filePath);
 
     void cell_InfilSwatre(long i_, int r, int c);
     void SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_drain, cTMap *_theta);
