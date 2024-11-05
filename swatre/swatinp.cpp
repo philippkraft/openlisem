@@ -68,50 +68,12 @@ static HORIZON **horizonList = nullptr;
 static int nrHorizonList=0, sizeHorizonList=0;
 
 //----------------------------------------------------------------------------------------------
-void TWorld::InitializeProfile( void )
-{
-    // if (zone) {
-    //     zone->dz.clear();
-    //     zone->z.clear();
-    //     zone->endComp.clear();
-    //     zone->disnod.clear();
-    //     free(zone);
-    // }
-   // zone = nullptr;
-   // profileList = nullptr;
-    //FreeSwatreInfo();
-
-
-
-    //profileList = nullptr;
-
-    // if (profileList != nullptr) {
-    //     if (profileList[0] != nullptr) {
-    //          for(int i=0; i < nrProfileList; i++)
-    //             if (profileList[i] != nullptr)
-    //                 free(profileList[i]);
-    //     }
-    //     free(profileList);
-    //     profileList = nullptr;
-    // }
-
-   //  nrProfileList = 0;
-   //  sizeProfileList = 0;
-
-   //  // zone=nullptr;
-   // // horizonList = nullptr;
-   //  nrHorizonList = 0;
-   //  sizeHorizonList = 0;
-
-    //swatreProfileDef.clear();
-    //swatreProfileNr.clear();
-}
-//----------------------------------------------------------------------------------------------
 /// read and parse profile.inp
 /// new version using swatreProfileDef QStringList
 void TWorld::ReadSwatreInputNew(void)
 {
-qDebug() << "ReadSwatreInputNew";
+//qDebug() << "ReadSwatreInputNew";
+
     // get the profile inp file contents and put in stringlist
     // set profiles to nullptr
     //InitializeProfile();
@@ -144,8 +106,16 @@ qDebug() << "ReadSwatreInputNew";
         throw 1;
     }
 
-    // for(int i; i < swatreProfileDef.count(); i++)
-    //     qDebug() << swatreProfileDef[i];
+    for (int i = swatreProfileDef.size() - 1; i >= 0; --i) {
+        if (swatreProfileDef[i].trimmed().isEmpty()) {
+            swatreProfileDef.removeAt(i);
+        }
+    }
+   while(swatreProfileDef.last() == "###")
+        swatreProfileDef.removeLast();
+
+  //  for(int i; i < swatreProfileDef.count(); i++)
+    //    qDebug() << swatreProfileDef[i];
 
     // read and make nodes
     zone = new ZONE;
@@ -186,8 +156,8 @@ qDebug() << "ReadSwatreInputNew";
     }
     zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
 
- //  for (int i = 0; i <= zone->nrNodes; i++)
- //       qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
+ // for (int i = 0; i <= zone->nrNodes; i++)
+   //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
 
     //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs
@@ -204,7 +174,7 @@ qDebug() << "ReadSwatreInputNew";
     if (nrProfileList == 0)
         Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));
 
-    checkList.sort();
+    //checkList.sort();
     // //DOES NOT WORK BECAUSE order is 1, 10, 11 ...28 and then 2,3,4 ...
 
     // ordered int list with profile nrs
@@ -222,9 +192,9 @@ qDebug() << "ReadSwatreInputNew";
 
     // sort the integer profile numbers
 
-    //profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1));
+    //profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
     profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
-    // why realloc? profile list is a list of pointers to PROFILE
+    // profile list is a list of pointers to PROFILE
 
     nrProfileList = 0;
     for (int i = zone->nrNodes+1; i < swatreProfileDef.count(); i++) {
@@ -236,21 +206,16 @@ qDebug() << "ReadSwatreInputNew";
             nrProfileList++;
         }
     }
-    qDebug() << "DONE: ReadSwatreInputNew(void)";
+    //qDebug() << "DONE: ReadSwatreInputNew(void)";
 }
 //----------------------------------------------------------------------------------------------
-/// read a new profile from profile.inp, construct and return it
-/**
-* returns pointer to each new profile in file profile.inp\n
-* for info:
-\code
- typedef struct PROFILE {
-   int            profileId; 	// number identifying this profile  >= 0
-   const ZONE     *zone; 		// array with zone.nrNodes elements: dz, z etc
-   const HORIZON  **horizon; 	// ptr to horizon information this node belongs to
- } PROFILE;
-\endcode
-*/
+// for reference:
+// typedef struct PROFILE {
+//     int            profileId; 	/** number identifying this profile  >= 0 */
+//     const ZONE     *zone; 		/** array with zone.nrNodes elements: containing z, dz, node distance etc*/
+//     const HORIZON  **horizon; 	/** ptr to horizon information this node belongs to */
+//     QVector <double> KsatCal;
+// } PROFILE;
 PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 {
     QString tableName;
@@ -259,9 +224,6 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     HORIZON *h;
     bool ok;
 
-
-    // profile has a pointer to LUT
-    // allocate profile memory, PROFILE is defined in swatre_p.h
     p = new PROFILE;
 
     p->profileId = swatreProfileDef[pos].toInt(&ok, 10);
@@ -272,36 +234,52 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 
     p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes);
     p->zone = z; // pointer
+    for (int i = 0; i < z->nrNodes; i++)
+        p->KsatCal << 1.0; // create ksat cal 1,2,3 for each horizon
 
     int i = 0;
+    int hornr = 0;
     while (i != z->nrNodes) {
-        pos++; // profile nr, move one line
-
+        pos++; // move one line to the horizon table name
         tableName = swatreProfileDef[pos];
         if (!QFileInfo(SwatreTableDir + tableName).exists())
-            Error(QString("SWATRE: Can't read the LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
-
+            Error(QString("SWATRE: Table %1 not found.").arg(tableName));
+                          //"Can't read the LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
+//qDebug() << tableName << endHorPrev << endHor;
         endHorPrev = endHor;
-        pos++;
+        pos++; // move one line to read the horizon depth endhor in cm
         endHor = swatreProfileDef[pos].toDouble(&ok);
         if (!ok)
             Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
         if (endHor <= endHorPrev)
             Error(QString("SWATRE: Error in profile definition nr %1, depth horizons do not increase").arg(p->profileId));
 
+        // read the horizon and the luts
         h = ReadHorizonNew(SwatreTableDir, tableName);
-
         // copy horizon info to all nodes of this horizon
-        while (i < z->nrNodes && z->endComp[i] <= endHor )
-            p->horizon[i++] = h;
+        while (i < z->nrNodes && z->endComp[i] <= endHor ) {
+            p->horizon[i] = h;
+            p->KsatCal.replace(i, ksatCalibration);
+            if (i > 0 && p->horizon[i]->name != p->horizon[i-1]->name) {
+                hornr++;
+                //qDebug() << p->horizon[i]->name << p->horizon[i-1]->name << hornr;
+            }
+            if (hornr > 0) p->KsatCal.replace(i,ksat2Calibration);
+            if (hornr > 1) p->KsatCal.replace(i,ksat3Calibration);
 
-       // qDebug() << tableName << p->profileId;
-     //   if (z->endComp[i-1] != endHor)
-       //    Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
-         //        .arg(endHor).arg(p->profileId).arg(tableName));
-        //????????????? what does this error mean exactly?
+         //   qDebug() << i << p->horizon[i]->name;
+            i++;
+
+
+        }
+
+        //   if (z->endComp[i-1] != endHor)
+        //    Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
+        //        .arg(endHor).arg(p->profileId).arg(tableName));
+        //? what does this error mean exactly, hrozions do not have to end on nodes?
     }
 
+//qDebug() << "horizon read" << p->KsatCal.count() << p->KsatCal;
     return(p); // return the profile
 }
 //----------------------------------------------------------------------------------------------
@@ -309,6 +287,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 /** return PROFILE or throw an error if not found, profileNr is the profile map value
     only used in Swatinp and no longer necessary
 */
+//OBSOLETE?
 PROFILE *TWorld::ProfileNr(int profileNr)
 {
     if (profileNr < 0 || profileNr >= nrProfileList)
@@ -349,7 +328,6 @@ void  TWorld::FreeSwatreInfo(void)
         {
             for(int k = 0; k < 5; k++)
                 horizonList[i]->lut->hydro[k].clear();
-          //  horizonList[i]->lut = nullptr;
             free(horizonList[i]);
         }
         free(horizonList);
@@ -361,7 +339,7 @@ void  TWorld::FreeSwatreInfo(void)
     qDebug() << "free:" << zone << profileList << horizonList;
 }
 //----------------------------------------------------------------------------------------------
-/// copy horizon info to all nodes of this horizon
+// copy horizon info to all nodes of this horizon
 HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
 {
     // look if it's already loaded
@@ -381,24 +359,34 @@ HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
 
     // read the lut with this horizon and link the pointer
     h->lut = ReadSoilTableNew(tablePath + tableName);
-    h->name = tableName;
 
+    h->name = tableName;
+//qDebug() << "ReadHorizonNew" << tableName;
     return(h);
 }
 //----------------------------------------------------------------------------------------------
 LUT *TWorld::ReadSoilTableNew(QString fileName)
 {
-    QChar subChar(26); //SUB
     // read the table in a stringlist
     QStringList list;
+
+   // checkFileForInvalidLetters(fileName);
+
+    QRegularExpression regex("[a-df-zA-DF-Z]");
+
     QFile file(fileName);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
 
+        int j=1;
         while (!in.atEnd()) {
             QString line = in.readLine();
-           // line.remove(subChar);
-            line.replace("\u001A"," ");
+            if (regex.match(line).hasMatch()) {
+                ErrorString = QString("SWATRE: Please check: Invalid characters found in file %1, line %2: [%3]").arg(fileName).arg(j).arg(line);
+                throw 1;
+            }
+            j++;
+            line.replace("\u001A"," "); // some limburg tables have the char "substitute" in them, this is just a hack
             // Skip empty or space-only lines
             if (!line.trimmed().isEmpty() && line != " ")
                 list.append(line);
@@ -415,14 +403,13 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         bool ok;
         SL[0].toDouble(&ok);
         if (!ok || SL.count() < 3) {
-            qDebug() << "not ok" << SL;
+            //qDebug() << "not ok" << SL;
             l->nrRows--;
-            break; // sometimes table ends with some char code
+            break; // sometimes table ends with a non empty line with some char code
         }
         l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
         l->hydro[H_COL].append(SL[H_COL].toDouble());
-        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400); // cm/day to mm/h 0.41667!
-        //NOTE: Ksat in cm/day needs to me cm/sec ??
+        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400); // cm/day to cm/sec
     }
 
     for (int i = 0; i < l->nrRows-1; i++) {
@@ -436,9 +423,9 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
 
     for (int i = 0; i < l->nrRows - 1; i++) {
         double v = 0.5*(l->hydro[H_COL][i] + l->hydro[H_COL][i+1]);
-        l->hydro[DMCH_COL] << v;
-        v = (l->hydro[THETA_COL][i+1] - l->hydro[THETA_COL][i])/(l->hydro[H_COL][i+1] - l->hydro[H_COL][i]);
+        l->hydro[DMCH_COL] << v; // NOTE DMCH_COL is not used!
 
+        v = (l->hydro[THETA_COL][i+1] - l->hydro[THETA_COL][i])/(l->hydro[H_COL][i+1] - l->hydro[H_COL][i]);
         if (i > 0 && v < l->hydro[DMCC_COL][i-1]) {
             double dv = l->hydro[DMCC_COL][i-1] - l->hydro[DMCC_COL][i-2];
             v = l->hydro[DMCC_COL][i-1]+dv;
@@ -460,3 +447,21 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
     return(l);
 }
 //----------------------------------------------------------------------------------------------
+void TWorld::checkFileForInvalidLetters(const QString &filePath)
+{
+    QFile file(filePath);
+    QTextStream in(&file);
+    // Regex to match any letters except 'E' and 'e' used in scientific notation
+    QRegularExpression regex("[a-df-zA-DF-Z]");
+    int lineNumber = 1;
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if (regex.match(line).hasMatch()) {
+            ErrorString = QString("SWATRE: Please check: Invalid characters found in file %1, line %2: %3").arg(filePath).arg(lineNumber).arg(line);
+            throw 1;
+        }
+        lineNumber++;
+    }
+    file.close();
+}
