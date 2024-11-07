@@ -1,3 +1,7 @@
+241107 - v7.2
+- BUG fix: SWATRE reading of tables
+- BUG fix: cleaning of SWATRE memory structures for rerun
+
 241013 - v7.1
 - BUG fix: SWATRE is working again
 - BUG fix: Theta showed NaN in files

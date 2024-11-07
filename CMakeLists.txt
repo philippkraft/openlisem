@@ -41,6 +41,13 @@ SET(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake
 )
 
+# Enable ccache if available
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM}")
+endif()
+
 # Include application makefile
 INCLUDE(Application)
 
@@ -48,7 +55,6 @@ target_sources(Lisem
   PRIVATE
   README.txt
   changes.txt
-
-
-
+  compile_lisem_windows.txt
 )
+

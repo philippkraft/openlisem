@@ -1,11 +1,5 @@
-cmake_minimum_required(VERSION 3.9)
+# files specific to LISEM
 
-# Enable ccache if available
-find_program(CCACHE_PROGRAM ccache)
-if(CCACHE_PROGRAM)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM}")
-endif()
 
 # Platform-specific configurations
 IF(WIN32)
@@ -19,10 +13,12 @@ IF(WIN32)
 
     FIND_PATH(OMP_INCLUDE_DIRS
         NAMES omp.h
-        PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/14.1.0/include"
+        #PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/14.1.0/include"
+        PATHS "${MINGW_BUILD_DIR}/include"
     )
 ENDIF()
 
+#linux
 IF(UNIX AND NOT CYGWIN)
     SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -48,24 +44,14 @@ INCLUDE_DIRECTORIES(
 find_package(OpenMP REQUIRED)
 
 # Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
-#set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
-#set(CMAKE_AUTOUIC_DEPEND_FILTERS "ui" "*.ui")
-#set(CMAKE_AUTORCC_DEPEND_FILTERS "qrc" "*.qrc")
+set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
+set(CMAKE_AUTOUIC_DEPEND_FILTERS "ui" "*.ui")
+set(CMAKE_AUTORCC_DEPEND_FILTERS "qrc" "*.qrc")
 
 # Optionally skip rule dependency checks to avoid timestamp issues
 set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
-
-# Cache the autogen output in a specific directory
-#set(CMAKE_AUTOGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/autogen")
-#set_source_files_properties(ui_full/LisUIDialogs.cpp PROPERTIES AUTOMOC ON)
-#set_source_files_properties(ui_full/lisemqt.cpp PROPERTIES AUTOMOC ON)
-#set_source_files_properties(ui_full/LisUItreemodel.cpp PROPERTIES AUTOMOC ON)
-#set_source_files_properties(ui_full/Lismpeg.cpp PROPERTIES AUTOUIC ON)
-#set_source_files_properties(resources/openlisem.qrc PROPERTIES AUTORCC ON)
-#set_property(SOURCE ui_full/lisemqt.ui PROPERTY SKIP_AUTOUIC ON)
-#set_property(SOURCE ui_full/lismpeg.ui PROPERTY SKIP_AUTOUIC ON)
 
 # Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
@@ -181,16 +167,9 @@ add_executable(Lisem WIN32
 )
 
 # Link the necessary libraries
-if (Qt6_FOUND)
-    target_link_libraries(Lisem
-        Qt6::Widgets Qt6::Gui Qt6::Core
-        ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
-        OpenMP::OpenMP_CXX
-    )
-else()
-    target_link_libraries(Lisem
-        Qt5::Widgets Qt5::Gui Qt5::Core
-        ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
-        OpenMP::OpenMP_CXX
-    )
-endif()
+target_link_libraries(Lisem
+    Qt6::Widgets Qt6::Gui Qt6::Core
+    ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
+    OpenMP::OpenMP_CXX
+)
+

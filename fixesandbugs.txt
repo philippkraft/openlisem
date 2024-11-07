@@ -1,12 +1,14 @@
 this file is a list of changes per major commit
 
-
+241107 - v7.2
+- BUG fix: SWATRE reading of tables
+- BUG fix: cleaning of SWATRE memory structures for rerun
 
 240916 - v7.1
 - BUG fix: SWATRE is working again
 - Small interface bug fixes and more logical positioning of options
 
-240714 - v7.00
+240714 - v7.0
 - BUG fix: Lisem crashed when changing the displayed map after the run was finished
 - Data remains in memory until the next run is started
 - MUSCL option for 2D flow: cell boundary interpolation of water level and velocities (4 types). For high resolution flow.
@@ -24,7 +26,6 @@ Interface
 - Better hydraulics subsurface storm drains (sewage system) for urban environments (beta, some mass balance errors)
 Interface
 - Make mpeg movies of screenshot series after the simulation. Needs download MPlayer from http://www.mplayerhq.hu
-
 
 231208 - v6.92-v6.94
 - Fixed subsurface drainage code
