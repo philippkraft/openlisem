@@ -126,6 +126,12 @@ SET(APP_SOURCES
     include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h
+    include/pcrtypes.h
+    include/csf.h
+    include/csfattr.h
+    include/csftypes.h
+    include/csfimpl.h
+    include/pcrtypes.h
     include/lerror.h
     include/fixture.h
     include/global.h
@@ -141,6 +147,12 @@ SET(APP_SOURCES
     include/TMmapVariables.h
     include/VectormapVariables.h
     include/version.h
+    PCR/create2.c
+    PCR/mclose.c
+    PCR/ruseas.c
+    PCR/gvalscal.c
+    PCR/gcellrep.c
+    PCR/putsomec.c
     openlisemico.rc
 )
 
