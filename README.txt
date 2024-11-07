@@ -11,6 +11,11 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt5, openmp, gdal and pcraster
 
+241107 - v7.2
+- BUG fix: SWATRE reading of tables
+- BUG fix: cleaning of SWATRE memory structures for rerun
+- rewrite Compile for winmdows for QT6
+
 240916 - v7.1
 - BUG fix: SWATRE is working again
 - TODO: Swatre does not interact with groundwater and may crash
