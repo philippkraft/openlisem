@@ -128,6 +128,12 @@ SET(APP_SOURCES
     include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h
+    include/pcrtypes.h
+    include/csf.h
+    include/csfattr.h
+    include/csftypes.h
+    include/csfimpl.h
+    include/pcrtypes.h
     include/lerror.h
     include/fixture.h
     include/global.h
@@ -143,85 +149,13 @@ SET(APP_SOURCES
     include/TMmapVariables.h
     include/VectormapVariables.h
     include/version.h
-    include/pcrtypes.h
-    include/csf.h
-    include/csfattr.h
-    include/csfimpl.h
-    include/csftypes.h
+    PCR/create2.c
+    PCR/mclose.c
+    PCR/ruseas.c
+    PCR/gvalscal.c
+    PCR/gcellrep.c
+    PCR/putsomec.c
     openlisemico.rc
-)
-
-SET(PCR_SOURCES
-    PCRlib/_getcell.c
-    PCRlib/_getrow.c
-    PCRlib/_gsomece.c
-    PCRlib/_putcell.c
-    PCRlib/_rputrow.c
-    PCRlib/angle.c
-    PCRlib/attravai.c
-    PCRlib/attrsize.c
-    PCRlib/cellsize.c
-    PCRlib/create2.c
-    PCRlib/csfglob.c
-    PCRlib/csfsup.c
-    PCRlib/delattr.c
-    PCRlib/dumconv.c
-    PCRlib/endian.c
-    PCRlib/filename.c
-    PCRlib/gattrblk.c
-    PCRlib/gattridx.c
-    PCRlib/gcellrep.c
-    PCRlib/gdattype.c
-    PCRlib/getattr.c
-    PCRlib/getx0.c
-    PCRlib/gety0.c
-    PCRlib/ggisfid.c
-    PCRlib/gmaxval.c
-    PCRlib/gminval.c
-    PCRlib/gnrcols.c
-    PCRlib/gnrrows.c
-    PCRlib/gproj.c
-    PCRlib/gputproj.c
-    PCRlib/gvalscal.c
-    PCRlib/gvartype.c
-    PCRlib/gversion.c
-    PCRlib/ismv.c
-    PCRlib/kernlcsf.c
-    PCRlib/legend.c
-    PCRlib/mclose.c
-    PCRlib/mopen.c
-    PCRlib/moreattr.c
-    PCRlib/mperror.c
-    PCRlib/pgisfid.c
-    PCRlib/pmaxval.c
-    PCRlib/pminval.c
-    PCRlib/putallmv.c
-    PCRlib/putattr.c
-    PCRlib/putsomec.c
-    PCRlib/putx0.c
-    PCRlib/puty0.c
-    PCRlib/pvalscal.c
-    PCRlib/rattrblk.c
-    PCRlib/rcomp.c
-    PCRlib/rcoords.c
-    PCRlib/rdup2.c
-    PCRlib/reseterr.c
-    PCRlib/rextend.c
-    PCRlib/rmalloc.c
-    PCRlib/rrowcol.c
-    PCRlib/ruseas.c
-    PCRlib/setangle.c
-    PCRlib/setmv.c
-    PCRlib/setvtmv.c
-    PCRlib/strconst.c
-    PCRlib/strpad.c
-    PCRlib/swapio.c
-    PCRlib/trackmm.c
-    PCRlib/vs2.c
-    PCRlib/vsdef.c
-    PCRlib/vsis.c
-    PCRlib/vsvers.c
-    PCRlib/wattrblk.c
 )
 
 qt6_wrap_cpp(MOC_FILES
@@ -243,7 +177,6 @@ add_executable(Lisem WIN32
     ${RCC_SOURCES}
     ${APP_SOURCES}
     ${MOC_FILES}
-    ${PCR_SOURCES}
 )
 
 # Link the necessary libraries
