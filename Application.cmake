@@ -1,6 +1,5 @@
 # files specific to LISEM
 
-
 # Platform-specific configurations
 IF(WIN32)
     # QWT configuration for double axis display, note a double axis branch of qwt is used
