@@ -44,6 +44,9 @@ INCLUDE_DIRECTORIES(
 # Find OpenMP
 find_package(OpenMP REQUIRED)
 
+#Find GDAL
+find_package(GDAL REQUIRED)
+
 # Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
 set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
 set(CMAKE_AUTOUIC_DEPEND_FILTERS "ui" "*.ui")
@@ -133,7 +136,6 @@ SET(APP_SOURCES
     include/csfattr.h
     include/csftypes.h
     include/csfimpl.h
-    include/pcrtypes.h
     include/lerror.h
     include/fixture.h
     include/global.h
@@ -155,6 +157,7 @@ SET(APP_SOURCES
     PCR/gvalscal.c
     PCR/gcellrep.c
     PCR/putsomec.c
+    # PCR/csfglob.c
     openlisemico.rc
 )
 
