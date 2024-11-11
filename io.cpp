@@ -412,22 +412,30 @@ cTRGBMap *readRasterImage(
 void writeGDALRaster(
     cTMap const& raster,
     QString const& pathName,
-    GDALDriver& driver)
+    GDALDriver& driver,
+    QString const& format)
 {
     // Create new dataset.
     int const nrRows{raster.nrRows()};
     int const nrCols{raster.nrCols()};
     int const nrBands{1};
-    // this code is from LISEM by Bastiaan vd Bout, does not make a difference, the GDALDataset returns null
-    GDALDataset * dataset = driver.Create(pathName.toLatin1().constData(),
-                                         nrCols, nrRows, nrBands, GDT_Float32, nullptr);
 
-    // GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),
-    //     nrCols, nrRows, nrBands, GDT_Float32, nullptr), close_gdal_dataset};
+    // is format = PCRaster set the valuescal
+    const char* options[] = {nullptr};
+    if (format == "PCRaster") {
+        const char* options[] = {"PCRASTER_VALUESCALE=VS_SCALAR", nullptr};
+    } else {
+        const char* options[] = {nullptr};
+    }
 
-    if(dataset == NULL) {
-        //if(!dataset) {
-        Error(QString("Dataset %1 cannot be created.").arg(pathName));
+    GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),
+        nrCols, nrRows, nrBands, GDT_Float32, options), close_gdal_dataset};
+
+    if(!dataset) {
+        Error(QString("Dataset %1 cannot be created. GDAL error: %2")
+                  .arg(pathName)
+                  .arg(CPLGetLastErrorMsg()));
+        return;
     }
 
     MaskedRaster<double> const& raster_data{raster.data};
@@ -463,8 +471,6 @@ void writeGDALRaster(
         Error(QString("Raster band %1 cannot be written.").arg(pathName));
     }
 
-    // Close dataset.
-    GDALClose( (GDALDataset*) dataset );
 }
 
 
@@ -512,7 +518,7 @@ void writeRaster(
         bool driverSupportsCreate{CSLFetchBoolean(metadata, GDAL_DCAP_CREATE, FALSE) != FALSE};
         if(driverSupportsCreate) {
             // All is well, write using GDAL.
-            writeGDALRaster(raster, pathName, *driver);
+            writeGDALRaster(raster, pathName, *driver, format);
         } else {
             Error(QString(
                 "Format driver %1 cannot be used to create datasets.").arg(
