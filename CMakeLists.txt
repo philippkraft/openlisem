@@ -56,5 +56,6 @@ target_sources(Lisem
   README.txt
   changes.txt
   compile_lisem_windows.txt
+  compile_lisem_linux.txt
 )
 

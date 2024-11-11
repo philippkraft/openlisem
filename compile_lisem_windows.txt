@@ -1,5 +1,5 @@
-openLISEM: Quick guideline for code development
-===============================================
+openLISEM: Quick guideline for code development on Windows
+==========================================================
 Date: 241106
 
 Introduction:
@@ -60,7 +60,7 @@ Register online at github.com
 create an empty directory "lisem" for the code, e.g. c:/prgc/lisem
 create an empty directory for the compiled executable (do not make it a subdirectory of lisem), e.g. c:/prgc/lisem-bin
 
-> gol into github to the repository: https://github.com/vjetten/openlisem
+> go into github to the repository: https://github.com/vjetten/openlisem
 click on the green "<> code" tab and copy the address to clone it to your PC: https://github.com/vjetten/openlisem.git
 
 open a CMD window in the empty folder and type:
@@ -76,7 +76,7 @@ THE MAIN BRANCH is "main_c" !!!! (not main or master)
 > read about GIT, for instance make a branch for yourself (e.g. "mylisem) do
 git branch mylisem
 git checkout mylisem
-Please do NOT merge your code with main_c before consultation with me (v.g.jetten@utwente.nl)!
+
 
 -------------- step 3 ---------------
 
