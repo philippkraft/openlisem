@@ -418,10 +418,15 @@ void writeGDALRaster(
     int const nrRows{raster.nrRows()};
     int const nrCols{raster.nrCols()};
     int const nrBands{1};
-    GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),
-        nrCols, nrRows, nrBands, GDT_Float32, nullptr), close_gdal_dataset};
+    // this code is from LISEM by Bastiaan vd Bout, does not make a difference, the GDALDataset returns null
+    GDALDataset * dataset = driver.Create(pathName.toLatin1().constData(),
+                                         nrCols, nrRows, nrBands, GDT_Float32, nullptr);
 
-    if(!dataset) {
+    // GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),
+    //     nrCols, nrRows, nrBands, GDT_Float32, nullptr), close_gdal_dataset};
+
+    if(dataset == NULL) {
+        //if(!dataset) {
         Error(QString("Dataset %1 cannot be created.").arg(pathName));
     }
 
@@ -429,12 +434,13 @@ void writeGDALRaster(
 
     // Set some metadata.
     double transformation[]{
-        raster_data.west(),
-        raster_data.cell_size(),
-        0.0,
-        raster_data.north(),
-        0.0,
-        raster_data.cell_size()};
+                            raster_data.west(),
+                            raster_data.cell_size(),
+                            0.0,
+                            raster_data.north(),
+                            0.0,
+                            raster_data.cell_size()};
+
     dataset->SetGeoTransform(transformation);
 
     dataset->SetProjection(raster.projection().toLatin1().constData());
@@ -452,10 +458,13 @@ void writeGDALRaster(
     band->SetNoDataValue(-FLT_MAX);
 
     if(band->RasterIO(GF_Write, 0, 0, nrCols, nrRows,
-            const_cast<double*>(&raster_data.cell(0)),
-            nrCols, nrRows, GDT_Float64, 0, 0) != CE_None) {
+                       const_cast<double*>(&raster_data.cell(0)),
+                       nrCols, nrRows, GDT_Float64, 0, 0) != CE_None) {
         Error(QString("Raster band %1 cannot be written.").arg(pathName));
     }
+
+    // Close dataset.
+    GDALClose( (GDALDataset*) dataset );
 }
 
 
