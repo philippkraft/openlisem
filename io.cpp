@@ -378,35 +378,35 @@ cTRGBMap *readRasterImage(
 }
 
 
-void writePCRasterRaster(
-    cTMap const& raster,
-    QString pathName)
-{
-    // Create and configure CSF map.
-    MapPtr csfMap{Rcreate(pathName.toLatin1().constData(), raster.nrRows(),
-        raster.nrCols(), CR_REAL4, VS_SCALAR, PT_YDECT2B, raster.west(),
-        raster.north(), 0.0, raster.cellSize()), close_csf_map};
+// void writePCRasterRaster(
+//     cTMap const& raster,
+//     QString pathName)
+// {
+//     // Create and configure CSF map.
+//     MapPtr csfMap{Rcreate(pathName.toLatin1().constData(), raster.nrRows(),
+//         raster.nrCols(), CR_REAL4, VS_SCALAR, PT_YDECT2B, raster.west(),
+//         raster.north(), 0.0, raster.cellSize()), close_csf_map};
 
-    if(!csfMap) {
-        Error(QString("Dataset %1 cannot be created.").arg(pathName));
-    }
+//     if(!csfMap) {
+//         Error(QString("Dataset %1 cannot be created.").arg(pathName));
+//     }
 
-    RuseAs(csfMap.get(), CR_REAL8);
+//     RuseAs(csfMap.get(), CR_REAL8);
 
-    // Copy cells to write to new buffer.
-    auto const& raster_data(raster.data);
-    std::unique_ptr<double[]> buffer{new double[raster_data.nr_cells()]};
-    std::memcpy(buffer.get(), raster_data[0], sizeof(double) *
-        raster_data.nr_cells());
+//     // Copy cells to write to new buffer.
+//     auto const& raster_data(raster.data);
+//     std::unique_ptr<double[]> buffer{new double[raster_data.nr_cells()]};
+//     std::memcpy(buffer.get(), raster_data[0], sizeof(double) *
+//         raster_data.nr_cells());
 
-    // Write cells from buffer to file.
-    size_t nr_cells_written = RputSomeCells(csfMap.get(), 0,
-        raster_data.nr_cells(), buffer.get());
+//     // Write cells from buffer to file.
+//     size_t nr_cells_written = RputSomeCells(csfMap.get(), 0,
+//         raster_data.nr_cells(), buffer.get());
 
-    if(nr_cells_written != raster_data.nr_cells()) {
-        Error("rputsomecells write error with " + pathName);
-    }
-}
+//     if(nr_cells_written != raster_data.nr_cells()) {
+//         Error("rputsomecells write error with " + pathName);
+//     }
+// }
 
 
 void writeGDALRaster(
@@ -485,12 +485,12 @@ void writeRaster(
 //        throw 1;
 //    }
 
-    if (format == "PCRaster") {
-        // OK, until PCRaster supports Create(), we'll handle writing to
-        // PCRaster format ourselves. Work is underway to add support
-        // for Create() to the GDAL PCRaster driver.
-        writePCRasterRaster(raster, pathName);
-    } else {
+    // if (format == "PCRaster") {
+    //     // OK, until PCRaster supports Create(), we'll handle writing to
+    //     // PCRaster format ourselves. Work is underway to add support
+    //     // for Create() to the GDAL PCRaster driver.
+    //     writePCRasterRaster(raster, pathName);
+    // } else {
         GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(
             format.toLatin1().constData());
 
@@ -509,7 +509,7 @@ void writeRaster(
                 "Format driver %1 cannot be used to create datasets.").arg(
                     format.toLatin1().constData()));
         }
-    }
+   // }
 }
 
 /// makes mapname if (name.map) or mapseries (name0000.001 to name0009.999)
