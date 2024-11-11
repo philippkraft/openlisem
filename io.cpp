@@ -420,16 +420,17 @@ void writeGDALRaster(
     int const nrCols{raster.nrCols()};
     int const nrBands{1};
 
-    // is format = PCRaster set the valuescal
+    // Initialize options based on the format
     const char* options[] = {nullptr};
     if (format == "PCRaster") {
-        const char* options[] = {"PCRASTER_VALUESCALE=VS_SCALAR", nullptr};
+        options[0] = "PCRASTER_VALUESCALE=VS_SCALAR";
+        options[1] = nullptr;
     } else {
-        const char* options[] = {nullptr};
+        options[0] = nullptr;
     }
 
     GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),
-        nrCols, nrRows, nrBands, GDT_Float32, options), close_gdal_dataset};
+                                         nrCols, nrRows, nrBands, GDT_Float32, const_cast<char**>(options)), close_gdal_dataset};
 
     if(!dataset) {
         Error(QString("Dataset %1 cannot be created. GDAL error: %2")
@@ -458,7 +459,7 @@ void writeGDALRaster(
     // setting meta data items, this allows for round tripping values scale
     // information back to the PCRaster format, in case the raster is
     // translated to PCRaster format later.
-    dataset->SetMetadataItem("PCRASTER_VALUESCALE", "VS_SCALAR");
+    //dataset->SetMetadataItem("PCRASTER_VALUESCALE", "VS_SCALAR");
 
     // Write values to the raster band.
     auto band = dataset->GetRasterBand(1);
