@@ -56,6 +56,8 @@ target_sources(Lisem
   README.txt
   changes.txt
   compile_lisem_windows.txt
+  PCR/setangle.c
+  PCR/kernlcsf.c
   compile_lisem_linux.txt
 )
 
