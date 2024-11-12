@@ -491,12 +491,11 @@ void writeRaster(
     QString const& pathName,
     QString const& format)
 {
-    // if (format == "PCRaster") {
-    //     // OK, until PCRaster supports Create(), we'll handle writing to
-    //     // PCRaster format ourselves. Work is underway to add support
-    //     // for Create() to the GDAL PCRaster driver.
-    //     writePCRasterRaster(raster, pathName);
-    // } else {
+    if (format == "PCRaster") {
+        // The function writeGDALRaster() can also be used, but it is slower.
+        // So the current implementation with the local PCRlibrary is still used.
+        writePCRasterRaster(raster, pathName);
+    } else {
         GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(
             format.toLatin1().constData());
 
@@ -515,7 +514,7 @@ void writeRaster(
                 "Format driver %1 cannot be used to create datasets.").arg(
                     format.toLatin1().constData()));
         }
-//    }
+    }
 }
 
 /// makes mapname if (name.map) or mapseries (name0000.001 to name0009.999)
