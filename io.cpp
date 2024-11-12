@@ -502,9 +502,8 @@ void writeRaster(
 //    }
 
     if (format == "PCRaster") {
-        // OK, until PCRaster supports Create(), we'll handle writing to
-        // PCRaster format ourselves. Work is underway to add support
-        // for Create() to the GDAL PCRaster driver.
+        // The function writeGDALRaster() can also be used, but it is slower.
+        // So the current implementation with the local PCRlibrary is still used.
         writePCRasterRaster(raster, pathName);
     } else {
         GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(
