@@ -151,6 +151,19 @@ SET(APP_SOURCES
     include/TMmapVariables.h
     include/VectormapVariables.h
     include/version.h
+    PCR/create2.c
+    PCR/mclose.c
+    PCR/ruseas.c
+    PCR/gvalscal.c
+    PCR/gcellrep.c
+    PCR/putsomec.c
+    PCR/setangle.c
+    PCR/kernlcsf.c
+    PCR/gproj.c
+    PCR/csfglob.c
+    PCR/setvtmv.c
+    PCR/dumconv.c
+    PCR/swapio.c
     openlisemico.rc
 )
 
