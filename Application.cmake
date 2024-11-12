@@ -160,6 +160,10 @@ SET(APP_SOURCES
     PCR/setangle.c
     PCR/kernlcsf.c
     PCR/gproj.c
+    PCR/csfglob.c
+    PCR/setvtmv.c
+    PCR/dumconv.c
+    PCR/swapio.c
     openlisemico.rc
 )
 
