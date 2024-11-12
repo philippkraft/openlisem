@@ -144,7 +144,6 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  */
 double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT, double deltaX, double Qm, double Am)
 {
-    /* Using Newton-Raphson Method */
     double  ab_pQ, deltaTX, C;  //auxillary vars
     int   count;
     double Qkx; //iterated discharge, becomes Qnew
@@ -152,54 +151,47 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
     const double beta = 0.6;
+    double q = 0; //sink term, not used
 
-    //double q = 0; //sink term, not used
+    //NOTE Qm is maximum Q in pipes/culverts, Am is max Alpha
 
+    if ((Qin+Qold+q) == 0)  /* +q CW NEW! */
+        return(0);
 
-    /* common terms */
-     // ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
+    //common terms
+    ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
     // derivative of diagonal average (space-time)
-
     deltaTX = deltaT/deltaX;
-    C = deltaTX*Qin + alpha*pow(Qold,beta);// + deltaT*q;
+    C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
     //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
     //C is unit volume of water
 
-
-    // if C < 0 than all infiltrates, return 0, if all fluxes 0 then return
-    // since q is no longer used this does not happen
-    if (C < 0) return(0);
-
     // pow function sum flux must be > 0
-    if (Qold+Qin > 0)
-    {
-        ab_pQ = alpha*beta*pow((Qold+Qin)/2.0,beta-1);
-        // derivative of diagonal average (space-time), must be > 0 because of pow function
-        Qkx = (deltaTX*Qin + Qold*ab_pQ /*+ deltaT*q*/) / (deltaTX + ab_pQ);
-        // explicit first guess Qkx, VERY important
-        Qkx = std::max(Qkx, 0.0);
-        if (Qm > 0) {
-            Qkx = std::min(Qkx, Qm);
-            if (Qkx == Qm)
-                alpha = Am;
-        }
-
+    ab_pQ = alpha*beta*pow((Qold+Qin)/2.0,beta-1);
+    // derivative of diagonal average (space-time), must be > 0 because of pow function
+    Qkx = (deltaTX*Qin + Qold*ab_pQ) / (deltaTX + ab_pQ);
+    // explicit first guess Qkx
+    Qkx   = std::max(Qkx, 1e-30);
+    fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */
+    dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
+    Qkx   -= fQkx / dfQkx;                                /* Next k */
+    Qkx   = std::max(Qkx, 1e-30);
+    if (Qm > 0) {
+        Qkx = std::min(Qkx, Qm);
+        if (Qkx == Qm)
+            alpha = Am;
     }
-    else
-        Qkx =  0;
 
-    //Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0); // why nan?
-    if (Qkx < MIN_FLUX)
-        return(0);
-    // avoid spurious iteration
+    //if (Qkx < MIN_FLUX)
+      //  return(0);
+    //avoid spurious iteration
 
     count = 0;
     do {
-        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */ //m2
-        dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
-        Qkx   -= fQkx / dfQkx;                                /* Next k */
-
-        Qkx   = std::isnan(Qkx) ? 0.0 : std::max(Qkx, 0.0);
+        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   // Current k
+        dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  // Current k
+        Qkx   -= fQkx / dfQkx;                                // Next k
+        Qkx   = std::max(Qkx, 1e-30);
 
         if (Qm > 0) {
             Qkx = std::min(Qkx, Qm);
@@ -212,8 +204,6 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
 
-
-   // itercount = count;
     return Qkx;
 }
 
