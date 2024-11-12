@@ -196,7 +196,7 @@ MAP *Rcreate(
 	if ( fseek(newMap->fp, (long)(fileSize-1),SEEK_SET) || /* fsetpos() is better */
 	    newMap->write(&crap, (size_t)1, (size_t)1, newMap->fp) != 1 )
 	{
-		M_ERROR(NOSPACE);
+        M_ERROR(NOSPACE);
 		goto error_open;
 	}
 	(void)fflush(newMap->fp);

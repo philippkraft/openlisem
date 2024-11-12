@@ -153,6 +153,9 @@ SET(APP_SOURCES
     PCR/gvalscal.c
     PCR/gcellrep.c
     PCR/putsomec.c
+    PCR/setangle.c
+    PCR/kernlcsf.c
+    PCR/gproj.c
     openlisemico.rc
 )
 

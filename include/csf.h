@@ -217,7 +217,9 @@ MAP *Rcreate(const char *fileName,
 //MAP  *Rdup(const char *toFile , const MAP *from, 
 //           CSF_CR cellRepr, CSF_VS dataType);
 //void *Rmalloc(const MAP *m, size_t nrOfCells);
+
 int RuseAs(MAP *m, CSF_CR useType);
+
 //
 //MAP  *Mopen(const char *fname, enum MOPEN_PERM mode);
 //enum MOPEN_PERM MopenPerm(const MAP *m);
@@ -297,7 +299,7 @@ CSF_CR RgetCellRepr(const MAP *map);
 //void RasterRowCol2Coords(const CSF_RASTER_LOCATION_ATTRIBUTES *m,
 //double row, double col, double *x, double *y);
 //
-//CSF_PT MgetProjection(const MAP *map);
+CSF_PT MgetProjection(const MAP *map);
 //CSF_PT MputProjection(MAP *map, CSF_PT p);
 //
 //void   SetMV(const MAP *m, void *cell);
