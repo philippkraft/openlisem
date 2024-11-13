@@ -112,8 +112,6 @@ void TWorld::DoModel()
         DEBUG("reading and initializing data");
 
         IntializeOptions(); // reset all options
-//        InitMapList();
-        // map structure to destroy data automatically
 
         DEBUG("GetRunFile()");
         GetRunFile();

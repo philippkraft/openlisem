@@ -49,8 +49,9 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
      //#pragma omp parallel for num_threads(userCores)
      FOR_ROW_COL_MV_CHL {
+         double maxQ = SwitchCulverts ? ChannelMaxQ->Drc  : -1;
 
-         if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
+         if (ChannelWidth->Drc > 0 && maxQ <= 0)
          {
              double chdepth = ChannelDepth->Drc;
              double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
@@ -176,7 +177,8 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
     Fill(*tma, 0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelWidth->Drc > 0 && ChannelMaxQ->Drc <= 0)
+        double maxQ = SwitchCulverts ? ChannelMaxQ->Drc  : -1;
+        if (ChannelWidth->Drc > 0 && maxQ <= 0)
         {
             double dH = std::max(0.0, (ChannelWH->Drc-ChannelDepth->Drc));
 

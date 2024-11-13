@@ -65,68 +65,56 @@ void TWorld::ChannelVelocityandDischarge()
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
-        // calc velocity and Q
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+        if (ChannelWH->Drc < 1E-6) { // Micrometer !
+            ChannelAlpha->Drc = 0;
+            ChannelQ->Drc = 0;
+            ChannelV->Drc = 0;
+        } else {
+            // calc velocity and Q
+            double wh = ChannelWH->Drc;
+            double ChannelQ_ = 0;
+            double ChannelV_ = 0;
+            double ChannelAlpha_ = 0;
 
-      //  double MaxQ = ChannelMaxQ->Drc;
-        double wh = ChannelWH->Drc;
-        double ChannelQ_ = 0;
-        double ChannelV_ = 0;
-        double ChannelAlpha_ = 0;
+            // calc channel V and Q, using original width
+            double Perim, Radius, Area;
+            double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.001);
+            double N = ChannelN->Drc;
 
-        // calc channel V and Q, using original width
-        double Perim, Radius, Area;
-        double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.001);
-        double N = ChannelN->Drc;
+            double FW = ChannelWidth->Drc;   // width adjusted for dxq
+            double FWO = ChannelWidthO->Drc; // org width
 
-        double FW = ChannelWidth->Drc;
-        double FWO = ChannelWidthO->Drc;
+            Perim = (FW + 2.0*wh);
+            Area = FW*wh;
 
-        Perim = (FW + 2.0*wh);
-        Area = FW*wh;
-
-        if (SwitchChannelAdjustCHW) {
-            double whn = wh * (FW/FWO);
-            Perim = FWO + whn*2; //original dimensions, wider than cell size
-            Area = FWO * whn;
-            // shallow width perim Area
-        }
-        Perim *= ChnTortuosity;
-        Radius = (Perim > 0 ? Area/Perim : 0);
-        ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
-        ChannelQ_ = ChannelV_ * Area;
-        ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
-       // ChannelAlpha_ = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
-        /*
-            ChannelNcul->Drc  = ChannelN->Drc;
-
-        if (SwitchCulverts) {
-            if (ChannelMaxQ->Drc > 0 ) {
-
-                //ChannelNcul->Drc = (0.05+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
-                //https://plainwater.com/water/circular-pipe-mannings-n/
-                // resistance increases with discharge, tube is getting fuller
-
-                double v2 = std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc;
-                //max velocity not to exceed MaxQ, see excel
-                ChannelV_ = std::min(_CHMaxV,std::min(ChannelV_, v2));
-                //ChannelNcul->Drc = std::min(ChannelNcul->Drc,ChannelN->Drc);
-                ChannelQ_ = ChannelV_ * Area;
-
-                if (ChannelQ_ > MaxQ){
-                    ChannelV_ = MaxQ/Area;
-                    ChannelQ_ = MaxQ;
-                }
-                ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+            if (SwitchChannelAdjustCHW) {
+                //calc with original dimensions, if wider than cell size
+                double whn = wh * (FW/FWO);
+                Perim = FWO + whn*2;
+                Area = FWO * whn;
             }
+            Perim *= ChnTortuosity;
+            Radius = (Perim > 0 ? Area/Perim : 0);
+            ChannelV_ = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
+            ChannelQ_ = ChannelV_ * Area;
+        //OR:      ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
+            ChannelAlpha_ = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
+
+            if (SwitchCulverts && ChannelMaxQ->Drc > 0) {
+                ChannelQ_ = std::min(ChannelMaxQ->Drc, ChannelQ_);
+                ChannelV_ = ChannelQ_/Area;
+                ChannelAlpha_ = ChannelQ_ > 1e-12 ? Area/std::pow(ChannelQ_, 0.6) : 0;
+                qDebug() <<  r << c << wh << Area << ChannelQ_ << ChannelV_ << ChannelAlpha_;
+            }
+
+            ChannelAlpha->Drc = ChannelAlpha_;
+            ChannelQ->Drc = ChannelQ_;
+            ChannelV->Drc = ChannelV_;
         }
-            */
-
-        ChannelAlpha->Drc = ChannelAlpha_;
-        ChannelQ->Drc = ChannelQ_;
-        ChannelV->Drc = ChannelV_;
-
     }}
+report (*ChannelAlpha, "cha");
+report (*ChannelQ, "chq");
 }
 
 //---------------------------------------------------------------------------
@@ -284,7 +272,6 @@ void TWorld::ChannelFlow(void)
         if (SwitchLinkedList) {
 
             ChannelQn->setAllMV();
-            //Fill(*tma,-1);
             FOR_ROW_COL_LDDCH5 {
                 Kinematic(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelAlpha, ChannelDX, ChannelMaxQ, ChannelMaxAlpha);
             }}
@@ -304,10 +291,15 @@ void TWorld::ChannelFlow(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             //  ChannelQ->Drc = ChannelQn->Drc;  // NOT because needed in erosion!
-
-            ChannelQn->Drc = std::min(QinKW->Drc+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
+            //ChannelQn->Drc = std::min(QinKW->Drc+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
+            if (SwitchCulverts && ChannelMaxQ->Drc > 0)
+                ChannelQn->Drc = std::min(ChannelMaxQ->Drc, ChannelQn->Drc);
             ChannelWaterVol->Drc += (QinKW->Drc - ChannelQn->Drc)*_dt;
             ChannelWaterVol->Drc = std::max(0.0,ChannelWaterVol->Drc);
+            if (SwitchCulverts && ChannelMaxQ->Drc > 0) {
+                ChannelWaterVol->Drc = std::min(ChannelWaterVol->Drc ,ChannelWidth->Drc *ChannelDepth->Drc*ChannelDX->Drc);
+            }
+
             // vol is previous + in - out
 
             //ChannelAlpha->Drc = ChannelQn->Drc > 1e-6 ? (ChannelWaterVol->Drc/ChannelDX->Drc)/std::pow(ChannelQn->Drc, 0.6) : ChannelAlpha->Drc;

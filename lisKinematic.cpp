@@ -176,11 +176,11 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
     Qkx   -= fQkx / dfQkx;                                /* Next k */
     Qkx   = std::max(Qkx, 1e-30);
-    if (Qm > 0) {
-        Qkx = std::min(Qkx, Qm);
-        if (Qkx == Qm)
-            alpha = Am;
-    }
+    // if (Qm > 0) {
+    //     Qkx = std::min(Qkx, Qm);
+    //     if (Qkx == Qm)
+    //         alpha = Am;
+    // }
 
     //if (Qkx < MIN_FLUX)
       //  return(0);
@@ -193,13 +193,13 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
         Qkx   -= fQkx / dfQkx;                                // Next k
         Qkx   = std::max(Qkx, 1e-30);
 
-        if (Qm > 0) {
-            Qkx = std::min(Qkx, Qm);
-            if (Qkx == Qm) {
-                alpha = Am;
-                count = MAX_ITERS+1;
-            }
-        }
+        // if (Qm > 0) {
+        //     Qkx = std::min(Qkx, Qm);
+        //     if (Qkx == Qm) {
+        //         alpha = Am;
+        //         count = MAX_ITERS+1;
+        //     }
+        // }
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);

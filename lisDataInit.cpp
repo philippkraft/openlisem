@@ -911,7 +911,7 @@ void TWorld::InitChannel(void)
     ChannelV = NewMap(0);//
     ChannelU = NewMap(0);//
     ChannelWH = NewMap(0);
-    Channelq = NewMap(0);//
+    //Channelq = NewMap(0);//
     ChannelAlpha = NewMap(0);//
     ChannelDX = NewMap(0);
     ChannelInfilVol = NewMap(0);
@@ -1021,7 +1021,7 @@ void TWorld::InitChannel(void)
         // ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
         // store not used?
     }
-
+qDebug() << SwitchCulverts;
     if (SwitchCulverts) {
 
         ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
@@ -1029,20 +1029,24 @@ void TWorld::InitChannel(void)
         ChannelMaxAlpha = NewMap(0);
 
         FOR_ROW_COL_MV_CHL {
-            if (ChannelMaxQ->Drc > 0)
+            if (ChannelMaxQ->Drc > 0) {
+                ChannelWidth->Drc = 0.6;
+                ChannelWidthO->Drc = 0.6;
+                ChannelDepth->Drc = 0.6;
                 ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
+            }
         }}
 
         // there can be no side inflow in a culvert (which is actually not true!)
-        for (int i = 0; i < crlinkedlddch_.size(); i++) {
-            int c = crlinkedlddch_.at(i).c;
-            int r = crlinkedlddch_.at(i).r;
-            if (ChannelMaxQ->Drc > 0) {
-                LDD_COORIN hoi = crlinkedlddch_.at(i);
-                hoi.ldd *= -1;
-                crlinkedlddch_.replace(i, hoi) ;
-            }
-        }
+        // for (int i = 0; i < crlinkedlddch_.size(); i++) {
+        //     int c = crlinkedlddch_.at(i).c;
+        //     int r = crlinkedlddch_.at(i).r;
+        //     if (ChannelMaxQ->Drc > 0) {
+        //         LDD_COORIN hoi = crlinkedlddch_.at(i);
+        //         hoi.ldd *= -1;
+        //         crlinkedlddch_.replace(i, hoi) ;
+        //     }
+        // }
     } else {
         ChannelMaxQ = NewMap(-1);
         ChannelMaxAlpha = NewMap(-1);
