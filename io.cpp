@@ -412,29 +412,44 @@ void writePCRasterRaster(
 void writeGDALRaster(
     cTMap const& raster,
     QString const& pathName,
-    GDALDriver& driver)
+    GDALDriver& driver,
+    QString const& format)
 {
     // Create new dataset.
     int const nrRows{raster.nrRows()};
     int const nrCols{raster.nrCols()};
     int const nrBands{1};
+
+    // Initialize options based on the format
+    const char* options[] = {nullptr};
+    if (format == "PCRaster") {
+        options[0] = "PCRASTER_VALUESCALE=VS_SCALAR";
+        options[1] = nullptr;
+    } else {
+        options[0] = nullptr;
+    }
+
     GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),
-        nrCols, nrRows, nrBands, GDT_Float32, nullptr), close_gdal_dataset};
+                                         nrCols, nrRows, nrBands, GDT_Float32, const_cast<char**>(options)), close_gdal_dataset};
 
     if(!dataset) {
-        Error(QString("Dataset %1 cannot be created.").arg(pathName));
+        Error(QString("Dataset %1 cannot be created. GDAL error: %2")
+                  .arg(pathName)
+                  .arg(CPLGetLastErrorMsg()));
+        return;
     }
 
     MaskedRaster<double> const& raster_data{raster.data};
 
     // Set some metadata.
     double transformation[]{
-        raster_data.west(),
-        raster_data.cell_size(),
-        0.0,
-        raster_data.north(),
-        0.0,
-        raster_data.cell_size()};
+                            raster_data.west(),
+                            raster_data.cell_size(),
+                            0.0,
+                            raster_data.north(),
+                            0.0,
+                            raster_data.cell_size()};
+
     dataset->SetGeoTransform(transformation);
 
     dataset->SetProjection(raster.projection().toLatin1().constData());
@@ -444,7 +459,7 @@ void writeGDALRaster(
     // setting meta data items, this allows for round tripping values scale
     // information back to the PCRaster format, in case the raster is
     // translated to PCRaster format later.
-    dataset->SetMetadataItem("PCRASTER_VALUESCALE", "VS_SCALAR");
+    //dataset->SetMetadataItem("PCRASTER_VALUESCALE", "VS_SCALAR");
 
     // Write values to the raster band.
     auto band = dataset->GetRasterBand(1);
@@ -452,10 +467,11 @@ void writeGDALRaster(
     band->SetNoDataValue(-FLT_MAX);
 
     if(band->RasterIO(GF_Write, 0, 0, nrCols, nrRows,
-            const_cast<double*>(&raster_data.cell(0)),
-            nrCols, nrRows, GDT_Float64, 0, 0) != CE_None) {
+                       const_cast<double*>(&raster_data.cell(0)),
+                       nrCols, nrRows, GDT_Float64, 0, 0) != CE_None) {
         Error(QString("Raster band %1 cannot be written.").arg(pathName));
     }
+
 }
 
 
@@ -486,9 +502,8 @@ void writeRaster(
 //    }
 
     if (format == "PCRaster") {
-        // OK, until PCRaster supports Create(), we'll handle writing to
-        // PCRaster format ourselves. Work is underway to add support
-        // for Create() to the GDAL PCRaster driver.
+        // The function writeGDALRaster() can also be used, but it is slower.
+        // So the current implementation with the local PCRlibrary is still used.
         writePCRasterRaster(raster, pathName);
     } else {
         GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(
@@ -503,7 +518,7 @@ void writeRaster(
         bool driverSupportsCreate{CSLFetchBoolean(metadata, GDAL_DCAP_CREATE, FALSE) != FALSE};
         if(driverSupportsCreate) {
             // All is well, write using GDAL.
-            writeGDALRaster(raster, pathName, *driver);
+            writeGDALRaster(raster, pathName, *driver, format);
         } else {
             Error(QString(
                 "Format driver %1 cannot be used to create datasets.").arg(

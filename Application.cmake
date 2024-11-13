@@ -19,11 +19,16 @@ ENDIF()
 
 #linux
 IF(UNIX AND NOT CYGWIN)
-    SET(QWT_BUILD_DIR "/usr/local/qwt-6.1.4")
+    SET(QWT_BUILD_DIR "/usr/local/qwt-6.4.0-ma")
+    IF(DEFINED ENV{NIX_QWT})
+         SET(QWT_BUILD_DIR "$ENV{NIX_QWT}")
+    ENDIF()
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+    SET(GDAL_INCLUDE_DIRS "/usr/include/gdal")
+    SET(GDAL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libgdal.so")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
 ENDIF()
@@ -41,6 +46,9 @@ INCLUDE_DIRECTORIES(
 
 # Find OpenMP
 find_package(OpenMP REQUIRED)
+
+#Find GDAL
+find_package(GDAL REQUIRED)
 
 # Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
 set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
@@ -70,7 +78,7 @@ SET(APP_SOURCES
     fixture.cpp
     io.cpp
     operation.cpp
-    ui_full/LisUIDialogs.cpp
+    ui_full/LisUIdialogs.cpp
     ui_full/LisUIScreenshot.cpp
     ui_full/LisUItreecheck.cpp
     ui_full/LisUIModel.cpp
@@ -83,9 +91,9 @@ SET(APP_SOURCES
     ui_full/LisUIplot.cpp
     ui_full/LisUImapplot.cpp
     ui_full/LisUImapplot.h
-    ui_full/Lismpeg.cpp
+    ui_full/lismpeg.cpp
     ui_full/lisUIStyle.cpp
-    ui_full/Lismpeg.h
+    ui_full/lismpeg.h
     ui_full/lisemqt.h
     swatre/swatstep.cpp
     swatre/swatinit.cpp
@@ -131,7 +139,6 @@ SET(APP_SOURCES
     include/csfattr.h
     include/csftypes.h
     include/csfimpl.h
-    include/pcrtypes.h
     include/lerror.h
     include/fixture.h
     include/global.h
@@ -153,6 +160,13 @@ SET(APP_SOURCES
     PCR/gvalscal.c
     PCR/gcellrep.c
     PCR/putsomec.c
+    PCR/setangle.c
+    PCR/kernlcsf.c
+    PCR/gproj.c
+    PCR/csfglob.c
+    PCR/setvtmv.c
+    PCR/dumconv.c
+    PCR/swapio.c
     openlisemico.rc
 )
 
