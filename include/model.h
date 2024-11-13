@@ -677,8 +677,6 @@ public:
     int currentSnowmeltrow;
     int currentDischargerow;
     int currentWHrow;
-    int rainplace;
-    int ETplace;
     int WHplace;
     int snowmeltplace;
     QVector <RAIN_LIST> RainfallSeries;  // rainfall vector of records
@@ -691,6 +689,10 @@ public:
     QVector <METEO_LIST> SnowmeltSeriesMaps;  // rainfall vector of records
     QVector <LDD_COORloc> crQin_;
     QVector <int> locationnnrsrec;
+    QVector <double> raintime; // times of records for fast searching where we are
+    QVector <double> ETtime;
+    QVector <double> WHtime;
+    QVector <double> snowmelttime;
 
     // output formatting for SOBEK flood model input
     QString SOBEKdatestring;
@@ -983,19 +985,19 @@ public:
     void GetDischargeData(QString name);
     void GetWHboundData(QString name);
     void GetDischargeMapfromStations();
-    void GetRainfallData(QString name);   // get input timeseries
+    void GetRainfallStationData(QString name);   // get input timeseries
     void GetSpatialMeteoData(QString name, int type);   // get input timeseries
-    void GetETData(QString name);   // get input timeseries
+    void GetETStationData(QString name);   // get input timeseries
     void GetSnowmeltData(QString name);   // get input timeseries
     double getTimefromString(QString sss);
     double getmaxRainfall();
     void IDInterpolation();
     /// convert rainfall of a timestep into a map
     void GetRainfallMapfromStations(void);
-    void GetRainfallMap(void);
+    void GetRainfallMapfromSat(void);
     /// convert ET of a timestep into a map
     void GetETSatMap(void);
-    void GetETMap(void);    
+    void GetETMapfromStations(void);
     /// convert snowmelt of a timestep into a map
     void GetSnowmeltMap(void);
     // user defined point discharge inflow in channel

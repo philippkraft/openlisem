@@ -1030,23 +1030,27 @@ qDebug() << SwitchCulverts;
 
         FOR_ROW_COL_MV_CHL {
             if (ChannelMaxQ->Drc > 0) {
-                ChannelWidth->Drc = 0.6;
-                ChannelWidthO->Drc = 0.6;
-                ChannelDepth->Drc = 0.6;
+                ChannelWidth->Drc = 0.3;
+                ChannelWidthO->Drc = 0.3;
+                ChannelDepth->Drc = 0.3;
+                ChannelN->Drc = 0.02;
+                ChannelGrad->Drc = 0.002;
+
                 ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
             }
         }}
 
         // there can be no side inflow in a culvert (which is actually not true!)
-        // for (int i = 0; i < crlinkedlddch_.size(); i++) {
-        //     int c = crlinkedlddch_.at(i).c;
-        //     int r = crlinkedlddch_.at(i).r;
-        //     if (ChannelMaxQ->Drc > 0) {
-        //         LDD_COORIN hoi = crlinkedlddch_.at(i);
-        //         hoi.ldd *= -1;
-        //         crlinkedlddch_.replace(i, hoi) ;
-        //     }
-        // }
+        for (int i = 0; i < crlinkedlddch_.size(); i++) {
+            int c = crlinkedlddch_.at(i).c;
+            int r = crlinkedlddch_.at(i).r;
+            if (ChannelMaxQ->Drc > 0) {
+                LDD_COORIN hoi = crlinkedlddch_.at(i);
+                hoi.ldd *= -1;
+                crlinkedlddch_.replace(i, hoi) ;
+            }
+        }
+
     } else {
         ChannelMaxQ = NewMap(-1);
         ChannelMaxAlpha = NewMap(-1);

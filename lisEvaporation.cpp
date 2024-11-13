@@ -30,7 +30,7 @@
 #include "operation.h"
 
 //---------------------------------------------------------------------------
-void TWorld::GetETData(QString name)
+void TWorld::GetETStationData(QString name)
 {
     RAIN_LIST rl;
     QFile fff(name);
@@ -145,6 +145,7 @@ void TWorld::GetETData(QString name)
         }
 
         ETSeries << rl;
+        ETtime << rl.time;
     }
 
     // sometimes not an increasing timeseries
@@ -158,7 +159,7 @@ void TWorld::GetETData(QString name)
     nrETseries = ETSeries.size();//nrSeries;
 }
 //---------------------------------------------------------------------------
-void TWorld::GetETMap(void)
+void TWorld::GetETMapfromStations(void)
 {
     double currenttime = (time)/60; //time in min
     double tt = 0.001*ETBiasCorrection; //mm to m
@@ -176,14 +177,12 @@ void TWorld::GetETMap(void)
     }
 
     // where are we in the series
-    int currentrow = ETplace;
-    // find current record
-    while (currenttime >= ETSeries[ETplace].time
-           && currenttime < ETSeries[ETplace+1].time)
-    {
-        currentrow = ETplace;
-        ETplace++;
-    }
+    int currentrow;
+    auto it = std::lower_bound(ETtime.begin(), ETtime.end(), currenttime);
+    if (it == ETtime.begin())
+        currentrow = 0;
+    else
+        currentrow = std::distance(ETtime.begin(), it-1);
 
     if (currentrow == currentETrow && currentrow > 0)
         sameET = true;
@@ -220,29 +219,27 @@ void TWorld::GetETSatMap(void)
         return;
     }
 
-// where are we in the series
-    int currentrow = ETplace;
-    // find current record
-    while (currenttime >= ETSeriesMaps[ETplace].time
-           && currenttime < ETSeriesMaps[ETplace+1].time)
-    {
-        currentrow = ETplace;
-        ETplace++;
-    }
+    // where are we in the series
+    int currentrow;
+    auto it = std::lower_bound(ETtime.begin(), ETtime.end(), currenttime);
+    if (it == ETtime.begin())
+        currentrow = 0;
+    else
+        currentrow = std::distance(ETtime.begin(), it-1);
 
     if (currentrow == currentETrow && currentrow > 0)
         sameET = true;
     // get the next map from file
     if (!sameET) {
 
-        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesMaps[ETplace].name)));
+        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(ETSeriesMaps[currentrow].name)));
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (pcr::isMV(_M->Drc)) {
                 QString sr, sc;
                 sr.setNum(r); sc.setNum(c);
-                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[ETplace].name;
+                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[currentrow].name;
                 throw 1;
             } else {
                 ETp->Drc = std::max(0.0,_M->Drc *tt);

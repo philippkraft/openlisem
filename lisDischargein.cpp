@@ -301,6 +301,7 @@ void TWorld::GetWHboundData(QString name)
         }
 
         WHSeries << rl;
+        WHtime << rl.time;
     }
 
     nrWHseries = WHSeries.size();
@@ -319,16 +320,12 @@ void TWorld::GetWHboundMap(void)
         return;
     }
 
-    // where are we in the series
-    int currentrow = WHplace;
-    // find current record
-    while (currenttime >= WHSeries[WHplace].time
-           && currenttime < WHSeries[WHplace+1].time)
-    {
-        currentrow = WHplace;
-        WHplace++;
-    }
-
+    int currentrow;
+    auto it = std::lower_bound(WHtime.begin(), WHtime.end(), currenttime);
+    if (it == WHtime.begin())
+        currentrow = 0;
+    else
+        currentrow = std::distance(WHtime.begin(), it-1);
     if (currentrow == currentWHrow && currentrow > 0)
         same = true;
 

@@ -90,21 +90,20 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     if (type == 0) {
         RainfallSeriesMaps.clear();
         dirname = rainSatFileDir;
-        currentRainfallrow = 0;
     }
     if (type == 1) {
         ETSeriesMaps.clear();
         dirname = ETSatFileDir;
-        currentETrow = 0;
     }
     if (type == 2) {
         SnowmeltSeriesMaps.clear();
         dirname = snowmeltFileDir;
-        currentSnowmeltrow = 0;
     }
 
     RainfallSeriesMaps.clear();
+    raintime.clear();
     double lasttime = -1;
+
     for(int r = 0; r < nrSeries; r++)
     {
         // initialize record structure
@@ -138,7 +137,6 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
             throw 1;
         }
         rl.name = fi.absoluteFilePath();
-       // qDebug() << rl.time << rl.name;
 
         if (rl.time <= lasttime) {
             if (type == 0)
@@ -149,10 +147,14 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         }
 
         // add the record to the list
-        if (type == 0)
+        if (type == 0) {
             RainfallSeriesMaps << rl;
-        if (type == 1)
+            raintime << rl.time;
+        }
+        if (type == 1) {
             ETSeriesMaps << rl;
+            ETtime << rl.time;
+        }
         if (type == 2)
             SnowmeltSeriesMaps << rl;
 
@@ -170,12 +172,11 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
   //  for(int i = 0; i < nrSeries; i++)
   //      qDebug() << i << RainfallSeriesMaps[i].time << RainfallSeriesMaps[i].name;
 
-
     rainRecs.clear();
 }
 //---------------------------------------------------------------------------
-// get station data for ID interpolation or tiesen polyhon map
-void TWorld::GetRainfallData(QString name)
+// get station data for ID map, or inv distance
+void TWorld::GetRainfallStationData(QString name)
 {
     RAIN_LIST rl;
     QFile fff(name);
@@ -190,6 +191,7 @@ void TWorld::GetRainfallData(QString name)
     bool oldformat = true;
 
     RainfallSeries.clear();
+    raintime.clear();
 
     if (!fi.exists() || !fi.isFile())
     {
@@ -199,6 +201,7 @@ void TWorld::GetRainfallData(QString name)
 
     nrRainfallseries = 0;
     RainfallSeries.clear();
+    raintime.clear();
     currentRainfallrow = 0;
 
     // read rainfall text file
@@ -260,7 +263,6 @@ void TWorld::GetRainfallData(QString name)
     if (SwitchIDinterpolation) {
 
         IDIpointsRC.clear();
-
 
         if (SwitchUseIDmap) {
             // read points in the IDgauge.map and check if a corresponding number exists in the rainfall file
@@ -342,6 +344,7 @@ void TWorld::GetRainfallData(QString name)
         // read date time string and convert to time in minutes
         rl.time = getTimefromString(SL[0]);
         time = rl.time;
+        qDebug() << SL[0] << rl.time;
 
         // check if time is increasing with next row
         if (r+1 < nrSeries) {
@@ -369,34 +372,37 @@ void TWorld::GetRainfallData(QString name)
         }
 
         RainfallSeries << rl;
+        raintime << rl.time; // raintime is for easy searching where we are during the run
     }
 
     nrRainfallseries = RainfallSeries.size();//nrSeries;
     rainRecs.clear();
-//for testing if read properly
-    /*
-    for (int i = 0; i < nrRainfallseries; i++) {
-        qDebug() << RainfallSeries[i].time;
-        QString S, S1;
-        for (int j = 0; j < RainfallSeries[i].stationnr.size(); j++) {
-            S1 = QString("%1 ").arg(RainfallSeries[i].stationnr[j]);
-            S = S + S1;
-        }
-        qDebug() << S;
-        S = "";
-        for (int j = 0; j < RainfallSeries[i].stationnr.size(); j++) {
-            S1 = QString("%1 ").arg(RainfallSeries[i].intensity[j]);
-            S = S + S1;
-        }
-        qDebug() << S;
 
-    }
-*/
+    //for testing if read properly
+    // for (int i = 0; i < nrRainfallseries; i++) {
+    //     qDebug() << RainfallSeries[i].time;
+    //     QString S, S1;
+    //     for (int j = 0; j < RainfallSeries[i].stationnr.size(); j++) {
+    //         S1 = QString("%1 ").arg(RainfallSeries[i].stationnr[j]);
+    //         S = S + S1;
+    //     }
+    //     qDebug() << S;
+    //     S = "";
+    //     for (int j = 0; j < RainfallSeries[i].stationnr.size(); j++) {
+    //         S1 = QString("%1 ").arg(RainfallSeries[i].intensity[j]);
+    //         S = S + S1;
+    //     }
+    //     qDebug() << S;
+
+    // }
+
 }
 //---------------------------------------------------------------------------
+// find where we are in thne rainfall series (timestep), read the intensities
+// and return as map based on id.map or inv dist interpolation
 void TWorld::GetRainfallMapfromStations(void)
 {
-    double currenttime = (time)/60;
+    double currenttime = (time);///60;
     double tt = _dt/3600000.0* PBiasCorrection;
     bool samerain = false;
 
@@ -415,17 +421,19 @@ void TWorld::GetRainfallMapfromStations(void)
         return;
     }
 
-    // where are we in the series
-    int currentrow = 0;
+    // where are we in the series, robust search method
+    int currentrow;
+    auto it = std::lower_bound(raintime.begin(), raintime.end(), currenttime);
+    if (it == raintime.begin())
+        currentrow = 0;
+    else
+        currentrow = std::distance(raintime.begin(), it-1);
 
-    for (int j = 0; j < RainfallSeries.count(); j++) {
-        if (currenttime >= RainfallSeries[j].time && currenttime < RainfallSeries[j+1].time) {
-            currentrow = j;
-            break;
-        }
-    }
+    if (currentrow < 0) currentrow = 0;
+
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
+   //qDebug() << currenttime << *it << currentrow << samerain << RainfallSeries[currentrow].intensity[0] << RainfallSeries[currentrow].time;
 
     // get the next map from file
     if (!samerain) {
@@ -478,8 +486,7 @@ void TWorld::GetRainfallMapfromStations(void)
             }}
         }
     }
-    //qDebug() <<  MapTotal(*Rain)<< currentrow << currentRainfallrow << currenttime << RainfallSeries[currentrow].time;
-    //report(*Rain,"rain");
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         Rainc->Drc = Rain->Drc * _dx/DX->Drc;
@@ -500,15 +507,15 @@ void TWorld::GetRainfallMapfromStations(void)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::GetRainfallMap(void)
+void TWorld::GetRainfallMapfromSat(void)
 {
     double currenttime = (time)/60;
     double tt = _dt/3600000.0 * PBiasCorrection; // mm/h to m -> mm/h = mm X/3600*_dt -> X*0.0001
     bool samerain = false;
 
-    // from time t to t+1 the rain is the rain of t
+    // NOTE: from time t to t+1 the rain is the rain of t
+    // where are we in the series ?
 
-    // where are we in the series
     // if time is outside records then use map with zeros
     if (currenttime < RainfallSeriesMaps[0].time || currenttime > RainfallSeriesMaps[nrRainfallseries-1].time) {
         DEBUG("run time outside rainfall records");
@@ -521,18 +528,15 @@ void TWorld::GetRainfallMap(void)
         return;
     }
 
-    int currentrow = rainplace;
-    // find current record
-    for (int j = 0; j < RainfallSeriesMaps.count(); j++) {
-        if (currenttime >= RainfallSeriesMaps[j].time && currenttime < RainfallSeriesMaps[j+1].time) {
-            currentrow = j;
-            break;
-        }
-    }
+    int currentrow;
+    auto it = std::lower_bound(raintime.begin(), raintime.end(), currenttime);
+    if (it == raintime.begin())
+        currentrow = 0;
+    else
+        currentrow = std::distance(raintime.begin(), it-1);
 
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
-  //  qDebug() << currentrow << currenttime << currentRainfallrow << samerain;
 
     bool SwitchdoRrainAverage = false;
     // get the next map from file
@@ -550,12 +554,11 @@ void TWorld::GetRainfallMap(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double rain_ = 0;
-            //tma->Drc = 0;
 
             if (pcr::isMV(_M->Drc)) {
                 QString sr, sc;
                 sr.setNum(r); sc.setNum(c);
-                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[rainplace].name;
+                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[currentrow].name;
             } else
                 rain_ = _M->Drc * tt; // * RainfallSeriesMaps[currentrow].calib;
 
@@ -576,8 +579,6 @@ void TWorld::GetRainfallMap(void)
                 Rain->Drc = avg;
             }}
         }
-
-      //  delete _M;
     } //samerain
 
     #pragma omp parallel for num_threads(userCores)
@@ -627,29 +628,38 @@ double TWorld::getTimefromString(QString sss)
 {
     // read date time string and convert to time in minutes
     double day = 0;
-    double hour = 0;
+  //  double hour = 0;
     double min = 0;
-    if (SwitchEventbased) {
+
+    QStringList DHM = sss.split(QRegularExpression("[-:/]"));
+    if (DHM.count() == 2) {
+        day = DHM.at(0).toDouble();
+        min = DHM.at(1).toDouble();
+    } else
         min = sss.toDouble();
+
+    if (SwitchEventbased) {
         return(min);
     }
+    //qDebug() <<" gtfs" << (day-1)*1440.0+min;
+    return(double ((day-1)*86400.0+min*60.0));
 
-    if (!sss.contains(QRegularExpression("[-:/]"))) {
-        day = sss.toDouble();
-    } else {
-        // DDD/HH/MM or DDD-HH-MM or DDD:HH:MM
-        QStringList DHM = sss.split(QRegularExpression("[-:/]"));
+    // if (!sss.contains(QRegularExpression("[-:/]"))) {
+    //     day = sss.toDouble();
+    // } else {
+    //     // DDD/HH/MM or DDD-HH-MM or DDD:HH:MM ==> or DDD:MMMM
+    //     QStringList DHM = sss.split(QRegularExpression("[-:/]"));
 
-        if (DHM.count() == 2) {
-            day = DHM.at(0).toDouble();
-            min = DHM.at(1).toDouble();
-        } else {
-            day = DHM.at(0).toDouble();
-            hour = DHM.at(1).toDouble();
-            min = DHM.at(2).toDouble();
-        }
-    }
-    return(day*1440+hour*60+min);
+    //     if (DHM.count() == 2) {
+    //         day = DHM.at(0).toDouble();
+    //         min = DHM.at(1).toDouble();
+    //     } else {
+    //         day = DHM.at(0).toDouble();
+    //         hour = DHM.at(1).toDouble();
+    //         min = DHM.at(2).toDouble();
+    //     }
+    // }
+    //return(day*1440+hour*60+min);
 }
 //---------------------------------------------------------------------------
 void TWorld::IDInterpolation()

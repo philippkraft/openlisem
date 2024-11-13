@@ -129,6 +129,9 @@ void TWorld::DoModel()
         double etd = getvaluedouble("End time day");
         double etm = getvaluedouble("End time");
 
+        btd -= 1.0; // because day 1, min 10 is nin fact min 10
+        etd -= 1.0;
+
         if (SwitchEventbased) {
             DEBUG("Day in start and end time is ignored.");
         }
@@ -141,12 +144,11 @@ void TWorld::DoModel()
             op.BeginTime = BeginTime/60; // for graph drawing in min
             op.EndTime = EndTime/60;
         } else {
-            BeginTime = (btd*1440+btm)*60; //for eunning in sec
+            BeginTime = (btd*1440+btm)*60; //for running in sec
             EndTime = (etd*1440+etm)*60;   //in sec
             op.BeginTime = BeginTime/60;// for graph drawing in min
             op.EndTime = EndTime/60;
         }
-
 
         //get all maps
         DEBUG("Get Input Maps");
@@ -162,47 +164,27 @@ void TWorld::DoModel()
 
         if (SwitchRainfall)
         {
-            //DEBUG("Get Rainfall Data");
+            DEBUG("Get Rainfall Data");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
-
-                for (rainplace = 0; rainplace < nrRainfallseries; rainplace++) {
-                    if (BeginTime/60 >= RainfallSeriesMaps[rainplace].time)
-                        break;
-                }
             } else {
-                GetRainfallData(rainFileName);
-
-                for (rainplace = 0; rainplace < nrRainfallseries; rainplace++) {
-                    if (BeginTime/60 >= RainfallSeries[rainplace].time)
-                        break;
-                }
+                GetRainfallStationData(rainFileName);
             }
-            if (rainplace > 0) rainplace--;
+           // if (rainplace > 0) rainplace--;
         }
-
-
 
         if (SwitchIncludeET)
         {
             ETSeries.clear();
             ETSeriesMaps.clear();
+            ETtime.clear();
+
             DEBUG("Get EvapoTranspiaration Data");
             if (SwitchETSatellite) {
                 GetSpatialMeteoData(ETSatFileName, 1);
-
-                for (ETplace = 0; ETplace < nrETseries; ETplace++) {
-                    if (BeginTime/60 >= ETSeriesMaps[ETplace].time)
-                        break;
-                }
             } else {
-                GetETData(ETFileName);
-                for (ETplace = 0; ETplace < nrETseries; ETplace++) {
-                    if (BeginTime/60 >= ETSeries[ETplace].time)
-                        break;
-                }
+                GetETStationData(ETFileName);
             }
-            if (ETplace > 0) ETplace--;
         }
 
         // SwitchSnowmelt = false;
@@ -210,17 +192,12 @@ void TWorld::DoModel()
         // {
         //     SnowmeltSeries.clear();
         //     SnowmeltSeriesMaps.clear();
+        //     snowmelttime.clear();
         //     DEBUG("Get Snowmelt Data Information");
         //     if (SwitchSnowmeltSatellite) {
         //         GetSpatialMeteoData(snowmeltSatFileName, 2);
-        //     snowmeltplace = 0;
-        //     while (BeginTime/60 >= SnowmeltSeriesMaps[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
-        //         snowmeltplace++;
         //     } else {
         //         GetSnowmeltData(snowmeltFileName);
-        //         snowmeltplace = 0;
-        //         while (BeginTime/60 >= SnowmeltSeries[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
-        //             snowmeltplace++;
         //     }
         // }
 
@@ -233,15 +210,16 @@ void TWorld::DoModel()
         if (SwitchWaveUser)
         {
             WHSeries.clear();
+            WHtime.clear();
             DEBUG("GetWHboundData()");
 
             GetWHboundData(WaveinFileName);
 
-            WHplace = 0;
-            while (BeginTime/60 >= WHSeries[WHplace].time && WHplace < nrWHseries)
-                WHplace++;
-            if (WHplace > 0) WHplace--;
-            qDebug() << WHplace;
+            // WHplace = 0;
+            // while (BeginTime/60 >= WHSeries[WHplace].time && WHplace < nrWHseries)
+            //     WHplace++;
+            // if (WHplace > 0) WHplace--;
+            // qDebug() << WHplace;
         }
 
         // get all input data and create and initialize all maps and variables
@@ -357,7 +335,8 @@ void TWorld::DoModel()
 
       //  op.nrMapsCreated = maplistnr;
       //  DestroyData();
-qDebug() << ErrorString;
+        // moved to W in interface
+
         emit done("ERROR STOP: "+ErrorString);
         if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
             QApplication::quit();
@@ -369,7 +348,7 @@ void TWorld::GetInputTimeseries()
 {
     // get meteo data
     if (SwitchRainfallSatellite)
-        GetRainfallMap();         // get rainfall from maps
+        GetRainfallMapfromSat();         // get rainfall from maps
     else
         GetRainfallMapfromStations();  // get rainfall from stations
 
@@ -377,7 +356,7 @@ void TWorld::GetInputTimeseries()
         if (SwitchETSatellite)
             GetETSatMap(); // get rainfall from maps
         else
-            GetETMap();   // get rainfall from stations
+            GetETMapfromStations();   // get rainfall from stations
     }
 
     if (SwitchDischargeUser) {
