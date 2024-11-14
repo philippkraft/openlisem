@@ -129,7 +129,7 @@ void TWorld::DoModel()
         double etd = getvaluedouble("End time day");
         double etm = getvaluedouble("End time");
 
-        btd -= 1.0; // because day 1, min 10 is nin fact min 10
+        btd -= 1.0; // because day 1, minute 10 is in fact minute 10 in the first day
         etd -= 1.0;
 
         if (SwitchEventbased) {
@@ -164,13 +164,16 @@ void TWorld::DoModel()
 
         if (SwitchRainfall)
         {
+            RainfallSeries.clear();
+            RainfallSeriesMaps.clear();
+            raintime.clear();
+
             DEBUG("Get Rainfall Data");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
             } else {
                 GetRainfallStationData(rainFileName);
             }
-           // if (rainplace > 0) rainplace--;
         }
 
         if (SwitchIncludeET)
@@ -193,6 +196,7 @@ void TWorld::DoModel()
         //     SnowmeltSeries.clear();
         //     SnowmeltSeriesMaps.clear();
         //     snowmelttime.clear();
+        //
         //     DEBUG("Get Snowmelt Data Information");
         //     if (SwitchSnowmeltSatellite) {
         //         GetSpatialMeteoData(snowmeltSatFileName, 2);
@@ -203,23 +207,20 @@ void TWorld::DoModel()
 
         if (SwitchDischargeUser)
         {
-            DEBUG("GetDischargeData()");
-            GetDischargeData(dischargeinFileName);
+            DischargeSeries.clear();
+            dischargetime.clear();
+
+            DEBUG("GetUserDischargeData()");
+            GetUserDischargeData(dischargeinFileName);
         }
 
         if (SwitchWaveUser)
         {
             WHSeries.clear();
             WHtime.clear();
-            DEBUG("GetWHboundData()");
 
-            GetWHboundData(WaveinFileName);
-
-            // WHplace = 0;
-            // while (BeginTime/60 >= WHSeries[WHplace].time && WHplace < nrWHseries)
-            //     WHplace++;
-            // if (WHplace > 0) WHplace--;
-            // qDebug() << WHplace;
+            DEBUG("GetWHboundaryData()");
+            GetWHboundaryData(WaveinFileName);
         }
 
         // get all input data and create and initialize all maps and variables
@@ -236,7 +237,7 @@ void TWorld::DoModel()
         //bool saveMBerror = true;
         //saveMBerror2file(true); //saveMBerror,
 
-      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
+      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once, moved inside loop!
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
@@ -348,30 +349,30 @@ void TWorld::GetInputTimeseries()
 {
     // get meteo data
     if (SwitchRainfallSatellite)
-        GetRainfallMapfromSat();         // get rainfall from maps
+        GetRainfallMapfromSat(time);         // get rainfall from maps
     else
-        GetRainfallMapfromStations();  // get rainfall from stations
+        GetRainfallMapfromStations(time);  // get rainfall from stations
 
     if (SwitchIncludeET) {
         if (SwitchETSatellite)
-            GetETSatMap(); // get rainfall from maps
+            GetETSatMap(time); // get rainfall from maps
         else
-            GetETMapfromStations();   // get rainfall from stations
+            GetETMapfromStations(time);   // get rainfall from stations
     }
 
     if (SwitchDischargeUser) {
-        GetDischargeMapfromStations();
+        GetDischargeMapfromStations(time);
     }
 
     if (SwitchWaveUser) {
-        GetWHboundMap();
+        GetWHboundaryMap(time);
     }
 
 //    if (SwitchSnowmelt) {
 //        if (SwitchSnowmeltSatellite)
 //            ; //TODO snowmelt satellite
 //        else
-//            GetSnowmeltMap();  // get snowmelt from stations
+//            GetSnowmeltMap(time);  // get snowmelt from stations
 //    }
 
 }

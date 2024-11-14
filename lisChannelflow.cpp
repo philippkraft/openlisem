@@ -113,8 +113,8 @@ void TWorld::ChannelVelocityandDischarge()
             ChannelV->Drc = ChannelV_;
         }
     }}
-report (*ChannelAlpha, "cha");
-report (*ChannelQ, "chq");
+// report (*ChannelAlpha, "cha");
+// report (*ChannelQ, "chq");
 }
 
 //---------------------------------------------------------------------------

@@ -1021,7 +1021,7 @@ void TWorld::InitChannel(void)
         // ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
         // store not used?
     }
-qDebug() << SwitchCulverts;
+
     if (SwitchCulverts) {
 
         ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
@@ -1190,13 +1190,6 @@ qDebug() << SwitchCulverts;
                 ChannelY->Drc = 0;
         }}
     }
-    // OBSOLETE
-   // SwitchChannelExtended = ExtendChannelNew();
-    //   ExtendChannel();
-
-    // OBSOLETE
-    //ChannelPAngle = NewMap(0);
-    //FindChannelAngles();
 }
 //---------------------------------------------------------------------------
 void TWorld::InitFlood(void)
@@ -1670,16 +1663,6 @@ void TWorld::IntializeData(void)
     COMBO_TC = NewMap(0);
     COMBO_V = NewMap(0);
 
-
-//    HouseWidthDX = NewMap(0);
-//    FOR_ROW_COL_MV
-//    {
-//        HouseWidthDX->Drc = std::min(_dx,  HouseCover->Drc *_dx);
-//        // assume there is always space next to house
-//        //N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
-//        // moved to cell
-//    }
-
     SoilETMBcorrection = 0;
     //### infiltration maps
     InfilTot = 0;
@@ -1732,17 +1715,12 @@ void TWorld::IntializeData(void)
     InfilmmCum = NewMap(0);
     InfilVolCum = NewMap(0);
     fact = NewMap(0);
-  //  fpot = NewMap(0);
-  //  factgr = NewMap(0);
-  //  fpotgr = NewMap(0);
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
-    //FSurplus = NewMap(0);
     FFull = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
-    //runoffTotalCell = NewMap(0);
     Fcum = NewMap(0);
     Lw = NewMap(0);
     Lwmm = NewMap(0);
@@ -2208,7 +2186,6 @@ void TWorld::IntializeOptions(void)
     SwitchGWSWOFflow =  false;
     SwitchLDDGWflow = false;
     SwitchSWATGWflow = false;
-    //SwitchGWChangeSD = true;
     SwitchChannelBaseflowStationary = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
@@ -2224,7 +2201,6 @@ void TWorld::IntializeOptions(void)
     SwitchDumphead = false;
     initSwatreStructure = false;  // check to flag when swatre 3D structure is created, needed to clean up data
     SwitchGeometric = true;
- //   SwitchWaterRepellency = false;
     SwitchImpermeable = false;
     SwitchTwoLayer = false;
     SwitchThreeLayer = false;

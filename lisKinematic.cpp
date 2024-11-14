@@ -182,10 +182,6 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     //         alpha = Am;
     // }
 
-    //if (Qkx < MIN_FLUX)
-      //  return(0);
-    //avoid spurious iteration
-
     count = 0;
     do {
         fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   // Current k

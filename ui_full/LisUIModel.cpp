@@ -194,6 +194,15 @@ void lisemqt::runmodel()
             if (W->SwatreSoilModelGrass)
                 W->CloseSwatre(W->SwatreSoilModelGrass);
         }
+
+        Xa.clear();
+        Ya.clear();
+        Xc.clear();
+        Yc.clear();
+        op.ObsPointX.clear();
+        op.ObsPointY.clear();
+        op.EndPointX.clear();
+        op.EndPointY.clear();
     }
 
     startplot = true; // user has pressed run, used only to initiatte screen stop, after that set to false!

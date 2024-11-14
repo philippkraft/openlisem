@@ -107,7 +107,7 @@ void TWorld::GetETStationData(QString name)
         // split ET record row with whitespace
         QStringList SL = ETRecs[r_].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
-        // read date time string and convert to time in minutes
+        // read date time string and convert to time in seconds
         rl.time = getTimefromString(SL[0]);
         time = rl.time;
 
@@ -159,9 +159,8 @@ void TWorld::GetETStationData(QString name)
     nrETseries = ETSeries.size();//nrSeries;
 }
 //---------------------------------------------------------------------------
-void TWorld::GetETMapfromStations(void)
+void TWorld::GetETMapfromStations(double currenttime)
 {
-    double currenttime = (time)/60; //time in min
     double tt = 0.001*ETBiasCorrection; //mm to m
     bool sameET= false;
     // from time t to t+1 the ET is the ET of t
@@ -200,9 +199,8 @@ void TWorld::GetETMapfromStations(void)
     currentETrow = currentrow;
 }
 //---------------------------------------------------------------------------
-void TWorld::GetETSatMap(void)
+void TWorld::GetETSatMap(double currenttime)
 {
-    double currenttime = (time)/60; //time in min
     double tt = 0.001*ETBiasCorrection; //mm/day to m/day
     bool noET = false;
     bool sameET= false;

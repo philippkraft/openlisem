@@ -138,7 +138,7 @@ void TWorld::GetSnowmeltData(QString name)
         // split snowmelt record row with whitespace
         QStringList SL = rainRecs[r_].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
-        // read date time string and convert to time in minutes
+        // read date time string and convert to time in seconds
         rl.time = getTimefromString(SL[0]);
         time = rl.time;
 
