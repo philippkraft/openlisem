@@ -1030,9 +1030,9 @@ void TWorld::InitChannel(void)
 
         FOR_ROW_COL_MV_CHL {
             if (ChannelMaxQ->Drc > 0) {
-                //ChannelWidth->Drc = 0.3;
-                //ChannelWidthO->Drc = 0.3;
-                //ChannelDepth->Drc = 0.3;
+                // ChannelWidth->Drc = 0.3;
+                // ChannelWidthO->Drc = 0.3;
+                // ChannelDepth->Drc = 0.3;
                 ChannelN->Drc = 0.015;
                 ChannelGrad->Drc = 0.002;
 

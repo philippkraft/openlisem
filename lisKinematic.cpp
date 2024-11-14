@@ -135,7 +135,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  *
  * @param Qin : summed Q new from upstream
  * @param Qold : current discharge in the cell  Qin in LISEM
- * @param q : infiltration surplus flux (in m2/s), has value <= 0
+ * @param q : infiltration surplus flux (in m2/s), has value <= 0 NOT USED
  * @param alpha : alpha calculated in LISEM from before kinematic wave
  * @param deltaT : dt, timestep
  * @param deltaX : dx, length of the cell  corrected for slope (DX map in LISEM)
@@ -153,7 +153,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     const double beta = 0.6;
     double q = 0; //sink term, not used
 
-    //NOTE Qm is maximum Q in pipes/culverts, Am is max Alpha
+    //NOTE Qm is maximum Q in pipes/culverts, Am is max Alpha with max Q, values are -1 if not used
 
     if ((Qin+Qold+q) == 0)  /* +q CW NEW! */
         return(0);
@@ -163,24 +163,24 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     // derivative of diagonal average (space-time)
     deltaTX = deltaT/deltaX;
     C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
-    //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
     //C is unit volume of water
-
-    // pow function sum flux must be > 0
-    ab_pQ = alpha*beta*pow((Qold+Qin)/2.0,beta-1);
-    // derivative of diagonal average (space-time), must be > 0 because of pow function
+    //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
     Qkx = (deltaTX*Qin + Qold*ab_pQ) / (deltaTX + ab_pQ);
     // explicit first guess Qkx
+
+    // do a first ietartion step for a better guess of Qkx
     Qkx   = std::max(Qkx, 1e-30);
-    fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   /* Current k */
-    dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  /* Current k */
-    Qkx   -= fQkx / dfQkx;                                /* Next k */
+    fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;
+    dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);
+    Qkx   -= fQkx / dfQkx;
     Qkx   = std::max(Qkx, 1e-30);
-    // if (Qm > 0) {
-    //     Qkx = std::min(Qkx, Qm);
-    //     if (Qkx == Qm)
-    //         alpha = Am;
-    // }
+
+    // limit flux and alpha to pipe max Q
+    if (Qm > 0) {
+        Qkx = std::min(Qkx, Qm);
+        if (Qkx == Qm)
+            alpha = Am;
+    }
 
     count = 0;
     do {
@@ -189,13 +189,14 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
         Qkx   -= fQkx / dfQkx;                                // Next k
         Qkx   = std::max(Qkx, 1e-30);
 
-        // if (Qm > 0) {
-        //     Qkx = std::min(Qkx, Qm);
-        //     if (Qkx == Qm) {
-        //         alpha = Am;
-        //         count = MAX_ITERS+1;
-        //     }
-        // }
+        // limit flux and alpha to pipe max Q
+        if (Qm > 0) {
+            Qkx = std::min(Qkx, Qm);
+            if (Qkx == Qm) {
+                alpha = Am;
+                count = MAX_ITERS;
+            }
+        }
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
