@@ -323,8 +323,8 @@ cTMap
 *LDDChannel,                 //!<
 *LDDbaseflow,
 *ChannelWidthO,               //!<
-*ChannelDepthO,               //!<
 *ChannelWidth,               //!<
+*ChannelDepth,               //!<
 *ChannelSide,                //!<
 *ChannelQSide,                //!<
 *ChannelQb,                   //!<
@@ -343,10 +343,10 @@ cTMap
 *ChannelN,                   //!<
 *ChannelNcul,                   //!<
 *ChannelWH,                  //!<
-*ChannelWHExtended,                  //!<
-*ChannelVolExtended,                  //!<
+//*ChannelWHExtended,                  //!<
+//*ChannelVolExtended,                  //!<
 *ChannelWaterVol,            //!<
-*Channelq,                   //!<
+//*Channelq,                   //!<
 *ChannelAlpha,               //!<
 *ChannelWidthMax,           //!<
 *ChannelAdj,                //!<
@@ -378,7 +378,6 @@ cTMap
 *ChannelTC,                  //!<
 *ChannelCohesion,            //!<
 *ChannelY,                   //!<
-*ChannelDepth,               //!<
 *ChannelPAngle,               //!<
 *ChannelQsr,
 

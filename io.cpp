@@ -491,16 +491,6 @@ void writeRaster(
     QString const& pathName,
     QString const& format)
 {
-// not needed because inside lisem this is not happening
-//    if(raster.nrRows() == 0 || raster.nrCols() == 0) {
-//        return;
-//    }
-
-//    if(pathName.isEmpty()) {
-//        ErrorString = "Cannot write file, file name empty";
-//        throw 1;
-//    }
-
     if (format == "PCRaster") {
         // The function writeGDALRaster() can also be used, but it is slower.
         // So the current implementation with the local PCRlibrary is still used.

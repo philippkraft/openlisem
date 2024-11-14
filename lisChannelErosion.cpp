@@ -162,7 +162,7 @@ void TWorld::ChannelFlowDetachmentNew()
 
                     detachment *= ChannelY->Drc;
 
-                    if (ChannelMaxQ->Drc > 0)
+                    if (SwitchCulverts && ChannelMaxQ->Drc > 0)
                         detachment = 0;
                     // not detahcment in culverts
 

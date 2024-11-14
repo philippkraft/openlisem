@@ -911,7 +911,7 @@ void TWorld::InitChannel(void)
     ChannelV = NewMap(0);//
     ChannelU = NewMap(0);//
     ChannelWH = NewMap(0);
-    Channelq = NewMap(0);//
+    //Channelq = NewMap(0);//
     ChannelAlpha = NewMap(0);//
     ChannelDX = NewMap(0);
     ChannelInfilVol = NewMap(0);
@@ -1029,8 +1029,15 @@ void TWorld::InitChannel(void)
         ChannelMaxAlpha = NewMap(0);
 
         FOR_ROW_COL_MV_CHL {
-            if (ChannelMaxQ->Drc > 0)
+            if (ChannelMaxQ->Drc > 0) {
+                ChannelWidth->Drc = 0.3;
+                ChannelWidthO->Drc = 0.3;
+                ChannelDepth->Drc = 0.3;
+                ChannelN->Drc = 0.02;
+                ChannelGrad->Drc = 0.002;
+
                 ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
+            }
         }}
 
         // there can be no side inflow in a culvert (which is actually not true!)
@@ -1043,6 +1050,7 @@ void TWorld::InitChannel(void)
                 crlinkedlddch_.replace(i, hoi) ;
             }
         }
+
     } else {
         ChannelMaxQ = NewMap(-1);
         ChannelMaxAlpha = NewMap(-1);
@@ -1182,13 +1190,6 @@ void TWorld::InitChannel(void)
                 ChannelY->Drc = 0;
         }}
     }
-    // OBSOLETE
-   // SwitchChannelExtended = ExtendChannelNew();
-    //   ExtendChannel();
-
-    // OBSOLETE
-    //ChannelPAngle = NewMap(0);
-    //FindChannelAngles();
 }
 //---------------------------------------------------------------------------
 void TWorld::InitFlood(void)
@@ -1662,16 +1663,6 @@ void TWorld::IntializeData(void)
     COMBO_TC = NewMap(0);
     COMBO_V = NewMap(0);
 
-
-//    HouseWidthDX = NewMap(0);
-//    FOR_ROW_COL_MV
-//    {
-//        HouseWidthDX->Drc = std::min(_dx,  HouseCover->Drc *_dx);
-//        // assume there is always space next to house
-//        //N->Drc = N->Drc * (1-HouseCover->Drc) + 0.25*HouseCover->Drc;
-//        // moved to cell
-//    }
-
     SoilETMBcorrection = 0;
     //### infiltration maps
     InfilTot = 0;
@@ -1724,17 +1715,12 @@ void TWorld::IntializeData(void)
     InfilmmCum = NewMap(0);
     InfilVolCum = NewMap(0);
     fact = NewMap(0);
-  //  fpot = NewMap(0);
-  //  factgr = NewMap(0);
-  //  fpotgr = NewMap(0);
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
-    //FSurplus = NewMap(0);
     FFull = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
-    //runoffTotalCell = NewMap(0);
     Fcum = NewMap(0);
     Lw = NewMap(0);
     Lwmm = NewMap(0);
@@ -2200,7 +2186,6 @@ void TWorld::IntializeOptions(void)
     SwitchGWSWOFflow =  false;
     SwitchLDDGWflow = false;
     SwitchSWATGWflow = false;
-    //SwitchGWChangeSD = true;
     SwitchChannelBaseflowStationary = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
@@ -2216,7 +2201,6 @@ void TWorld::IntializeOptions(void)
     SwitchDumphead = false;
     initSwatreStructure = false;  // check to flag when swatre 3D structure is created, needed to clean up data
     SwitchGeometric = true;
- //   SwitchWaterRepellency = false;
     SwitchImpermeable = false;
     SwitchTwoLayer = false;
     SwitchThreeLayer = false;

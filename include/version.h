@@ -35,8 +35,8 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "7.2"
-#define DATE "2024/11/07"
+#define VERSIONNR "7.3"
+#define DATE "2024/11/14"
 
 
 #define VERSION QString("openLISEM version %1 - %2").arg(VERSIONNR).arg(DATE)

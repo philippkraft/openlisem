@@ -100,8 +100,8 @@ void TWorld::OutputUI(void)
     //op.EndTime = EndTime/60.0;
     op.CatchmentArea = CatchmentArea;
 
-    op.Pmm.append((RainAvgmm + SnowAvgmm)*3600/_dt);
-    op.RainTotmm = RainTotmm + SnowTotmm;
+    op.Pmm.append((RainAvgmm)*3600/_dt); // + SnowAvgmm
+    op.RainTotmm = RainTotmm;// + SnowTotmm;
     op.ETaTotmm = ETaTotmm;
     op.GWlevel = GWlevel;
     op.RainpeakTime = RainpeakTime/60;
@@ -253,14 +253,6 @@ void TWorld::OutputUI(void)
         }}
     }
 
-    //output maps for combo box
-//    for(int i = 0; i < op.ComboMaps.length(); i++)
-//    {
-//        #pragma omp parallel for num_threads(userCores)
-//        FOR_ROW_COL_MV_L {
-//            op.ComboMapsSafe[i]->Drc = op.ComboMaps[i]->Drc; // * op.ComboScaling.at(i); scaling is done filldrawmapdata
-//        }}
-//    }
 
     // ONLY ONCE
     if (runstep <= 1) {

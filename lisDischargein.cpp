@@ -28,7 +28,7 @@
 
 
 //---------------------------------------------------------------------------
-void TWorld::GetDischargeData(QString name)
+void TWorld::GetUserDischargeData(QString name)
 {
     Q_LIST rl;
     QFile fff(name);
@@ -66,7 +66,7 @@ void TWorld::GetDischargeData(QString name)
     }
     fff.close();
 
-    // check first if PCRaster graph format is present: header, number of vars, columns equal vars
+    // check first if PCRaster graph format is present:
     int count = QRecs[1].toInt(&ok, 10); // nr of cols in file
     // header
     // second line is only an integer
@@ -116,7 +116,7 @@ void TWorld::GetDischargeData(QString name)
         // split rainfall record row with whitespace
         QStringList SL = QRecs[r_].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
-        // read date time string and convert to time in minutes
+        // read date time string and convert to time in seconds
         rl.time = getTimefromString(SL[0]);
         time = rl.time;
 
@@ -145,45 +145,37 @@ void TWorld::GetDischargeData(QString name)
         }
 
         DischargeSeries << rl;
+        dischargetime << rl.time;
     }
 
     nrDischargeseries = DischargeSeries.size();
 }
 //---------------------------------------------------------------------------
-void TWorld::GetDischargeMapfromStations(void)
+void TWorld::GetDischargeMapfromStations(double currenttime)
 {
-    double currenttime = (time)/60;
-    bool sameQ = false;
+    bool same = false;
 
     // from time t to t+1 the rain is the rain of t
 
     // if time is outside records then use map with zeros
-    if (currenttime < RainfallSeries[0].time || currenttime > RainfallSeries[nrRainfallseries-1].time)
-    {
-        //DEBUG("run time outside rainfall records");
-        #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                Rain->Drc = 0;
-                Rainc->Drc = 0;
-                RainNet->Drc = 0;
-            }}
-            return;
-        }
-
-    // where are we in the series
-    int currentrow = 0;
-    for (int j = 0; j < DischargeSeries.count(); j++) {
-        if (currenttime >= DischargeSeries[j].time && currenttime < DischargeSeries[j+1].time) {
-            currentrow = j;
-            break;
-        }
+    if (currenttime < DischargeSeries[0].time || currenttime > DischargeSeries[nrRainfallseries-1].time) {
+        Fill(*QuserIn, 0);
+        return;
     }
 
+    // where are we in the series
+    int currentrow;
+    auto it = std::lower_bound(dischargetime.begin(), dischargetime.end(), currenttime);
+    if (it == dischargetime.begin())
+        currentrow = 0;
+    else
+        currentrow = std::distance(dischargetime.begin(), it-1);
+
     if (currentrow == currentDischargerow && currentrow > 0)
-        sameQ = true;
+        same = true;
 
     // get the next map from file
-    if (!sameQ) {
+    if (!same) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             QuserIn->Drc = 0;
@@ -197,13 +189,9 @@ void TWorld::GetDischargeMapfromStations(void)
     }
 
     currentDischargerow = currentrow;
-
-//    double hoi =MapTotal(*QuserIn);
-//    qDebug() << hoi;
-
 }
 //---------------------------------------------------------------------------
-void TWorld::GetWHboundData(QString name)
+void TWorld::GetWHboundaryData(QString name)
 {
     WH_LIST rl;
     QFile fff(name);
@@ -223,7 +211,6 @@ void TWorld::GetWHboundData(QString name)
     }
 
     nrWHseries = 0;
-    WHSeries.clear();
     currentWHrow = 0;
 
     // read WH text file
@@ -250,7 +237,7 @@ void TWorld::GetWHboundData(QString name)
         SL = QRecs[count+2].split(QRegularExpression("\\s+"));
         // check nr of columns in file
         if (count != SL.count()) {
-            ErrorString = "Error: The nr of columns/stations in the discharge file does not equal the number on the second row.";
+            ErrorString = "Error: The nr of columns/stations in the boundary water level file does not equal the number on the second row.";
             throw 1;
         }
 
@@ -276,7 +263,7 @@ void TWorld::GetWHboundData(QString name)
         // split rainfall record row with whitespace
         QStringList SL = QRecs[r_].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
-        // read date time string and convert to time in minutes
+        // read date time string and convert to time in seconds
         rl.time = getTimefromString(SL[0]);
         time = rl.time;
 
@@ -285,7 +272,7 @@ void TWorld::GetWHboundData(QString name)
             QStringList SL1 = QRecs[r_+1].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
             int time1 = getTimefromString(SL1[0]);
             if (time1 < time) {
-                ErrorString = QString("Time in discharge records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);
+                ErrorString = QString("Time in boundary water level records is not increasing from row %1 to %2. Check your file!").arg(r_).arg(r_+1);
                 throw 1;
             }
         }
@@ -294,40 +281,35 @@ void TWorld::GetWHboundData(QString name)
         bool ok = false;
 
         rl.WH = SL[1].toDouble(&ok);
-        if (!ok)
-        {
-            ErrorString = QString("Water height record at time %1 has an unreadable value: %2.").arg(SL[0]).arg(SL[1]);
+        if (!ok) {
+            ErrorString = QString("Boundary water level record at time %1 has an unreadable value: %2.").arg(SL[0]).arg(SL[1]);
             throw 1;
         }
 
         WHSeries << rl;
+        WHtime << rl.time;
     }
 
     nrWHseries = WHSeries.size();
 }
 //---------------------------------------------------------------------------
-void TWorld::GetWHboundMap(void)
+void TWorld::GetWHboundaryMap(double currenttime)
 {
-    double currenttime = (time)/60; //time in min
     bool same = false;
     // from time t to t+1 the ET is the ET of t
 
     // if time is outside records then use map with zeros
     if (currenttime < WHSeries[0].time || currenttime > WHSeries[nrWHseries-1].time) {
-        DEBUG("run time outside WH records");
         Fill(*WHbound, 0);
         return;
     }
 
-    // where are we in the series
-    int currentrow = WHplace;
-    // find current record
-    while (currenttime >= WHSeries[WHplace].time
-           && currenttime < WHSeries[WHplace+1].time)
-    {
-        currentrow = WHplace;
-        WHplace++;
-    }
+    int currentrow;
+    auto it = std::lower_bound(WHtime.begin(), WHtime.end(), currenttime);
+    if (it == WHtime.begin())
+        currentrow = 0;
+    else
+        currentrow = std::distance(WHtime.begin(), it-1);
 
     if (currentrow == currentWHrow && currentrow > 0)
         same = true;

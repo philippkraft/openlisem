@@ -112,8 +112,6 @@ void TWorld::DoModel()
         DEBUG("reading and initializing data");
 
         IntializeOptions(); // reset all options
-//        InitMapList();
-        // map structure to destroy data automatically
 
         DEBUG("GetRunFile()");
         GetRunFile();
@@ -131,6 +129,9 @@ void TWorld::DoModel()
         double etd = getvaluedouble("End time day");
         double etm = getvaluedouble("End time");
 
+        btd -= 1.0; // because day 1, minute 10 is in fact minute 10 in the first day
+        etd -= 1.0;
+
         if (SwitchEventbased) {
             DEBUG("Day in start and end time is ignored.");
         }
@@ -143,12 +144,11 @@ void TWorld::DoModel()
             op.BeginTime = BeginTime/60; // for graph drawing in min
             op.EndTime = EndTime/60;
         } else {
-            BeginTime = (btd*1440+btm)*60; //for eunning in sec
+            BeginTime = (btd*1440+btm)*60; //for running in sec
             EndTime = (etd*1440+etm)*60;   //in sec
             op.BeginTime = BeginTime/60;// for graph drawing in min
             op.EndTime = EndTime/60;
         }
-
 
         //get all maps
         DEBUG("Get Input Maps");
@@ -164,47 +164,30 @@ void TWorld::DoModel()
 
         if (SwitchRainfall)
         {
-            //DEBUG("Get Rainfall Data");
+            RainfallSeries.clear();
+            RainfallSeriesMaps.clear();
+            raintime.clear();
+
+            DEBUG("Get Rainfall Data");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
-
-                for (rainplace = 0; rainplace < nrRainfallseries; rainplace++) {
-                    if (BeginTime/60 >= RainfallSeriesMaps[rainplace].time)
-                        break;
-                }
             } else {
-                GetRainfallData(rainFileName);
-
-                for (rainplace = 0; rainplace < nrRainfallseries; rainplace++) {
-                    if (BeginTime/60 >= RainfallSeries[rainplace].time)
-                        break;
-                }
+                GetRainfallStationData(rainFileName);
             }
-            if (rainplace > 0) rainplace--;
         }
-
-
 
         if (SwitchIncludeET)
         {
             ETSeries.clear();
             ETSeriesMaps.clear();
+            ETtime.clear();
+
             DEBUG("Get EvapoTranspiaration Data");
             if (SwitchETSatellite) {
                 GetSpatialMeteoData(ETSatFileName, 1);
-
-                for (ETplace = 0; ETplace < nrETseries; ETplace++) {
-                    if (BeginTime/60 >= ETSeriesMaps[ETplace].time)
-                        break;
-                }
             } else {
-                GetETData(ETFileName);
-                for (ETplace = 0; ETplace < nrETseries; ETplace++) {
-                    if (BeginTime/60 >= ETSeries[ETplace].time)
-                        break;
-                }
+                GetETStationData(ETFileName);
             }
-            if (ETplace > 0) ETplace--;
         }
 
         // SwitchSnowmelt = false;
@@ -212,38 +195,32 @@ void TWorld::DoModel()
         // {
         //     SnowmeltSeries.clear();
         //     SnowmeltSeriesMaps.clear();
+        //     snowmelttime.clear();
+        //
         //     DEBUG("Get Snowmelt Data Information");
         //     if (SwitchSnowmeltSatellite) {
         //         GetSpatialMeteoData(snowmeltSatFileName, 2);
-        //     snowmeltplace = 0;
-        //     while (BeginTime/60 >= SnowmeltSeriesMaps[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
-        //         snowmeltplace++;
         //     } else {
         //         GetSnowmeltData(snowmeltFileName);
-        //         snowmeltplace = 0;
-        //         while (BeginTime/60 >= SnowmeltSeries[snowmeltplace].time && snowmeltplace < nrSnowmeltseries)
-        //             snowmeltplace++;
         //     }
         // }
 
         if (SwitchDischargeUser)
         {
-            DEBUG("GetDischargeData()");
-            GetDischargeData(dischargeinFileName);
+            DischargeSeries.clear();
+            dischargetime.clear();
+
+            DEBUG("GetUserDischargeData()");
+            GetUserDischargeData(dischargeinFileName);
         }
 
         if (SwitchWaveUser)
         {
             WHSeries.clear();
-            DEBUG("GetWHboundData()");
+            WHtime.clear();
 
-            GetWHboundData(WaveinFileName);
-
-            WHplace = 0;
-            while (BeginTime/60 >= WHSeries[WHplace].time && WHplace < nrWHseries)
-                WHplace++;
-            if (WHplace > 0) WHplace--;
-            qDebug() << WHplace;
+            DEBUG("GetWHboundaryData()");
+            GetWHboundaryData(WaveinFileName);
         }
 
         // get all input data and create and initialize all maps and variables
@@ -260,7 +237,7 @@ void TWorld::DoModel()
         //bool saveMBerror = true;
         //saveMBerror2file(true); //saveMBerror,
 
-      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once
+      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once, moved inside loop!
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
@@ -359,7 +336,8 @@ void TWorld::DoModel()
 
       //  op.nrMapsCreated = maplistnr;
       //  DestroyData();
-qDebug() << ErrorString;
+        // moved to W in interface
+
         emit done("ERROR STOP: "+ErrorString);
         if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
             QApplication::quit();
@@ -371,30 +349,30 @@ void TWorld::GetInputTimeseries()
 {
     // get meteo data
     if (SwitchRainfallSatellite)
-        GetRainfallMap();         // get rainfall from maps
+        GetRainfallMapfromSat(time);         // get rainfall from maps
     else
-        GetRainfallMapfromStations();  // get rainfall from stations
+        GetRainfallMapfromStations(time);  // get rainfall from stations
 
     if (SwitchIncludeET) {
         if (SwitchETSatellite)
-            GetETSatMap(); // get rainfall from maps
+            GetETSatMap(time); // get rainfall from maps
         else
-            GetETMap();   // get rainfall from stations
+            GetETMapfromStations(time);   // get rainfall from stations
     }
 
     if (SwitchDischargeUser) {
-        GetDischargeMapfromStations();
+        GetDischargeMapfromStations(time);
     }
 
     if (SwitchWaveUser) {
-        GetWHboundMap();
+        GetWHboundaryMap(time);
     }
 
 //    if (SwitchSnowmelt) {
 //        if (SwitchSnowmeltSatellite)
 //            ; //TODO snowmelt satellite
 //        else
-//            GetSnowmeltMap();  // get snowmelt from stations
+//            GetSnowmeltMap(time);  // get snowmelt from stations
 //    }
 
 }

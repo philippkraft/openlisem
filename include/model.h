@@ -677,10 +677,6 @@ public:
     int currentSnowmeltrow;
     int currentDischargerow;
     int currentWHrow;
-    int rainplace;
-    int ETplace;
-    int WHplace;
-    int snowmeltplace;
     QVector <RAIN_LIST> RainfallSeries;  // rainfall vector of records
     QVector <RAIN_LIST> ETSeries;
     QVector <RAIN_LIST> SnowmeltSeries;
@@ -691,6 +687,11 @@ public:
     QVector <METEO_LIST> SnowmeltSeriesMaps;  // rainfall vector of records
     QVector <LDD_COORloc> crQin_;
     QVector <int> locationnnrsrec;
+    QVector <double> raintime; // times in seconds of records for fast searching where we are
+    QVector <double> ETtime;
+    QVector <double> WHtime;
+    QVector <double> dischargetime;
+    QVector <double> snowmelttime;
 
     // output formatting for SOBEK flood model input
     QString SOBEKdatestring;
@@ -980,28 +981,27 @@ public:
     // 1D hydro processes
     //input timeseries
     void GetInputTimeseries();
-    void GetDischargeData(QString name);
-    void GetWHboundData(QString name);
-    void GetDischargeMapfromStations();
-    void GetRainfallData(QString name);   // get input timeseries
+    void GetUserDischargeData(QString name);
+    void GetWHboundaryData(QString name);
+    void GetRainfallStationData(QString name);   // get input timeseries
     void GetSpatialMeteoData(QString name, int type);   // get input timeseries
-    void GetETData(QString name);   // get input timeseries
+    void GetETStationData(QString name);   // get input timeseries
     void GetSnowmeltData(QString name);   // get input timeseries
     double getTimefromString(QString sss);
     double getmaxRainfall();
     void IDInterpolation();
     /// convert rainfall of a timestep into a map
-    void GetRainfallMapfromStations(void);
-    void GetRainfallMap(void);
+    void GetRainfallMapfromStations(double currenttime);
+    void GetRainfallMapfromSat(double currenttime);
     /// convert ET of a timestep into a map
-    void GetETSatMap(void);
-    void GetETMap(void);    
+    void GetETSatMap(double currenttime);
+    void GetETMapfromStations(double currenttime);
     /// convert snowmelt of a timestep into a map
     void GetSnowmeltMap(void);
-    // user defined point discharge inflow in channel
-    void DischargeInflow(void);
     // user defined water height at boundary
-    void GetWHboundMap(void);
+    void GetWHboundaryMap(double currenttime);
+    // user defined input discharge, e.g. dam spill
+    void GetDischargeMapfromStations(double currenttime);
 
     /// interception of vegetation canopy resulting in rainnet
     void Interception();

@@ -294,7 +294,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 //--------------------------------------------------------------------------------------------
 void TWorld::OverlandFlow1D(void)
 {
-    // recalculate water vars after subtractions in "to channel"
+   // recalculate water vars after subtractions in "to channel"
 
     //double tot = 0;
 
@@ -310,6 +310,7 @@ void TWorld::OverlandFlow1D(void)
 
         QinKW->Drc = 0; // store for incoming water in a cell
         //tot = tot + WaterVolin->Drc;
+        tma->Drc = -1;
 
         if (SwitchErosion) {
             // calc seediment flux going in kin wave as Qs = Q*C
@@ -326,7 +327,6 @@ void TWorld::OverlandFlow1D(void)
         FOR_ROW_COL_MV_L {
             pcr::setMV(Qn->Drc);
             QinKW->Drc = 0;
-            tma->Drc = -1;
         }}
 
         FOR_ROW_COL_LDD5 {

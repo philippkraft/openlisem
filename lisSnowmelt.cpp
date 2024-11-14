@@ -138,7 +138,7 @@ void TWorld::GetSnowmeltData(QString name)
         // split snowmelt record row with whitespace
         QStringList SL = rainRecs[r_].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
-        // read date time string and convert to time in minutes
+        // read date time string and convert to time in seconds
         rl.time = getTimefromString(SL[0]);
         time = rl.time;
 
@@ -200,7 +200,7 @@ void TWorld::GetSnowmeltMap(void)
     // from time t to t+1 the ET is the ET of t
 
     // where are we in the series
-    int currentrow = 0;
+
     // if time is outside records then use map with zeros
     if (currenttime < SnowmeltSeriesMaps[0].time || currenttime > SnowmeltSeriesMaps[nrSnowmeltseries-1].time) {
         DEBUG("run time outside ET records");
@@ -212,26 +212,26 @@ void TWorld::GetSnowmeltMap(void)
     }
 
     // find current record
-    while (currenttime >= SnowmeltSeriesMaps[ETplace].time
-           && currenttime < SnowmeltSeriesMaps[ETplace+1].time)
-    {
-        currentrow = snowmeltplace;
-        snowmeltplace++;
-    }
+    int currentrow;
+    auto it = std::lower_bound(snowmelttime.begin(), snowmelttime.end(), currenttime);
+    if (it == snowmelttime.begin())
+        currentrow = 0;
+    else
+        currentrow = std::distance(snowmelttime.begin(), it-1);
 
-    if (currentrow == currentSnowmeltrow && snowmeltplace > 0)
+    if (currentrow == currentSnowmeltrow && currentrow > 0)
         same = true;
 
     // get the next map from file
     if (!same) {
-        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(SnowmeltSeriesMaps[snowmeltplace].name)));
+        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(SnowmeltSeriesMaps[currentrow].name)));
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (pcr::isMV(_M->Drc)) {
                 QString sr, sc;
                 sr.setNum(r); sc.setNum(c);
-                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesMaps[snowmeltplace].name;
+                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+SnowmeltSeriesMaps[currentrow].name;
                 throw 1;
             } else {
                 Snowmelt->Drc = _M->Drc *_dt/tt;
