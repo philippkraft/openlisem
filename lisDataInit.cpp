@@ -1912,7 +1912,7 @@ void TWorld::IntializeData(void)
     }
 
     if (SwitchChannelBaseflowStationary)
-        FindBaseFlow();
+        FindStationaryBaseFlow();
 
 }
 //---------------------------------------------------------------------------
@@ -2214,7 +2214,7 @@ void TWorld::IntializeOptions(void)
     addedbaseflow = false;
 }
 //---------------------------------------------------------------------------
-void TWorld::FindBaseFlow()
+void TWorld::FindStationaryBaseFlow()
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
     int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};

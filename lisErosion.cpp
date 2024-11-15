@@ -474,7 +474,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
 
 }
 //---------------------------------------------------------------------------
-// OBSOLETE FOR NOW
+// NOT USED FOR NOW
 /**
  * @fn double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool bl,double detachment)
  * @brief Calculates real detachment from potential detachment.

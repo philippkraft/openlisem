@@ -71,7 +71,7 @@ void TWorld::reportAll(void)
     ReportLandunits();
     // reportc stats per landunit class
 
-    ChannelFloodStatistics();
+    FloodStatistics();
     // report buildings submerged in flood level classes in 5cm intervals
 }
 //---------------------------------------------------------------------------
@@ -1134,7 +1134,7 @@ void TWorld::ReportLandunits(void)
 
 }
 //---------------------------------------------------------------------------
-void TWorld::ChannelFloodStatistics(void)
+void TWorld::FloodStatistics(void)
 {
     if(SwitchKinematic2D == K2D_METHOD_KIN)
         return;
