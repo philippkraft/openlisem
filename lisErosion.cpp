@@ -1187,6 +1187,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                         tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
                 }else if(method == FSWUWANGJIA)
                 {
+                        /*
                         // NOT USED, FOR MULTIPLE GRAINSIZES
                     double phk = 0;
                     double pek = 0;
@@ -1221,7 +1222,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                     qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(gd,3.0));
 
                     tc = ps * qs/ (U * h);
-
+*/
                 }
     return std::max(std::min(tc,MAXCONC ),0.0);
 }
@@ -1321,6 +1322,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
 
     }else if(method == FSWUWANGJIA)
     {
+        /*
         double na = (pow(graindiameters.at(_d)/100000.0,(1.0/6.0))/20.0)/n;
         double phk = 0;
         double pek = 0;
@@ -1352,7 +1354,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
         qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(graindiameters.at(_d)/1000000.0,3.0));
 
         tc = ps * qs/ (U * hb);
-
+*/
     }
 
     return std::max(std::min(tc,MAXCONCBL),0.0);

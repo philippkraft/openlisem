@@ -525,14 +525,14 @@ public:
         SwitchChannelMaxV;
 
     // TODO multi class sed
-    // bool SwitchAdvancedSed,
-    //      SwitchUseMaterialDepth,
-    //      SwitchNoBoundarySed,
-    //      SwitchUse2Phase,
-    //      SwitchUseGrainSizeDistribution,
-    //      SwitchEstimateGrainSizeDistribution,
-    //      SwitchReadGrainSizeDistribution,
-    //      SwitchD50CHavg;
+    bool SwitchAdvancedSed,
+         SwitchUseMaterialDepth,
+         SwitchNoBoundarySed,
+         SwitchUse2Phase,
+         SwitchUseGrainSizeDistribution,
+         SwitchEstimateGrainSizeDistribution,
+         SwitchReadGrainSizeDistribution,
+         SwitchD50CHavg;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
@@ -983,6 +983,7 @@ public:
     // <= OF
 
     // => 1D flow on network
+    void FindStationaryBaseFlow();
     void ChannelFlow();
     void ChannelBaseflow();
     void ChannelRainandInfil();
