@@ -200,7 +200,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
-
+    itercount = count;
     return Qkx;
 }
 
@@ -277,14 +277,6 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
                 }
             }
         }
-
-// NOT FASTER !!!
-//        for(int j = 0; j < _crlinked_[i_].in.size(); j++) {
-//           int rr = _crlinked_[i_].in[j].r;
-//           int cr = _crlinked_[i_].in[j].c;
-//            Qin += _Qn->Drcr;
-//            Sin += _Qsn->Drcr;
-//        }
 
         QinKW->Drc = Sin;
 

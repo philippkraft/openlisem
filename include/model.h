@@ -923,45 +923,6 @@ public:
     QList<cTMap *> F_Advect;
 
 
-    //sediment for SWOF flood model
-   // void SWOFSedimentBalance();
-    void SWOFSedimentCheckZero(int r, int c, cTMap * h);
-    void SWOFSedimentSetConcentration(int r, int c, cTMap * h);
-    void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
-
-    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
-    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);
-
-    void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
-                                cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
-                                cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
-
-  //  double K2DSolvebyInterpolationSed( cTMap *M, cTMap *MC);
-
-
-  //  double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
- //   double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
- //   double GetDp(int r, int c,double p);
- //   double GetTotalDW(int r, int c,QList<cTMap *> *M);
-    double GetSV(double d);
-    void SplashDetachment();
-    double MaxConcentration(double watvol, double sedvol);
-    void ChannelFlowDetachmentNew();
-
-
-    void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
-    void RiverSedimentLayerDepth(int r , int c);
-     void RiverSedimentMaxC(int r, int c);
-
-    double calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type);
-    double calcTCBedload(int r,int c, int _d, int method, double h, double U, int type);
-
-
     void FindBaseFlow(); //search for channel inflow from groundwater
     bool addedbaseflow;
 
@@ -979,7 +940,7 @@ public:
     double ConcentrationP(double watvol, double pest);
 
     // 1D hydro processes
-    //input timeseries
+    // => input timeseries
     void GetInputTimeseries();
     void GetUserDischargeData(QString name);
     void GetWHboundaryData(QString name);
@@ -990,89 +951,68 @@ public:
     double getTimefromString(QString sss);
     double getmaxRainfall();
     void IDInterpolation();
-    /// convert rainfall of a timestep into a map
     void GetRainfallMapfromStations(double currenttime);
     void GetRainfallMapfromSat(double currenttime);
-    /// convert ET of a timestep into a map
     void GetETSatMap(double currenttime);
     void GetETMapfromStations(double currenttime);
-    /// convert snowmelt of a timestep into a map
     void GetSnowmeltMap(void);
     // user defined water height at boundary
     void GetWHboundaryMap(double currenttime);
     // user defined input discharge, e.g. dam spill
     void GetDischargeMapfromStations(double currenttime);
+    // <= input timeseries
 
-    /// interception of vegetation canopy resulting in rainnet
+    // => not used, replaced by cell_[process]
     void Interception();
-    /// infiltration function calling all infiltration methods
-    /// add rainnet to WH and calculating new WH
-    void InterceptionLitter();
-    /// subtract water retained in Litter under forest e.g.
-    void InterceptionHouses();
-    /// subtract water retained on houses, for urban projects    
+    void SoilWater();
+    void SurfaceStorage();
     void addRainfallWH();
-    /// add net rainfall to WH, WHroads and WHgrass
-
-    void cell_Interception(int r, int c);
-    double cell_Percolation(int r, int c, double factor);
-    double cell_PercolationMulti(int r, int c, double factor);
-    void cell_Redistribution0(int r, int c);
-    void cell_Redistribution1(int r, int c);
-    void cell_Redistribution2(int r, int c);
-   // void cell_Redistribution2psi(int r, int c);
-    void cell_Channelinfow1(int r, int c);
-    void cell_Channelinfow2(int r, int c);
+    void Infiltration();
+    // <= not used
 
     double SoilWaterMass();
 
-    void cell_Soilwater(long i_);
-    //void cell_SoilwaterExpl(long i_);
-    void cell_SWATRECalc(long i_);
+    // => SOAP infil model, swatre works better for now
+    void cell_Soilwater(long i_); //SOAP
     double calcSinkterm(long i_,  double WH, double *S);
     double calculateDayLength(double latitude, int dayNumber);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void getThetafromH(int j, SOIL_LIST s);
     void getHfromTheta(int j, SOIL_LIST s);
-    //????void cell_Evapotranspiration(int r, int c);									   
+    // <= SOAP
+
+    void GridCell();
+    void HydrologyProcesses();
+    void cell_Interception(int r, int c);
     void cell_SurfaceStorage(int r, int c);
     void cell_InfilMethods(int r, int c);
+    void cell_SWATRECalc(long i_); // not used, too complex
+    double cell_Percolation(int r, int c, double factor);
+    double cell_PercolationMulti(int r, int c, double factor);
+    void cell_Redistribution0(int r, int c);
+    void cell_Redistribution1(int r, int c);
+    void cell_Redistribution2(int r, int c);
+    void cell_Channelinfow1(int r, int c);
+    void cell_Channelinfow2(int r, int c);
     void cell_depositInfil(int r, int c);
     void cell_SplashDetachment(int r, int c);
     void cell_FlowDetachment(int r, int c);
     void cell_ETa(int r, int c);
     double getETaFactor();
     double ETafactor;
-
-    void cell_SlopeStability(int r, int c);
-
     void InfilEffectiveKsat(bool first);
-    void Infiltration();
     void InfilSwatre();
+    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
     double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
     double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
-
-    void SoilWater();
-    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
-    void SurfaceStorage();
-    //void doETa();
     void avgTheta();
+
     void OverlandFlow();
+    void OverlandFlow1D(void);
     void OverlandFlow2D();
     void correctWH(cTMap *_WH);
-
-    void HydrologyProcesses();
-    void ChannelandTileflow();
-
-    void OverlandFlow1D(void);
-    void ChannelFlow();
-    void ChannelBaseflow();
-    void ChannelRainandInfil();
-    void ChannelSedimentFlow();
-    void ChannelFlowandErosion();
-    void ChannelVelocityandDischarge();
 
     void GroundwaterRecharge();
     void GroundwaterFlow();
@@ -1081,8 +1021,15 @@ public:
     void GWFlowLDDKsat();
     double fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z);
 
-    double getMassCH(cTMap *M);
-    void correctMassBalanceCH(double sum1, cTMap *M);
+    void cell_SlopeStability(int r, int c); // TODO
+
+    // => 1D flow on network
+    void ChannelFlow();
+    void ChannelBaseflow();
+    void ChannelRainandInfil();
+    void ChannelSedimentFlow();
+    void ChannelFlowandErosion();
+    void ChannelVelocityandDischarge();
     void ToChannel();//int r, int c);
     void ToFlood();
     void CalcVelDisch(); //(int r, int c);
@@ -1096,17 +1043,20 @@ public:
     void CalcMAXDischRectangular(void);
     void CalcVelDischCircular(void);
     void CalcMAXDischCircular(void);
-    void GridCell();
+    double getMassCH(cTMap *M);
+    void correctMassBalanceCH(double sum1, cTMap *M);
+    // <= 1D flow
 
+    // => extend channel, not used for now
     void doExtendRow(int r, int c, int n,  double w2, double adx);
     void doExtendCol(int r, int c, int n,  double w2, double adx);
     void extendRow(int r, int c, int i, double w);
     void extendCol(int r, int c, int i, double w);
-
     void ExtendChannel();
     bool ExtendChannelNew();
     bool IsExtendedChannel(int r, int c, int dr, int dc);
     void DistributeOverExtendedChannel(cTMap * _In, cTMap * _Out);
+    // <= extend channel
 
     void InitFlowBarriers(void);
     double DEMFB(int r, int c, int rd, int cd, bool addwh);
@@ -1127,61 +1077,84 @@ public:
     double courant_factorSed;
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
-    void correctMassBalance(double sum1, cTMap *M, double th);
-    //void correctMassBalanceWS(int nr_, double sum1, cTMap *M, double th);
-    void correctMassBalanceSed(double sum1, cTMap *M, double th);
-    double getMass(cTMap *M, double th);
-    //double getMassWS(int nr_, cTMap *M, double th);
-    double getMassSed(cTMap *M, double th);
+    // boundary in 2D flow
+    double BoundaryQ;
+    double BoundaryQs;
+    double TimestepfloodMin, TimestepfloodLast;
+    QVector <double> Qout;
+
+    // => kinematic, linked lists routing
     void Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
     void KinematicExplicit(QVector<LDD_COORIN> _crlinked, cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax);
-    double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
-
+    void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
+                                cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                                cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
-
+    double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
+    double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
+    double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);
     void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
     void upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
     void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
-
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
+    double itercount;
+    // <= kinematic
 
-    // kinematic 2D
-    double BoundaryQ;
-    double BoundaryQs;
-    double TimestepfloodMin, TimestepfloodLast;
-    //double Qout;
-    QVector <double> Qout;
+    // => sediment stuff
+    double GetSV(double d);
+    void SplashDetachment();
+    double MaxConcentration(double watvol, double sedvol);
+    void ChannelFlowDetachmentNew();
+    void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
+    void RiverSedimentLayerDepth(int r , int c);
+    void RiverSedimentMaxC(int r, int c);
+    double calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type);
+    double calcTCBedload(int r,int c, int _d, int method, double h, double U, int type);
+    void SWOFSedimentCheckZero(int r, int c, cTMap * h);
+    void SWOFSedimentSetConcentration(int r, int c, cTMap * h);
+    void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
+    void correctMassBalance(double sum1, cTMap *M, double th);
+    void correctMassBalanceSed(double sum1, cTMap *M, double th);
+    double getMass(cTMap *M, double th);
+    double getMassSed(cTMap *M, double th);
+    //   double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
+    //   double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
+    //   double GetDp(int r, int c,double p);
+    //   double GetTotalDW(int r, int c,QList<cTMap *> *M);
+    // <= sediment stuff
 
-    //SWATRE
+
+    // => SWATRE
     /// filenames for Swatre soil information
     QString SwatreTableDir;
     QString SwatreTableName;
     QString initheadName;
-
     void InitNewSoilProfile();
     double swatreDT;
     bool initSwatreStructure;
-
-    /// SWATRE infiltration model 3D soil structure
     SOIL_MODEL *SwatreSoilModel;
     SOIL_MODEL *SwatreSoilModelCrust;
     SOIL_MODEL *SwatreSoilModelCompact;
     SOIL_MODEL *SwatreSoilModelGrass;
-    PROFILE **profileList;
-    int nrProfileList, sizeProfileList;
+    PROFILE **profileList = nullptr;
+    HORIZON **horizonList = nullptr;
     ZONE *zone = nullptr;
     double precision;
     int tnode; //VJ 110122 node nr in profile with tile drains
     SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
     void CloseSwatre(SOIL_MODEL *s);
     void FreeSwatreInfo(void);
-
-    PROFILE *ProfileNr(int profileNr);
     QStringList swatreProfileDef;
     QList<int> swatreProfileNr;
-    int *profileNr;
-
+    int sizeProfileList; // to free mem
+    int nrHorizonList;
+    int sizeHorizonList;
     void ReadSwatreInputNew(void);
     PROFILE *ReadProfileDefinitionNew(int pos, ZONE *z);
     HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
@@ -1201,9 +1174,9 @@ public:
     double HcoNode(double head,const HORIZON *hor);
     double DmcNode(double head,const  HORIZON *hor);
     double FindNode(double head,const  HORIZON *hor, int column);
+    // <= SWATRE
 
-
-int showr;
+int showr;// for debugging
 int showc;
 
 
@@ -1212,6 +1185,8 @@ int showc;
     double MapTotal(cTMap &M);
     void Average3x3(cTMap &M, cTMap &mask, bool only);
     void Average2x2(cTMap &M, cTMap &mask);
+
+    // => mass balance and output
     void TotalsHydro(void);
     void TotalsFlow(void);
     void TotalsSediment(void);
@@ -1222,7 +1197,6 @@ int showc;
     void ReportTimeseriesPCR(void);
     void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
-
     void ReportMaps(void);
     void ReportDump(void);
     void ReportMapSeries(void);
@@ -1230,10 +1204,8 @@ int showc;
     void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
     void CountLandunits(void); //VJ 110107 report erosion stats per land unit
     void saveMBerror2file(bool start);
+    // => mass balance and output
 
-    int nrBuffers;
-    QVector <BUFFER_LIST> bufferarea;
-    double itercount;
     // thread management variables
     bool stopRequested;
     bool waitRequested;
@@ -1247,7 +1219,7 @@ int showc;
 
 protected:
     void run();
-  //  QTime time_ms;
+
     // talk to the interface
     QElapsedTimer time_ms;
     double startTime;

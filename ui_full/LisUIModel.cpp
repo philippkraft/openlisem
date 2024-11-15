@@ -195,6 +195,7 @@ void lisemqt::runmodel()
                 W->CloseSwatre(W->SwatreSoilModelGrass);
         }
 
+        // drawing riuvers on screen structures
         Xa.clear();
         Ya.clear();
         Xc.clear();

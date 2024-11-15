@@ -59,13 +59,11 @@ profile node setup:
 #include "lerror.h"
 #include "model.h"
 
-#define LIST_INC	20
-//#define LUT_COLS  5
-//#define IND(r,c)  ((r)*LUT_COLS+(c))
+#define LIST_INC	10
 
 /// array of pointers to horizons, nullptr if not allocated
-static HORIZON **horizonList = nullptr;
-static int nrHorizonList=0, sizeHorizonList=0;
+//static HORIZON **horizonList = nullptr;
+//static int nrHorizonList=0, sizeHorizonList=0;
 
 //----------------------------------------------------------------------------------------------
 /// read and parse profile.inp
@@ -74,10 +72,8 @@ void TWorld::ReadSwatreInputNew(void)
 {
 //qDebug() << "ReadSwatreInputNew";
 
-    // get the profile inp file contents and put in stringlist
-    // set profiles to nullptr
-    //InitializeProfile();
-    nrProfileList = 0;
+    // reset stuff
+    int nrProfileList = 0;
     sizeProfileList = 0;
     nrHorizonList = 0;
     sizeHorizonList = 0;
@@ -169,28 +165,22 @@ void TWorld::ReadSwatreInputNew(void)
     }
     sizeProfileList = nrProfileList;
 
-    qDebug() << "nr profiles" << nrProfileList << checkList.count();
+   // qDebug() << "nr profiles" << nrProfileList << checkList.count();
 
     if (nrProfileList == 0)
         Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));
 
-    //checkList.sort();
-    // //DOES NOT WORK BECAUSE order is 1, 10, 11 ...28 and then 2,3,4 ...
-
-    // ordered int list with profile nrs
-    // makes checklist redundant
+    // sort profile on increasing number
     swatreProfileNr.clear();
     for (int i = 0; i < checkList.count(); i++)
         swatreProfileNr << checkList[i].toInt();
-
     std::sort(swatreProfileNr.begin(), swatreProfileNr.end());
+
     for (int i = 0; i < swatreProfileNr.count()-1; i++)
     {
         if (swatreProfileNr[i] == swatreProfileNr[i+1])
             DEBUG(QString("Warning SWATRE: profile id %1 defined more than once").arg(swatreProfileNr[i+1]));
     }
-
-    // sort the integer profile numbers
 
     //profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
     profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
@@ -216,6 +206,9 @@ void TWorld::ReadSwatreInputNew(void)
 //     const HORIZON  **horizon; 	/** ptr to horizon information this node belongs to */
 //     QVector <double> KsatCal;
 // } PROFILE;
+
+//note: all horizons and tables are read that are needed, not only those in profile.map
+// but the horizons are in each profile with a pointer, not a full copy
 PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 {
     QString tableName;
@@ -232,8 +225,8 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 
    // qDebug() << pos << "readprofdefnew" << p->profileId;
 
-    p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes);
-    p->zone = z; // pointer
+    p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes); // array of pointers to horizon
+    p->zone = z; // also pointer to zone ninfo
     for (int i = 0; i < z->nrNodes; i++)
         p->KsatCal << 1.0; // create ksat cal 1,2,3 for each horizon
 
@@ -241,103 +234,48 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     int hornr = 0;
     while (i != z->nrNodes) {
         pos++; // move one line to the horizon table name
+
         tableName = swatreProfileDef[pos];
         if (!QFileInfo(SwatreTableDir + tableName).exists())
             Error(QString("SWATRE: Table %1 not found.").arg(tableName));
-                          //"Can't read the LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
-//qDebug() << tableName << endHorPrev << endHor;
+        //"Can't read the LUT for profile nr %1 node nr %2 and up").arg(p->profileId).arg(i+1));
+
         endHorPrev = endHor;
         pos++; // move one line to read the horizon depth endhor in cm
+        hornr++;
+
         endHor = swatreProfileDef[pos].toDouble(&ok);
         if (!ok)
             Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
         if (endHor <= endHorPrev)
             Error(QString("SWATRE: Error in profile definition nr %1, depth horizons do not increase").arg(p->profileId));
 
-        // read the horizon and the luts
+        // read the horizon and the luts for each node
         h = ReadHorizonNew(SwatreTableDir, tableName);
+
         // copy horizon info to all nodes of this horizon
+        // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)
         while (i < z->nrNodes && z->endComp[i] <= endHor ) {
             p->horizon[i] = h;
-            p->KsatCal.replace(i, ksatCalibration);
-            if (i > 0 && p->horizon[i]->name != p->horizon[i-1]->name) {
-                hornr++;
-                //qDebug() << p->horizon[i]->name << p->horizon[i-1]->name << hornr;
-            }
-            if (hornr > 0) p->KsatCal.replace(i,ksat2Calibration);
-            if (hornr > 1) p->KsatCal.replace(i,ksat3Calibration);
 
-         //   qDebug() << i << p->horizon[i]->name;
+            if (hornr == 1) p->KsatCal.replace(i, ksatCalibration);
+            if (hornr == 2)  p->KsatCal.replace(i, ksat2Calibration);
+            if (hornr > 2)  p->KsatCal.replace(i, ksat3Calibration);
+
+            //qDebug() << i << hornr <<  p->horizon[i]->name;
             i++;
-
-
         }
 
-        //   if (z->endComp[i-1] != endHor)
-        //    Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
-        //        .arg(endHor).arg(p->profileId).arg(tableName));
+        // if (z->endComp[i-1] != endHor)
+        //     Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
+        //           .arg(endHor).arg(p->profileId).arg(tableName));
         //? what does this error mean exactly, hrozions do not have to end on nodes?
     }
 
-//qDebug() << "horizon read" << p->KsatCal.count() << p->KsatCal;
-    return(p); // return the profile
+    return(p);
 }
-//----------------------------------------------------------------------------------------------
-/// OBSOLETE, no longer used
-/** return PROFILE or throw an error if not found, profileNr is the profile map value
-    only used in Swatinp and no longer necessary
-*/
-//OBSOLETE?
-PROFILE *TWorld::ProfileNr(int profileNr)
-{
-    if (profileNr < 0 || profileNr >= nrProfileList)
-        return(nullptr);
-    return(profileList[profileNr]);
-}
-//----------------------------------------------------------------------------------------------
-// free the zone, luts and profiles, these are only pointers in PIXEL_INFO
-void  TWorld::FreeSwatreInfo(void)
-{
-  if (zone == nullptr)
-      return;
 
-    if (zone != nullptr) {
-        zone->dz.clear();
-        zone->z.clear();
-        zone->endComp.clear();
-        zone->disnod.clear();
-        delete(zone);
-        zone = nullptr;
-    }
 
-    if (profileList != nullptr) {
-        if (profileList[0] != nullptr) {
-            for(int i=0; i < nrProfileList; i++)
-                if (profileList[i] != nullptr)
-                    free(profileList[i]);
-        }
-        free(profileList);
-        profileList = nullptr;
-    }
-
-    nrProfileList = 0;
-    sizeProfileList = 0;
-
-    if (horizonList != nullptr) {
-        for(int i=0; i < nrHorizonList; i++)
-        {
-            for(int k = 0; k < 5; k++)
-                horizonList[i]->lut->hydro[k].clear();
-            free(horizonList[i]);
-        }
-        free(horizonList);
-        horizonList = nullptr;
-    }
-
-    nrHorizonList = 0;
-    sizeHorizonList = 0;
-    qDebug() << "free:" << zone << profileList << horizonList;
-}
 //----------------------------------------------------------------------------------------------
 // copy horizon info to all nodes of this horizon
 HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
@@ -359,9 +297,9 @@ HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
 
     // read the lut with this horizon and link the pointer
     h->lut = ReadSoilTableNew(tablePath + tableName);
-
     h->name = tableName;
-//qDebug() << "ReadHorizonNew" << tableName;
+
+    //qDebug() << "ReadHorizonNew" << tableName;
     return(h);
 }
 //----------------------------------------------------------------------------------------------
@@ -464,4 +402,45 @@ void TWorld::checkFileForInvalidLetters(const QString &filePath)
         lineNumber++;
     }
     file.close();
+}
+//----------------------------------------------------------------------------------------------
+// free the zone, luts and profiles, these are only pointers in PIXEL_INFO
+void  TWorld::FreeSwatreInfo(void)
+{
+    if (zone == nullptr)
+       return;
+
+    if (zone != nullptr) {
+        zone->dz.clear();
+        zone->z.clear();
+        zone->endComp.clear();
+        zone->disnod.clear();
+        delete(zone);
+        zone = nullptr;
+    }
+
+    if (profileList != nullptr) {
+        if (profileList[0] != nullptr) {
+            for(int i=0; i < sizeProfileList; i++)
+                if (profileList[i] != nullptr)
+                    free(profileList[i]);
+        }
+        free(profileList);
+        profileList = nullptr;
+    }
+
+    if (horizonList != nullptr) {
+        for(int i=0; i < nrHorizonList; i++)
+        {
+            for(int k = 0; k < 5; k++)
+                horizonList[i]->lut->hydro[k].clear();
+            free(horizonList[i]);
+        }
+        free(horizonList);
+        horizonList = nullptr;
+    }
+
+    nrHorizonList = 0;
+    sizeHorizonList = 0;
+    //qDebug() << "free:" << zone << profileList << horizonList;
 }

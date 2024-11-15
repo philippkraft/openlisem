@@ -839,7 +839,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Table File")==0) namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
         if (p1.compare("SWATRE internal minimum timestep")==0)
         {
-            double fraction = 0.2;//E_SWATREDtsecFraction->value();
+            double fraction = E_SWATREDtsecFraction->value();
             swatreDT = E_Timestep->text().toDouble()*fraction;
             namelist[j].value.setNum(swatreDT,'g',6);
         }
