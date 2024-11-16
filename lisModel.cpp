@@ -90,7 +90,7 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 void TWorld::DoModel()
 {
 
-    //DestroyData(); // clear all structures in ccase this is not the first run.
+    //DestroyData(); // clear all structures in case this is not the first run.
 
     if (!op.doBatchmode)
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
@@ -156,7 +156,7 @@ void TWorld::DoModel()
         DEBUG("Intialize Database");
         IntializeData();
 
-        //DEBUG("setupDisplayMaps()");
+        // MC - no_ui probalbly this can be skipped for noInterface??
         setupDisplayMaps();
         // reset all display output maps for new job
         // must be done after Initialize Data because then we know how large the map is
@@ -229,7 +229,7 @@ void TWorld::DoModel()
         //VJ 110110 for output totals per landunit
 
         runstep = 0; //  runstep is used to initialize graph!
-        printstep = 1; // printstep determines report frquency
+        printstep = 1; // printstep determines report frequency
 
       //  DEBUG("setupHydrographData()");
         setupHydrographData(); // reset hydrograph display
@@ -327,7 +327,10 @@ void TWorld::DoModel()
         if (op.doBatchmode)
         {
             qDebug() << "\nfinished after "<< op.maxtime << "minutes\n";
-            QApplication::quit();
+            if (noInterface)
+                QCoreApplication::quit();
+            else
+                QApplication::quit();
             // close the world model
         }
     }
@@ -340,7 +343,10 @@ void TWorld::DoModel()
 
         emit done("ERROR STOP: "+ErrorString);
         if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
-            QApplication::quit();
+            if (noInterface)
+                QCoreApplication::quit();
+            else
+                QApplication::quit();
         }
     }
 }
