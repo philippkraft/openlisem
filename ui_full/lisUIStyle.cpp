@@ -164,7 +164,7 @@ void lisemqt::lightStyleUI()
     tabWidgetOptions->setTabIcon(1,QIcon(":/rain.png"));
     tabWidgetOptions->setTabIcon(2,QIcon(":/Plant-icon.png"));
     tabWidgetOptions->setTabIcon(3,QIcon(":/soil5.png"));
-    tabWidgetOptions->setTabIcon(4,QIcon(":/water1.png"));
+    tabWidgetOptions->setTabIcon(4,QIcon(":/water2.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/river4.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/house.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/eros1bw.png"));
@@ -206,6 +206,7 @@ void lisemqt::lightStyleUI()
     HPlot->setStyleSheet("*{background-color: #fcfcfc; color: #000000;}");
     MPlot->setStyleSheet("*{background-color: #fcfcfc; color: #000000;}");
 
+    label_49->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
     label_55->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
     label_59->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
     label_88->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
@@ -221,17 +222,17 @@ void lisemqt::lightStyleUI()
 }
 void lisemqt::darkStyleUI()
 {
-    QString sc1 = "#e57537";
+    QString sc1 = "#42db00";
     QString sc2 = "#888888";
     QString sc = "#dddd55";
-    QString bc = "##a28000";
+    QString bc = "#a28000";
     QString fc = "#fcfcfc";
 
     tabWidgetOptions->setTabIcon(0,QIcon(":/d_settings2.png"));
     tabWidgetOptions->setTabIcon(1,QIcon(":/d_rain.png"));
     tabWidgetOptions->setTabIcon(2,QIcon(":/d_Plant-icon.png"));
     tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil5.png"));
-    tabWidgetOptions->setTabIcon(4,QIcon(":/d_water1.png"));
+    tabWidgetOptions->setTabIcon(4,QIcon(":/d_water2.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/house.png"));
@@ -266,9 +267,9 @@ void lisemqt::darkStyleUI()
                         "QGroupBox::title:disabled{color: #888888;}"
                         "QGroupBox#groupBoxOutput::title{color: #e57537;}"
                         "QGroupBox#groupBoxInput::title{color: #e57537;}"
-                        "QGroupBox#groupRainfall::title{color: #e57537;}"
+                      //  "QGroupBox#groupRainfall::title{color: #e57537;}"
                         "QGroupBox#groupInfiltration::title{color: #e57537;}"
-                        "QGroupBox#groupInterception::title{color: #e57537;}"
+                        "QGroupBox#groupI/nterception::title{color: #e57537;}"
 
 
                         "QCheckBox::indicator:unchecked{background-color: #606060;border: 1px solid #1D545C; }"
@@ -287,35 +288,17 @@ void lisemqt::darkStyleUI()
     HPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
     MPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
 
-     label_55->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
-     label_59->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
-     label_88->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
-     label_89->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
-    label_156->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
-      label_9->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
-     label_10->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
-    label_128->setStyleSheet( "QLabel {color: #42db00;}");  //e57537
+     label_49->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
+     label_55->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
+     label_59->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
+     label_88->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
+     label_89->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
+    label_156->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
+      label_9->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
+     label_10->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
+    label_128->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
 
     setOutputTabStyle("#a28000", "#f0f0f0");
-
-
-    // "QWidget#tab_general  {background-color: #363636;} "
-    // "QWidget#tab_meteo    {background-color: #363636;} "
-    // "QWidget#tab_interc   {background-color: #363636;} "
-    // "QWidget#tab_infil    {background-color: #363636;} "
-    // "QWidget#tab_flooding {background-color: #363636;} "
-    // "QWidget#tab_Channel  {background-color: #363636;} "
-    // "QWidget#tab_calib    {background-color: #363636;} "
-    // "QWidget#tab_advanced {background-color: #363636;} "
-    //  label_55->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
-   //  label_59->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
-   //  label_88->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
-   // label_156->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
-   //   label_9->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
-   //  label_10->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
-   // label_128->setStyleSheet(QString("QLabel:disabled {color: %1;}").arg(sc2));
-
-   //checkWaveInUser->setStyleSheet("QCheckBox {color: #e57537;}");
 
 }
 
