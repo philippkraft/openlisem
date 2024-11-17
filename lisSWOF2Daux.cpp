@@ -428,10 +428,10 @@ vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,do
 double TWorld::getMass(cTMap *M, double th)
 {
     double sum2 = 0;
-#pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
-            sum2 += M->Drc*CHAdjDX->Drc;
+            sum2 += M->Drc;//*CHAdjDX->Drc;
     }}
 return sum2;
 }
@@ -451,20 +451,15 @@ double TWorld::getMassSed(cTMap *M, double th)
 void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
 {
     double sum2 = 0;
-    double n = 0;
 
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
-        {
-            sum2 += M->Drc*CHAdjDX->Drc;
-            n += 1;
-        }
+            sum2 += M->Drc;//*_dx*_dx;//DX->Drc;//CHAdjDX->Drc;
     }}
-    sum2 = std::max(0.0, sum2);
-    // total and cells active for M
-    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
+    //sum2 = std::max(0.0, sum2);
 
+    double dhtot = sum2 > 0 ? (sum1 - sum2)/sum2 : 0;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
@@ -478,15 +473,11 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
 void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
 {
     double sum2 = 0;
-    double n = 0;
 
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
-        {
             sum2 += M->Drc;
-            n += 1;
-        }
     }}
     // total and cells active for M
     double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
