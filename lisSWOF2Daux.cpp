@@ -431,7 +431,7 @@ double TWorld::getMass(cTMap *M, double th)
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
-            sum2 += M->Drc;//*CHAdjDX->Drc;
+            sum2 += M->Drc*CHAdjDX->Drc;
     }}
 return sum2;
 }
@@ -455,7 +455,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
-            sum2 += M->Drc;//*_dx*_dx;//DX->Drc;//CHAdjDX->Drc;
+            sum2 += M->Drc*CHAdjDX->Drc;
     }}
     //sum2 = std::max(0.0, sum2);
 

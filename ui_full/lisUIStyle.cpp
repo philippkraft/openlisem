@@ -165,7 +165,7 @@ void lisemqt::lightStyleUI()
     tabWidgetOptions->setTabIcon(2,QIcon(":/Plant-icon.png"));
     tabWidgetOptions->setTabIcon(3,QIcon(":/soil5.png"));
     tabWidgetOptions->setTabIcon(4,QIcon(":/water2.png"));
-    tabWidgetOptions->setTabIcon(5,QIcon(":/river3.png"));
+    tabWidgetOptions->setTabIcon(5,QIcon(":/river4.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/house.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/eros1bw.png"));
     tabWidgetOptions->setTabIcon(8,QIcon(":/advanced.png"));

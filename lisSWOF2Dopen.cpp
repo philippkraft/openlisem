@@ -164,6 +164,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     fb_y1 = br1 ? std::max(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
                     fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
                 }
+
                 b2c1 = c > 1 && !MV(r,c-2)        ;
                 b2c2 = c < _nrCols-2 && !MV(r,c+2);
                 b2r1 = r > 1 && !MV(r-2,c)        ;
@@ -299,8 +300,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         FOR_ROW_COL_MV_L {
             dt_req_min = std::min(dt_req_min, FloodDT->Drc);
         }}
-
         dt_req_min = std::min(dt_req_min, _dt-timesum);
+
+
+
 
         if (step > 0) {
 

@@ -36,20 +36,6 @@
 
 
 //----------------------------------------------------------------------------------------
-/* 2nd order
-    - set zero h, u, v
-    - MUSCL with h,v,u
-    - flux, riemann
-    - scheme, saint venant => dt1
-
-    - set zero hs, vs, us
-    - MUSCL with hs, vs, us
-    gives hsa, vsa, usa
-    - flux, riemann
-    - scheme, saint venant => dt2
-
-    average (h and hsa)
-*/
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
@@ -228,7 +214,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 //======== MUSCL: on the 4 boundaties of a gridcell interpolate from the center values
                 // called "reconstruction" in SWOF code
 
-                if(!b2c1 && !b2c2) {
+                if(b2c1 && b2c2) {
 
                     // x-1-x-2   x-x-1  x+1-x   x+2-x+1        always right minus left
                     delta_h1 = h_x1 - h_xx1; delta_h2 = H-h_x1; delta_h3 = h_x2-H; delta_h4 = h_xx2-h_x2;
@@ -247,7 +233,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     vxr = V + 0.5*dv*hxr/H;
 
                     dz_h = limiter(delta_h2 + (Z-dz_x1), delta_h3 + (dz_x2-Z));
-                    delzcx = 2*(dz_h - dh); // Z+(dz_h-dh)- (Z+(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!
+                    delzcx = (Z+0.5*(dz_h-dh))-(Z+0.5*(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!2*(dz_h - dh); //
 
                     // left hand cell, right boundary
                     dh = limiter(delta_h1, delta_h2);
@@ -266,7 +252,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     vx2l = v_x2 - 0.5*dv*hxr/H;
                 }
 
-                if (!b2r1 && !b2r2) {
+                if (b2r1 && b2r2) {
                     // vertical, direction from up to down
                     // y-1 - y-2   y-y-1  y+1-y   y+2-y+1        always down minus up
                     delta_h1 = h_y1 - h_yy1; delta_h2 = H-h_y1; delta_h3 = h_y2-H; delta_h4 = h_yy2-h_y2;
@@ -285,7 +271,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     vyd = V + 0.5*dv*hyd/H;
 
                     dz_h = limiter(delta_h1 + (Z-dz_y1), delta_h2 + (dz_y2-Z));
-                    delzcy = 2*(dz_h-dh);//Z+(dz_h-dh)- (Z+(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!
+                    delzcy = (Z+0.5*(dz_h-dh))-(Z+0.5*(dh-dz_h));// = (dz_h-dh)-(dh-dz_h) = 2*dz_h-2*dh; //!!!!2*(dz_h-dh);
 
                     // upper cell, down boundary
                     dh = limiter(delta_h1, delta_h2);
@@ -374,11 +360,13 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
 
                         double vsq = sqrt(U*U + V*V);
-                        double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::max(0.0001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
+                        double nsq1 = (N->Drc)*(N->Drc)*GRAV/pow(hn,4.0/3.0);//std::max(0.0001,pow(hn,4.0/3.0)); //
                         double nsq = nsq1*vsq*dt;
 
-                        Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
-                        Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+                        //Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
+                        //Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+                        Un = (qxn/(1.0+nsq))/hn;
+                        Vn = (qyn/(1.0+nsq))/hn;
 
                         if (SwitchTimeavgV) {
                             double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
