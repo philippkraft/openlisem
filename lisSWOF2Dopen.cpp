@@ -55,14 +55,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     do {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            hs->Drc = h->Drc;
+            //hs->Drc = h->Drc;
             FloodDT->Drc = dt_max;
             tmd->Drc = 0;
         }}
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (hs->Drc > F_minWH) {
+            if (h->Drc > F_minWH) {
                 tmd->Drc = 1;
                 if (c > 0 && !MV(r,c-1)        ) tmd->data[r][c-1] = 1;
                 if (c < _nrCols-1 && !MV(r,c+1)) tmd->data[r][c+1] = 1;
@@ -99,7 +99,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 vec4 hll_y1;
                 vec4 hll_y2;
 
-                H = hs->Drc;
+                H = h->Drc;
                 Z = z->Drc;
                 U = u->Drc;
                 V = v->Drc;
@@ -253,11 +253,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
 
                         double vsq = sqrt(U*U + V*V);
-                        double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::max(0.0001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
+                        double nsq1 = (N->Drc)*(N->Drc)*GRAV/pow(hn,4.0/3.0);//
+                        //double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::max(0.0001,pow(hn,4.0/3.0)); //pow(hn,4.0/3.0);//
                         double nsq = nsq1*vsq*dt;
 
-                        Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
-                        Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+                        //Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
+                        //Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+                        Un = (qxn/(1.0+nsq))/hn;
+                        Vn = (qyn/(1.0+nsq))/hn;
 
                         if (SwitchTimeavgV) {
                             double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn);
@@ -301,9 +304,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             dt_req_min = std::min(dt_req_min, FloodDT->Drc);
         }}
         dt_req_min = std::min(dt_req_min, _dt-timesum);
-
-
-
 
         if (step > 0) {
 
