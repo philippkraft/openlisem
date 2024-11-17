@@ -136,7 +136,7 @@ void lisemqt::shootSingleScreen(int options)
         }
     }
     fileName = screenShotDir + fi.baseName()+ name + number  + ".png";
-    qDebug() << fileName;
+   // qDebug() << fileName;
     originalPixmap.save(fileName, format.toLatin1());
 }
 //--------------------------------------------------------------------

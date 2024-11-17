@@ -89,7 +89,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         double dh, du, dv, dz_h;
         double delta_h1, delta_h2, delta_h3, delta_h4;
         double delta_u1, delta_u2, delta_u3, delta_u4;
-        double delta_v1, delta_v2, delta_v3, delta_v4;\
+        double delta_v1, delta_v2, delta_v3, delta_v4;
         // riemann vars
         double h_x1r, h_xl, h_xr, h_x2l;
         double h_y1d, h_yu, h_yd, h_y2u;
@@ -435,7 +435,6 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
         timesum += dt1;
         count++; // nr loops
-
 
         step += 1; // now we have a good dt min, do the real calculations
 
