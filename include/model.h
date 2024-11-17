@@ -1025,7 +1025,7 @@ public:
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
     void Boundary2Ddyn();
-    void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
+    void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);  //OBSOLETE
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     // <= 2D flow
 
@@ -1155,7 +1155,7 @@ public:
     double HNode(double theta,const  HORIZON *hor);
     double TheNode(double head,const  HORIZON *hor);
     double HcoNode(double head,const HORIZON *hor);
-    double DmcNode(double head,const  HORIZON *hor);
+    double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
     double FindNode(double head,const  HORIZON *hor, int column);
     // <= SWATRE
 

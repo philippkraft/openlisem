@@ -107,6 +107,7 @@ void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *
 }
 
 //-------------------------------------------------------------------------------------------------
+//OBSOLETE
 // force flow when a diagonal solution exists and a DEM blockage is present
 void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
 {
