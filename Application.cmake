@@ -127,6 +127,7 @@ SET(APP_SOURCES
     lisSoilmoisture.cpp
     lisSWOF2Daux.cpp
     lisSWOF2Dopen.cpp
+    lisSWOF2DopenMUSCL.cpp
     lisSWOF2DSediment.cpp
     lisSWOF2DChannel.cpp
     lisTiledrainflow.cpp

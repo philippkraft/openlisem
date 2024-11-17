@@ -165,7 +165,7 @@ void lisemqt::lightStyleUI()
     tabWidgetOptions->setTabIcon(2,QIcon(":/Plant-icon.png"));
     tabWidgetOptions->setTabIcon(3,QIcon(":/soil5.png"));
     tabWidgetOptions->setTabIcon(4,QIcon(":/water2.png"));
-    tabWidgetOptions->setTabIcon(5,QIcon(":/river4.png"));
+    tabWidgetOptions->setTabIcon(5,QIcon(":/river3.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/house.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/eros1bw.png"));
     tabWidgetOptions->setTabIcon(8,QIcon(":/advanced.png"));
@@ -198,14 +198,15 @@ void lisemqt::lightStyleUI()
                         "QTabWidget { background-color: #fcfcfc; }"
                         "QGroupBox#groupBoxOutput::title{color: #2266aa;}"
                         "QGroupBox#groupBoxInput::title{color: #2266aa;}"
-                        "QGroupBox#groupRainfall::title{color: #2266aa;}"
+                        //"QGroupBox#groupRainfall::title{color: #2266aa;}"
                         "QGroupBox#groupInfiltration::title{color: #2266aa;}"
-                        "QGroupBox#groupInterception::title{color: #2266aa;}"
+                        "QGroupBox#groupInterception::title{color: #2266aa;}"                        
                         );
 
     HPlot->setStyleSheet("*{background-color: #fcfcfc; color: #000000;}");
     MPlot->setStyleSheet("*{background-color: #fcfcfc; color: #000000;}");
 
+    checkAdvancedOptions->setStyleSheet("QCheckBox {color: #2266aa;}");
     label_49->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
     label_55->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
     label_59->setStyleSheet(QString("QLabel {color: %1;}").arg(sc1));
@@ -288,15 +289,16 @@ void lisemqt::darkStyleUI()
     HPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
     MPlot->setStyleSheet("*{background-color: #e0e0e0; color: #000000;}");
 
-     label_49->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
-     label_55->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
-     label_59->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
-     label_88->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
-     label_89->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
-    label_156->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
-      label_9->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
-     label_10->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
-    label_128->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));  //e57537
+    checkAdvancedOptions->setStyleSheet("QCheckBox {color: #e57537;}");
+     label_49->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
+     label_55->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
+     label_59->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
+     label_88->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
+     label_89->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
+    label_156->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
+      label_9->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
+     label_10->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
+    label_128->setStyleSheet( QString("QLabel {color: %1}").arg(sc1));
 
     setOutputTabStyle("#a28000", "#f0f0f0");
 
