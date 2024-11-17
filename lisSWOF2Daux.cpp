@@ -459,7 +459,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
         {
             sum2 += M->Drc*CHAdjDX->Drc;
             n += 1;
-        }
+        };
     }}
     sum2 = std::max(0.0, sum2);
     // total and cells active for M
