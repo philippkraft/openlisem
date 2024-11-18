@@ -1012,6 +1012,7 @@ public:
     int F_SWOFSolution;
     double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
+    void doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void ChannelSWOFopen();  //TODO not used
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);
     double limiter(double a, double b);

@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>9</number>
+                  <number>4</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4896,7 +4896,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Use MUSCL: better estimation of cell boundary flows (gives narrower 2D flow)</string>
+                         <string>Use MUSCL 2nd order: better estimation of cell boundary flows (slower)</string>
                         </property>
                        </widget>
                       </item>

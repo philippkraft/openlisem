@@ -39,14 +39,12 @@
 double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
-    double dt_max = std::min(_dt, _dx*0.75);
+    double dt_max = std::min(_dt, _dx*0.5);
     int count = 0;
     double sumh = 0;
     bool stop;
     double dt_req_min = dt_max;
     int step = 0;
-    double dx = _dx;//ChannelAdj->Drc;
-    double dy = _dx;//DX->Drc;
 
     sumh = getMass(h, 0);
     //        if (SwitchErosion)
@@ -55,7 +53,6 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     do {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            //hs->Drc = h->Drc;
             FloodDT->Drc = dt_max;
             tmd->Drc = 0;
         }}
@@ -75,9 +72,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (tmd->Drc > 0) {
+                double dx = ChannelAdj->Drc;
+                double dy = DX->Drc;// give MB error! prob because elevation is accounted mfor already
                 double H, Z, U, V;
                 bool bc1, bc2, br1, br2;
-                bool b2c1 ,b2c2 ,b2r1 ,b2r2;
                 double z_x1, z_x2, z_y1, z_y2;
                 double h_x1, h_x2, h_y1, h_y2;
                 double u_x1, u_x2, u_y1, u_y2;
@@ -85,8 +83,10 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 double dz_x1, dz_x2, dz_y1, dz_y2;
                 double fb_x1=0,fb_x2=0,fb_y1=0,fb_y2=0;
                 double delzcx=0, delzcy=0;
-                double hx1r, hxl, hxr, hx2l;  // c-1, c, c+1
-                double hy1d, hyu, hyd, hy2u;  // r-1, r, r+1
+                // cell boundaries
+                // right of left cell, left of center cell, right of center cell, left of right cell
+                double hx1r, hxl, hxr, hx2l;
+                double hy1d, hyu, hyd, hy2u;
                 double ux1r, uxl, uxr, ux2l;
                 double uy1d, uyu, uyd, uy2u;
                 double vx1r, vxl, vxr, vx2l;
@@ -109,10 +109,13 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 br1 = r > 0 && !MV(r-1,c)        ;
                 br2 = r < _nrRows-1 && !MV(r+1,c);
 
-                z_x1, z_x2, z_y1, z_y2;
-                h_x1, h_x2, h_y1, h_y2;
-                u_x1, u_x2, u_y1, u_y2;
-                v_x1, v_x2, v_y1, v_y2;
+                if (SwitchFlowBarriers) {
+                    fb_x1 = bc1 ? std::max(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
+                    fb_x2 = bc2 ? std::max(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
+                    fb_y1 = br1 ? std::max(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
+                    fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
+                }
+
                 if (bc1) {
                     z_x1 = z->data[r][c-1];
                     h_x1 = h->data[r][c-1];
@@ -158,35 +161,23 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     v_y2 = V;
                 }
 
-                if (SwitchFlowBarriers) {
-                    fb_x1 = bc1 ? std::max(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
-                    fb_x2 = bc2 ? std::max(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
-                    fb_y1 = br1 ? std::max(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
-                    fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
-                }
-
-                b2c1 = c > 1 && !MV(r,c-2)        ;
-                b2c2 = c < _nrCols-2 && !MV(r,c+2);
-                b2r1 = r > 1 && !MV(r-2,c)        ;
-                b2r2 = r < _nrRows-2 && !MV(r+2,c);
-
                 dz_x1 = (Z - z_x1);
                 dz_x2 = (z_x2 - Z);
                 dz_y1 = (Z - z_y1);
                 dz_y2 = (z_y2 - Z);
 
                 // non-muscl solution, cell centres for boundaries in x and y directions
-                hx1r = h_x1; hxl = H; hxr = H; hx2l = h_x2;  // x-1 r; x l; x r; x+1 l
+                // x-1 r; x l; x r; x+1 l
+                hx1r = h_x1; hxl = H; hxr = H; hx2l = h_x2;
                 ux1r = u_x1; uxl = U; uxr = U; ux2l = u_x2;
                 vx1r = v_x1; vxl = V; vxr = V; vx2l = v_x2;
-
+                // y-1 d; y u; y d; y+1 u;
                 hy1d = h_y1; hyu = H; hyd = H; hy2u = h_y2;
                 uy1d = u_y1; uyu = U; uyd = U; uy2u = u_y2;
                 vy1d = v_y1; vyu = V; vyd = V; vy2u = v_y2;
 
                 //########### calculate Riemann valaues for all four boundaries of a cell ############
 
-                // if muscl H and h_x1 etc become Hx1l and hx1r
                 // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
                 // barrier is ourown additiona, to vcreate flood walls.
 
@@ -239,15 +230,14 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     double tx = dt/dx;
                     double ty = dt/dy;
 
-                    double hn = std::max(0.0, H + dt/_dx*(hll_x1.v[0]-hll_x2.v[0] + hll_y1.v[0]-hll_y2.v[0]));
+                    double hn = std::max(0.0, H + tx*(hll_x1.v[0]-hll_x2.v[0]) + ty*(hll_y1.v[0]-hll_y2.v[0]));
                     // mass balance, hll_....v[0] is the height
-                    //qes1[i][j] = (he[i][j]*ve1[i][j]-tx*(f2[i+1][j]-f2[i][j]+GRAV_DEM*((h1left[i][j]-h1l[i][j])*(h1left[i][j]+h1l[i][j])+(h1r[i][j]-h1right[i][j])*(h1r[i][j]+h1right[i][j])+(h1l[i][j]+h1r[i][j])*delzc1[i][j]))-ty*(g2[i][j+1]-g2[i][j]));
 
                     // momentum balance for cells with water
                     if(hn > he_ca) {
                         // SWOF solution, delzc1 = 0 when not MUSCL
-                        double gflow_x = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
-                        double gflow_y = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
+                        double gflow_x = GRAV*0.5*((h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr)); // delzcx = 0 is not muscl
+                        double gflow_y = GRAV*0.5*((h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd));
 
                         double qxn = H * U - tx*(hll_x2.v[1] - hll_x1.v[1] + gflow_x) - ty*(hll_y2.v[2] - hll_y1.v[2]);
                         double qyn = H * V - tx*(hll_x2.v[2] - hll_x1.v[2]) - ty*(hll_y2.v[1] - hll_y1.v[1] + gflow_y);
