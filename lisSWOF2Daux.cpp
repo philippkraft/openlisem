@@ -428,7 +428,7 @@ vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,do
 double TWorld::getMass(cTMap *M, double th)
 {
     double sum2 = 0;
-#pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
             sum2 += M->Drc*CHAdjDX->Drc;
@@ -451,25 +451,19 @@ double TWorld::getMassSed(cTMap *M, double th)
 void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
 {
     double sum2 = 0;
-    double n = 0;
 
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
-        {
             sum2 += M->Drc*CHAdjDX->Drc;
-            n += 1;
-        };
     }}
-    sum2 = std::max(0.0, sum2);
-    // total and cells active for M
-    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
+    //sum2 = std::max(0.0, sum2);
 
+    double Mcorr = sum2 > 0 ? (1.0+(sum1 - sum2)/sum2) : 1.0;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
-        {
-            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
+        if(M->Drc > th) {
+            M->Drc = M->Drc*Mcorr;            // <- distribution weighted to h
             M->Drc = std::max(M->Drc , 0.0);
         }
     }}
@@ -478,24 +472,19 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
 void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
 {
     double sum2 = 0;
-    double n = 0;
 
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th)
-        {
             sum2 += M->Drc;
-            n += 1;
-        }
     }}
     // total and cells active for M
-    double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;
+    double Mcorr = fabs(sum2) > 0 ? (1.0+(sum1 - sum2)/sum2) : 1.0;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
-        {
-            M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
+        if(M->Drc > th) {
+            M->Drc = M->Drc*Mcorr;
             M->Drc = std::max(M->Drc , 0.0);
         }
     }}
