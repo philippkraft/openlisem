@@ -395,9 +395,9 @@ void TWorld::cell_Redistribution2(int r, int c)
             Percolation = (pore2-theta2)*DL2;
             theta2 = theta2 + Percolation/DL2;
             theta2 = std::min(pore2,theta2);// superfluous
-            if (std::isnan(theta)) {
-                qDebug()<< "in sd1" << ThetaS1->Drc  << Poreeff->Drc << ThetaR1->Drc;
-            }
+            // if (std::isnan(theta)) {
+            //     qDebug()<< "in sd1" << ThetaS1->Drc  << Poreeff->Drc << ThetaR1->Drc;
+            // }
         } // else Percolation is simply 0 and no change
 
         // 2) decrease L in soildep with flow into the unsat zone (SoilDep1-Lw)
@@ -420,9 +420,9 @@ void TWorld::cell_Redistribution2(int r, int c)
         theta = theta + Percolation/(SoilDep1-Lw_);
         // increase moisture under Lw
 
-        if (std::isnan(theta)) {
-            qDebug()<< SoilDep1 << Percolation << dm << moistw << Lw_;
-        }
+        // if (std::isnan(theta)) {
+        //     qDebug()<< SoilDep1 << Percolation << dm << moistw << Lw_;
+        // }
 
         // double store = (SoilDep1 - Lw_) * (pore-theta); // space in SD1 under Lw_
         // if (Percolation <= store) {
