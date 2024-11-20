@@ -84,6 +84,7 @@ QString TWorld::getvaluename(QString vname)
     ErrorString = QString("Map ID: \"%1\" not found! You could be using an old runfile,\nor a map is not present.").arg(vname);
     throw 3;
 }
+
 //---------------------------------------------------------------------------
 double TWorld::getvaluedouble(QString vname)
 {
@@ -135,6 +136,13 @@ QString TWorld::CheckDir(QString p, bool makeit)
 
     if (!path.endsWith("/") && !path.endsWith("\\"))
         path = path + '/';
+
+    QDir dir(p);
+    if(!dir.isAbsolute())
+    {
+        path = QDir::currentPath() + "/" + path;
+        qDebug() << "Relative path: " << path;
+    }
 
     if (!QDir(path).exists())
     {
