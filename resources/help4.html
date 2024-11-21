@@ -5,7 +5,7 @@
 <p><strong>Courant factor</strong>: Determines minimum timestep, lower means smaller timesteps in the iteration are used. (def. 0.2, range 0.01- 0.5).</p>
 <p><strong>Minimum timestep</strong>: User defined minimum timestep for dynamic wave solution. In case of instability lower this value (def. 0.2 sec).</p>
 <p>&nbsp;</p>
-<p><strong>MUSCL solution</strong>: use a <em>Monotonic Upstream-centered Scheme for Conservation Laws.</em> Water pressure and momentum are calculated on cell boundaries, interpolating from cell centres. Gives a narrower flow and is slower. Can be more accurate in certain situations. (def. off)</p>
+<p><strong>MUSCL-2nd order solution</strong>: use a <em>Monotonic Upstream-centered Scheme for Conservation Laws.</em> Water pressure and momentum are calculated on cell boundaries, interpolating from cell centres. Gives narrower flow but and can be more accurate in certain situations with high resolution DEMs. The loop is done twivce and the average flow is calculated, but this is also slower (def. on)</p>
 <p><strong>Enable diagonal flow</strong> when blocked: water can be blocked in X and Y direction in 2D flow (a local depression, while a diagonal outlet exists. Diagonal outflows are not regarded in a 2D scheme. Enabling this uses the LDD to transport water and sediment to this diagonal cell (def off). The threshold pit depth is set at 0.1 m. Can solve certain spurious pits that remain filled.</p>
 <p><strong>Remove pits</strong>: set pit elevation to lowest surrounding cell in a 3x3 window (def. off)</p>
 <h3>Boundary inflow</h3>

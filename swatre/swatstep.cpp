@@ -197,9 +197,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
         // get nodal values of theta, K, dif moist cap
         for (int j = 0; j < nN; j++) {
-            k[j] = FindNode(h[j], p->horizon[j], K_COL)*p->KsatCal[j];          // K in cm/sec
-             dimoca[j] = FindNode(h[j], p->horizon[j], DMCC_COL); // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
-            theta[j] = FindNode(h[j], p->horizon[j], THETA_COL);  // moisture content
+            k[j] = FindNode(h[j], p->horizon[j], K_COL)*p->KsatCal[j];
+            // K in cm/sec from h
+            //dimoca[j] = FindNode(h[j], p->horizon[j], DMCC_COL);
+            dimoca[j] = DmcNode(h[j], p->horizon[j], true);
+            // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
+            theta[j] = FindNode(h[j], p->horizon[j], THETA_COL);
+            // moisture content from H
         }
 
         Theta = (theta[0]+theta[1])/2;
@@ -316,8 +320,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
         // correct tridiagonal matrix
         for (int i = 0; i < nN; i++) {
-            double theta = FindNode(h[i], Horizon(p,i), THETA_COL);//TheNode(h[i], Horizon(p,i));
-            double dimocaNew = FindNode(h[i], Horizon(p,i), DMCC_COL);//DmcNode(h[i], Horizon(p,i));
+            double theta = FindNode(h[i], Horizon(p,i), THETA_COL);
+            //double dimocaNew = FindNode(h[i], Horizon(p,i), DMCC_COL);//DmcNode(h[i], Horizon(p,i));
+            double dimocaNew = DmcNode(h[i], Horizon(p,i), true);
             thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
             thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i]
                     - theta + thetaPrev[i];

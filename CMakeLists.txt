@@ -59,5 +59,6 @@ target_sources(Lisem
   PCR/setangle.c
   PCR/kernlcsf.c
   compile_lisem_linux.txt
+  lisSWOF2DopenMUSCL.cpp
 )
 

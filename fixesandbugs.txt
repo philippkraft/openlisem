@@ -1,4 +1,14 @@
 ### this file is a list of changes per major commit, for developers only ###
+241118 - v7.4
+- major rewrite of MUSCL 2D flow with 2nd order and Heun averaging (see FullSWOF documentation of Delestre et al.)
+- BUG FIX: small bug fixes in 2D flow
+- BUG FIX: culverts work again, still small MB error but not very much
+
+241114 - v7.3
+- BUG fix: reading of [rainfall/ET/boundary waterheight/user discharge] time string, was malways rounded to whole minutes
+- BUG fix: finding the right timeseries interval with the current time at the end of the series
+- Known BUG: culverts do not work correctly
+- Code made compatble for Linux compile, instructions for compilation updated
 
 241114 - v7.3
 - BUG fix: reading of [rainfall/ET/boundary waterheight/user discharge] time string, was malways rounded to whole minutes
