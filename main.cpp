@@ -62,175 +62,77 @@ int main(int argc, char *argv[])
     }
 
     // Initialize application based on noInterface flag
-        if (noInterface) {
-            QCoreApplication app(argc, argv); // Use QCoreApplication for headless mode
+    if (noInterface) {
+        QCoreApplication app(argc, argv); // Use QCoreApplication for headless mode
 
-            op.LisemDir = QCoreApplication::applicationDirPath() + "/";
-            // exe path, used for ini file
+        op.LisemDir = QCoreApplication::applicationDirPath() + "/";
+        // exe path, used for ini file
 
-            QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-            QFileInfo appDataLocalFileInfo(appDataLocalPath);
-            QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
-            QDir dir;
-            if (!dir.exists(localPath))
-                dir.mkpath(localPath);
-            op.userAppDir = localPath + "/";
-            QLocale loc = QLocale::system(); // current locale
-            loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-            QLocale::setDefault(loc);
+        QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+        QFileInfo appDataLocalFileInfo(appDataLocalPath);
+        QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
+        QDir dir;
+        if (!dir.exists(localPath))
+            dir.mkpath(localPath);
+        op.userAppDir = localPath + "/";
+        QLocale loc = QLocale::system(); // current locale
+        loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+        QLocale::setDefault(loc);
 
-            //Start the model based on the specified runfile directly
-            if (!runFileName.isEmpty()) {
-                op.runfilename = runFileName;
-                op.doBatchmode = true;
+        //Start the model based on the specified runfile directly
+        if (!runFileName.isEmpty()) {
+            op.runfilename = runFileName;
+            op.doBatchmode = true;
 
-                TWorld *W = new TWorld();
+            TWorld *W = new TWorld();
 
-                W->stopRequested = false;
-                W->waitRequested = false;
-                W->noInterface = noInterface;
-                W->start();
-                qDebug() << "\nrunning OpenLISEM with:" << runFileName;
-                return app.exec();
-            } else {
-                printf("syntax:\nLisem [-ni] -r runfile \n"
-                       "-ni = no graphical user interface, uses runfile directly!\n");
-                return 0;
-            }
+            W->stopRequested = false;
+            W->waitRequested = false;
+            W->noInterface = noInterface;
+            W->start();
+            qDebug() << "\nrunning OpenLISEM with:" << runFileName;
+            return app.exec();
         } else {
-            QApplication app(argc, argv); // Use QApplication for GUI mode
-            app.setWindowIcon(QIcon(":/openlisemN.ico"));
-            app.setStyle(QStyleFactory::create("Fusion"));
+            printf("syntax:\nLisem [-ni] -r runfile \n"
+                   "-ni = no graphical user interface, uses runfile directly!\n");
+            return 0;
+        }
+    } else {
+        QApplication app(argc, argv); // Use QApplication for GUI mode
+        app.setWindowIcon(QIcon(":/openlisemN.ico"));
+        app.setStyle(QStyleFactory::create("Fusion"));
 
-            op.LisemDir = QCoreApplication::applicationDirPath() + "/";
-            // exe path, used for ini file
+        op.LisemDir = QCoreApplication::applicationDirPath() + "/";
+        // exe path, used for ini file
 
-            QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-            QFileInfo appDataLocalFileInfo(appDataLocalPath);
-            QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
-            QDir dir;
-            if (!dir.exists(localPath))
-                dir.mkpath(localPath);
-            op.userAppDir = localPath + "/";
-            QLocale loc = QLocale::system(); // current locale
-            loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-            QLocale::setDefault(loc);
+        QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+        QFileInfo appDataLocalFileInfo(appDataLocalPath);
+        QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
+        QDir dir;
+        if (!dir.exists(localPath))
+            dir.mkpath(localPath);
+        op.userAppDir = localPath + "/";
+        QLocale loc = QLocale::system(); // current locale
+        loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+        QLocale::setDefault(loc);
 
-            // select between a standard run with GUI or a run with GUI based on a specified runfile from the command line
-            if (argc <= 1) {
-                lisemqt iface;
+        // select between a standard run with GUI or a run with GUI based on a specified runfile from the command line
+        if (argc <= 1) {
+            lisemqt iface;
+            iface.setWindowTitle(VERSION);
+            iface.show();
+            return app.exec();
+        } else {
+            if (!runFileName.isEmpty()) {
+                lisemqt iface(0, true, runFileName);
                 iface.setWindowTitle(VERSION);
                 iface.show();
                 return app.exec();
             } else {
-                if (!runFileName.isEmpty()) {
-                    lisemqt iface(0, true, runFileName);
-                    iface.setWindowTitle(VERSION);
-                    iface.show();
-                    return app.exec();
-                } else {
-                    printf("syntax:\nlisem [-ni] -r runfile \n"
-                           "-ni = no graphical user interface, uses runfile directly!\n");
-                    return 0;
-                }
+                printf("syntax:\nlisem [-ni] -r runfile \n"
+                       "-ni = no graphical user interface, uses runfile directly!\n");
+                return 0;
             }
         }
     }
-
-
-//OLD CODE
-//     QApplication app(argc, argv);
-
-//     app.setWindowIcon(QIcon(":/openlisemN.ico"));
-
-//     app.setStyle(QStyleFactory::create("Fusion"));
-
-//     op.LisemDir = QCoreApplication::applicationDirPath()+"/";
-//
-
-//     QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-//     QFileInfo appDataLocalFileInfo(appDataLocalPath);
-//     QString localPath = appDataLocalFileInfo.absolutePath()+"/lisem";
-//     QDir dir;
-//     if (!dir.exists(localPath))
-//         dir.mkpath(localPath);
-//     // if (!dir.exists(localPath)) {
-//     //     if (dir.mkpath(localPath)) {
-//     //         qDebug() << "Directory created successfully: " << localPath;
-//     //     } else {
-//     //         qDebug() << "Failed to create directory: " << localPath;
-//     //     }
-//     // } else {
-//     //     qDebug() << "Directory already exists: " << localPath;
-//     // }
-
-//     op.userAppDir = localPath+"/";
-//     QStringList args=QCoreApplication::arguments();
-
-//     QLocale loc = QLocale::system(); // current locale
-//     loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-//     QLocale::setDefault(loc);
-
-
-//     if (argc <= 1)
-//     {
-//         lisemqt iface;
-
-//         iface.setWindowTitle(VERSION);
-//         iface.show();
-
-//         return app.exec();
-
-//     } else {
-//         // 2 options:
-//         // noInterface = run without GUI in console
-//         // batchmode = run with GUI but start run automatically (default)
-//         bool noInterface = false;
-
-//         QString ag = args.join(" ");
-//         QString name;
-
-//         if (ag.contains("?")) {
-//             printf("syntax:\nlisem [-ni] -r runfile \n"
-//                    "-ni = no graphical user interface, uses runfile directly!\n");
-//             return 0;
-//         }
-
-//         // run from console with or without GUI
-//         if (ag.contains("-r")) {
-//             QStringList sl = ag.split("-r");
-//             name = sl[1].simplified();
-
-
-//             if (ag.contains("-ni")) {
-//                 noInterface = true;
-//                 op.runfilename = name;
-//                 op.doBatchmode = true;
-
-//                 TWorld *W = new TWorld();
-//                 // make the model world
-// 				op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
-//                 W->stopRequested = false;
-//                 W->waitRequested = false;
-//                 W->noInterface = noInterface;
-//                 W->start();
-//                 qDebug() << "\nrunning OpenLISEM with:" << name;
-//                 return app.exec();
-//             } else {
-
-//                 //qDebug() << "running: " << name;
-
-//                 lisemqt iface(0, true, name);
-//                 iface.setWindowTitle(VERSION);
-//                 iface.show();
-
-//             return app.exec();
-//             }
-
-//         } else {
-//             printf("syntax:\nlisem [-ni] -r runfile \n"
-//                    "-ni = no graphical user interface, uses runfile directly!\n");
-//             return 0;
-//         }
-//     }
-// }
+}

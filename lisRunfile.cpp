@@ -30,8 +30,7 @@
   \brief Read and parse the temporary runfile produce by the interface.
 
   Functions in here are doubled from the interface. The idea is to keep interface and model\n
-  completely separate. In principle the model could be called directly with a runfile (not implemented).
-  MC - 2023-05-03 added run without GUI - this uses the runfile directly! \n
+  completely separate. The model can be called directly with a runfile, with the '-ni' command lin eoption.\n
 
 functions: \n
 - QString TWorld::getvaluename(QString vname) \n
@@ -84,7 +83,6 @@ QString TWorld::getvaluename(QString vname)
     ErrorString = QString("Map ID: \"%1\" not found! You could be using an old runfile,\nor a map is not present.").arg(vname);
     throw 3;
 }
-
 //---------------------------------------------------------------------------
 double TWorld::getvaluedouble(QString vname)
 {
@@ -136,13 +134,6 @@ QString TWorld::CheckDir(QString p, bool makeit)
 
     if (!path.endsWith("/") && !path.endsWith("\\"))
         path = path + '/';
-
-    QDir dir(p);
-    if(!dir.isAbsolute())
-    {
-        path = QDir::currentPath() + "/" + path;
-        qDebug() << "Relative path: " << path;
-    }
 
     if (!QDir(path).exists())
     {
