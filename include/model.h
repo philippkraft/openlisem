@@ -485,9 +485,9 @@ public:
         SwitchInterceptionLAI,
         SwitchPsiUser,
         SwitchNrLayers,
-        SwitchDumpH,
-        SwitchDumpTheta,
-        SwitchDumpK,
+        //SwitchDumpH,
+        //SwitchDumpTheta,
+        //SwitchDumpK,
         SwitchVanGenuchten,
         SwitchBrooksCorey,
 

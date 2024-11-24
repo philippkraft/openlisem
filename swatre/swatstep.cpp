@@ -449,8 +449,7 @@ void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap 
     ComputeForPixel(&s->pixel[i_], s, drainfraction);
     // estimate new h and theta at the end of dt
 
-    //SwitchDumpH = true;
-    if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
+    if(SwitchDumphead) {
         if(s->pixel[i_].dumpHid > 0) {
             for (int i = 0; i < zone->nrNodes; i++) {
                 QString name = QString("SwH%1").arg(runstep,2, 10, QLatin1Char('0'));

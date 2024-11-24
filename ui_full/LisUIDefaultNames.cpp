@@ -368,12 +368,26 @@ void lisemqt::defaultRunFile()
     //namelist[i++].name = QString("Table File");
     //namelist[i].value = QString("0.01");
     //namelist[i++].name = QString("SWATRE internal minimum timestep");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Swatre output");
     namelist[i].value = QString("inithead");
     namelist[i++].name = QString("Matric head files");
     // namelist[i].value = QString("1");
     // namelist[i++].name = QString("Geometric mean Ksat");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include tile drains");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 1");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 2");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("SoilWB nodes 3");
+    namelist[i].value = QString("30");
+    namelist[i++].name = QString("SoilWB dt factor");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Infil Kavg");
+    namelist[i].value = QString("2");
+    namelist[i++].name = QString("Van Genuchten");
 
     //### FLOW
     namelist[i++].name = QString("");
@@ -649,19 +663,6 @@ void lisemqt::defaultRunFile()
 //    namelist[i++].name = QString("Channel WF inflow");
 //    namelist[i].value = QString("1");
 //    namelist[i++].name = QString("GW layer change SD");
-    namelist[i++].name = QString("Channel WF inflow");
-    namelist[i].value = QString("3");
-    namelist[i++].name = QString("SoilWB nodes 1");
-    namelist[i].value = QString("3");
-    namelist[i++].name = QString("SoilWB nodes 2");
-    namelist[i].value = QString("3");
-    namelist[i++].name = QString("SoilWB nodes 3");
-    namelist[i].value = QString("30");
-    namelist[i++].name = QString("SoilWB dt factor");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Infil Kavg");
-    namelist[i].value = QString("2");
-    namelist[i++].name = QString("Van Genuchten");												   
 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Advanced Options");

@@ -550,7 +550,7 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 void TWorld::cell_InfilSwatre(long i_, int r, int c)
 {
     // porofile number 0 is impeermeable so no need to do anything
-    if (ProfileID->Drc > 0) {
+    if (ProfileID->Drc <= 0) {
         fact->Drc = 0;
         InfilVol->Drc = 0;
         return;

@@ -414,59 +414,36 @@ public slots:
     void on_toolButton_helpAdvanced_clicked();
 
     void on_toolButton_RainfallName_clicked();
+    void on_toolButton_RainfallShow_clicked();
    // void on_toolButton_DichargeInName_clicked();
 
     //void on_toolButton_SnowmeltName_clicked();
-    void on_toolButton_RainfallShow_clicked();
 //    void on_toolButton_SnowmeltShow_clicked();
 //    void on_toolButton_ShowRunfile_clicked();
     void on_toolButton_satImageName_clicked();
-    //void on_toolButton_fileOpen_clicked();
     void on_toolButton_SwatreTableDir_clicked();
     //void on_toolButton_SwatreTableFile_clicked();
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodMinHeight_valueChanged(double);
 
-    void on_DisplayComboBox_currentIndexChanged(int);
-    void on_DisplayComboBox2_currentIndexChanged(int);
-
-   // void doCheckSnowmelt(bool);
-
-    void doCheckPesticides(bool check);
-
-    void on_E_InfiltrationMethod_currentIndexChanged(int inr);
-    void on_E_runFileList_currentIndexChanged(int);
-
-    void on_checkFlowBarriers_clicked();
-    void on_checkChannelInfil_clicked();
- //  void on_checkChannelBaseflow_clicked();
-    void on_checkDoErosion_clicked();
-    void on_checkIncludeChannel_clicked();
-    void on_checkIncludeTiledrains_clicked();
     void on_checkBoxComboMaps_stateChanged(int);
     void on_checkBoxComboMaps2_stateChanged(int);
-    void on_nrUserCores_valueChanged(int d);
+    void on_DisplayComboBox_currentIndexChanged(int);
+    void on_DisplayComboBox2_currentIndexChanged(int);
     void on_ComboMinSpinBox_valueChanged(double);
     void on_ComboMaxSpinBox_valueChanged(double);
     void on_ComboMinSpinBox2_valueChanged(double);
     void on_ComboMaxSpinBox2_valueChanged(double);
+    void setErosionMapOutput(bool doit);
+
+    //void doCheckPesticides(bool check);
+
+    void on_E_runFileList_currentIndexChanged(int);
+
+    void on_nrUserCores_valueChanged(int d);
     void onImageToggled(bool b);
 
-    void setErosionMapOutput(bool doit);
-    //void on_spinBoxPointtoShow_valueChanged(int);
     void on_tabWidget_out_currentChanged(int);
-
-    //houses
-    void on_checkHouses_clicked();
-    void on_checkInfilCompact_clicked();
-    void on_checkInfilCrust_clicked();
-    void on_checkInfilGrass_clicked();
-    //void on_checkInfil2layer_clicked();
-    void on_checkSedtrap_clicked();
- //   void on_checkMaterialDepth_clicked();
-//    void on_E_BulkDens2_editingFinished();
-//    void on_E_BulkDens_editingFinished();
-  //  void on_checkSnowmelt_clicked();
     void on_checkExpandActive_clicked();
     void on_E_MapDir_returnPressed();
     void on_E_ResultDir_returnPressed();

@@ -463,7 +463,8 @@ void lisemqt::showTextfile(QString name)
 
     dialog.exec();
 }
-
+//--------------------------------------------------------------------
+//OBSOLETE
 void lisemqt::showTextfileOld(QString name)
 {
 
@@ -504,7 +505,7 @@ void lisemqt::showTextfileOld(QString name)
 
     file.close();
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_E_EndTimeDay_returnPressed()
 {
     int daye = E_EndTimeDay->text().split(":")[0].toInt();
@@ -516,8 +517,7 @@ void lisemqt::on_E_EndTimeDay_returnPressed()
     }
     E_EndTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 }
-
-
+//--------------------------------------------------------------------
 void lisemqt::on_E_BeginTimeDay_returnPressed()
 {
        int daye = E_BeginTimeDay->text().split(":")[0].toInt();
@@ -529,24 +529,23 @@ void lisemqt::on_E_BeginTimeDay_returnPressed()
        }
        E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 }
-
-
+//--------------------------------------------------------------------
 void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
 {
     if (checked) checkChannelInfil->setChecked(false);
    // doChannelBaseflow = checked;
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_checkChannelInfil_toggled(bool checked)
 {
     if (checked) checkStationaryBaseflow->setChecked(false);
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
 {
     E_EfficiencyDirect->setEnabled(index == 3);
 }
-
+//--------------------------------------------------------------------
 void lisemqt::on_checkGWflow_toggled(bool checked)
 {
     GW_widget->setEnabled(checked);
@@ -554,7 +553,6 @@ void lisemqt::on_checkGWflow_toggled(bool checked)
     groupBaseflowParams->setEnabled(checked);
     //qDebug() << checked;
 }
-
 //--------------------------------------------------------------------
 void lisemqt::on_E_floodMinHeight_valueChanged(double)
 {
@@ -572,33 +570,13 @@ void lisemqt::on_toolButton_SwatreTableDir_clicked()
     QString sss = getFileorDir(SwatreTableDir,"Select the SWATRE profile tabel directory", filters, 0);
 
     SwatreTableDir = QFileInfo(sss).absolutePath()+"/";
-    //SwatreTableName = QFileInfo(sss).fileName(); //baseName();
 
     E_SwatreTableDir->setText(SwatreTableDir);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_SwatreTableShow_clicked()
 {
-    QFile file(SwatreTableName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QMessageBox::warning(this,"openLISEM",
-                             QString("Cannot read file %1:\n%2.")
-                             .arg(SwatreTableName)
-                             .arg(file.errorString()));
-        return;
-    }
-
-    QTextStream in(&file);
-
-    QPlainTextEdit *view = new QPlainTextEdit(in.readAll());
-    view->setWindowTitle(SwatreTableName);
-    view->setMinimumWidth(400);
-    view->setMinimumHeight(500);
-    view->setAttribute(Qt::WA_DeleteOnClose);
-    view->show();
-
-    file.close();
+    showTextfile(SwatreTableName);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_SwatreTableName_clicked()
@@ -614,8 +592,6 @@ void lisemqt::on_toolButton_SwatreTableName_clicked()
 
     E_SwatreTableName->setText(SwatreTableName);
 }
-
-
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_satImageName_clicked()
 {
@@ -666,7 +642,7 @@ void lisemqt::on_checkIncludeChannel_toggled(bool checked)
     groupChannelParams->setEnabled(checked);
     checkMapChannels->setEnabled(checked);
 
-    checkMapNameModel(CHANNELMAPS, 0, checked);
+   // checkMapNameModel(CHANNELMAPS, 0, checked);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkDoErosion_toggled(bool checked)

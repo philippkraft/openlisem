@@ -80,7 +80,7 @@ void TWorld::ReadSwatreInputNew(void)
     swatreProfileDef.clear();
     swatreProfileNr.clear();
 
-    QFile file(/*SwatreTableDir + */SwatreTableName);
+    QFile file(SwatreTableName); // table name has full path
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);

@@ -60,44 +60,48 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
     // give each pixel a profile
     FOR_ROW_COL_MV_L {
         int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
+
         if (profnr > 0)
             s->pixel[i_].profile = profileList[profnr];  // pointer to profile
-        else
-            Error(QString("SWATRE: Profile number %1 in profile.map does not exist in the defenitions in profile.inp").arg((int)profileMap->Drc));
+        // else
+        //     Error(QString("SWATRE: Profile number %1 in profile.map does not exist in the list of profiles").arg((int)profileMap->Drc));
+        // profile = <= 0 now set to impermeable
 
-        if(SwitchDumpH || SwitchDumpTheta || SwitchDumpK) {
+        if(SwitchDumphead) {
             s->pixel[i_].dumpHid = SwatreOutput->Drc;
-        }
+        } else
+            s->pixel[i_].dumpHid = 0;
     }}
 
-// fill the inithead structure of each pixel and set tiledrain depth if any
-for (int k = 0; k < zone->nrNodes; k++) {
-    QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
-    // make inithead.001 to .00n name
+    // fill the inithead structure of each pixel and set tiledrain depth if any
+    for (int k = 0; k < zone->nrNodes; k++) {
+        QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
+        // make inithead.001 to .00n name
 
-    inith = ReadMap(LDD,fname);
-    // get inithead information
+        inith = ReadMap(LDD,fname);
+        // get inithead information
 
-    FOR_ROW_COL_MV_L {
-        s->pixel[i_].h.append(inith->Drc);//*psiCalibration;
-        // find depth of tilenode
-        if (SwitchIncludeTile) {
-            if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0) {
-                // NOTE depth is in m while node info is in cm, so *100
-                // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
-                if (s->pixel[i_].profile->zone->endComp[k] > TileDepth->Drc*100)
-                    s->pixel[i_].tilenode = k-1;
+        FOR_ROW_COL_MV_L {
+            s->pixel[i_].h.append(inith->Drc);//*psiCalibration;
+            // find depth of tilenode
+            if (SwitchIncludeTile) {
+                if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0) {
+                    // NOTE depth is in m while node info is in cm, so *100
+                    // endComp is the depth at the bottom of the compartment, so the tile is <= endcomp
+                    if (s->pixel[i_].profile->zone->endComp[k] > TileDepth->Drc*100)
+                        s->pixel[i_].tilenode = k-1;
+                }
             }
-        }
 
-        if (SHOWDEBUG) {
-            qDebug() << fname <<i_ << s->pixel[i_].h.size() << s->pixel[i_].h[k] << inith->Drc;
-        }
+            if (SHOWDEBUG) {
+                qDebug() << fname <<i_ << s->pixel[i_].h.size() << s->pixel[i_].h[k] << inith->Drc;
+            }
+        }}
 
-    }}
-}
-qDebug() << "DONE InitSwatre";
-return(s);
+    }
+
+    qDebug() << "DONE InitSwatre";
+    return(s);
 }
 //--------------------------------------------------------------------------------
 /// soil model instance to be freed

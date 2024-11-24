@@ -796,8 +796,9 @@ void TWorld::InitSoilInput(void)
     {
         // read all Swatre profile maps
         ProfileID = ReadMap(LDD,getvaluename("profmap"));
-        //SwatreTableName = getvaluename("proftbl");
-        SwatreOutput = ReadMap(LDD,getvaluename("swatreout"));
+
+        if (SwitchDumphead)
+            SwatreOutput = ReadMap(LDD,getvaluename("swatreout"));
 
         if (SwitchGrassStrip)
             ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
@@ -2205,9 +2206,6 @@ void TWorld::IntializeOptions(void)
     SwitchImpermeable = false;
     SwitchTwoLayer = false;
     SwitchThreeLayer = false;
-    SwitchDumpH = false;
-    SwitchDumpTheta = false;
-    SwitchDumpK = false;
 
     SwitchPesticide = false;
     Switchheaderpest = true;

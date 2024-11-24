@@ -211,17 +211,18 @@ void lisemqt::ParseInputData()
             case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(3); break;
             }
         }
-        if (p1.compare("Include compacted")==0)              checkInfilCompact->setChecked(check);
-        if (p1.compare("Include crusts")==0)                 checkInfilCrust->setChecked(check);
-        if (p1.compare("Impermeable sublayer")==0)           checkInfilImpermeable->setChecked(check);
-        if (p1.compare("Nr input layers")==0)                spinSoilLayers->setValue(iii);
-        if (p1.compare("Psi user input")==0)                 checkPsiUser->setChecked(check);
-        if (p1.compare("SoilWB nodes 1")==0) spinNodes1->setValue(iii);
-        if (p1.compare("SoilWB nodes 2")==0) spinNodes2->setValue(iii);
-        if (p1.compare("SoilWB nodes 3")==0) spinNodes3->setValue(iii);
-        if (p1.compare("SoilWB dt factor")==0) spinInfdt->setValue(valc);
-        if (p1.compare("Infil Kavg")==0)   comboBox_Kmean->setCurrentIndex(iii);
-        if (p1.compare("Van Genuchten")==0) spinSoilPhysics->setValue(valc);
+        if (p1.compare("Include compacted")==0)             checkInfilCompact->setChecked(check);
+        if (p1.compare("Include crusts")==0)                checkInfilCrust->setChecked(check);
+        if (p1.compare("Impermeable sublayer")==0)          checkInfilImpermeable->setChecked(check);
+        if (p1.compare("Nr input layers")==0)               spinSoilLayers->setValue(iii);
+        if (p1.compare("Psi user input")==0)                checkPsiUser->setChecked(check);
+        if (p1.compare("SoilWB nodes 1")==0)                spinNodes1->setValue(iii);
+        if (p1.compare("SoilWB nodes 2")==0)                spinNodes2->setValue(iii);
+        if (p1.compare("SoilWB nodes 3")==0)                spinNodes3->setValue(iii);
+        if (p1.compare("SoilWB dt factor")==0)              spinInfdt->setValue(valc);
+        if (p1.compare("Infil Kavg")==0)                    comboBox_Kmean->setCurrentIndex(iii);
+        if (p1.compare("Van Genuchten")==0)                 spinSoilPhysics->setValue(valc);
+        if (p1.compare("Swatre Output")==0)                 checkSwatreOutput->setChecked(check);
 
         // FLOW
         if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
@@ -436,10 +437,11 @@ void lisemqt::ParseInputData()
 
     doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
 
-    if (checkSedtrap->isChecked())
-        on_checkSedtrap_clicked();
-    if (checkInfilGrass->isChecked())
-        on_checkInfilGrass_clicked();
+    // obsolete
+    // if (checkSedtrap->isChecked())
+    //     on_checkSedtrap_clicked();
+    // if (checkInfilGrass->isChecked())
+    //     on_checkInfilGrass_clicked();
     E_SigmaDiffusion->setEnabled(checkDiffusion->isChecked());
 
     setFloodTab(true);  //TODO
@@ -576,6 +578,7 @@ void lisemqt::ParseInputData()
                 if (p.isEmpty())
                     p = "profile.inp";
                 E_SwatreTableName->setText(p);
+                SwatreTableName = p;
             }
         }
     }
@@ -653,7 +656,7 @@ void lisemqt::ParseInputData()
 
     days = std::max(1,std::min(days, 366));
     daye = std::max(1,std::min(daye, 366));
-//qDebug() << days << mins << daye << mine;
+    //qDebug() << days << mins << daye << mine;
     if (!checkEventBased->isChecked()) {
         if (mins > 1440) {
            days = mins/1440 + 1;
@@ -667,9 +670,6 @@ void lisemqt::ParseInputData()
 
     E_BeginTimeDay->setText(QString("%1:%2").arg(days,3, 10, QLatin1Char('0')).arg(mins,4, 10, QLatin1Char('0')));
     E_EndTimeDay->setText(QString("%1:%2").arg(daye,3, 10, QLatin1Char('0')).arg(mine,4, 10, QLatin1Char('0')));
-
-    on_checkIncludeChannel_clicked(); //why??? do baseflow infil stuff?
-    //on_checkMaterialDepth_clicked();
 
     //****====------====****//
 

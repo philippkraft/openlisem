@@ -150,7 +150,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
         ParseInputData(); // fill interface with namelist data and fill mapList
                           // also update DEFmaps for map tree view in interface
         initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
-        RunAllChecks();   // activate the maps in the tree parts in response to checks
+        //RunAllChecks();   // activate the maps in the tree parts in response to checks
         E_runFileList->insertItem(0, runname);
 
         stopAct->setChecked(false);
@@ -1118,6 +1118,7 @@ void lisemqt::resetTabInfiltration()
     //checkInfil2layer->setChecked(false);
     checkInfilImpermeable->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
+    checkSwatreOutput->setChecked(false);
     //checkGeometric->setChecked(true);
     E_SWATREDtsecFraction->setValue(0.2);
     E_SwatreTableDir->setText("");

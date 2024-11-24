@@ -2179,7 +2179,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-47</y>
+                <y>0</y>
                 <width>1014</width>
                 <height>770</height>
                </rect>
@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>10</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4425,6 +4425,99 @@
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
+                         <item row="4" column="2">
+                          <widget class="QToolButton" name="toolButton_SwatreTableDir">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="text">
+                            <string>...</string>
+                           </property>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="1">
+                          <widget class="QLineEdit" name="E_SwatreTableName"/>
+                         </item>
+                         <item row="4" column="1">
+                          <widget class="QLineEdit" name="E_SwatreTableDir">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="3">
+                          <widget class="QToolButton" name="toolButton_SwatreTableShow">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="text">
+                            <string>...</string>
+                           </property>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="2">
+                          <widget class="QToolButton" name="toolButton_SwatreTableName">
+                           <property name="text">
+                            <string>...</string>
+                           </property>
+                           <property name="icon">
+                            <iconset resource="../resources/openlisem.qrc">
+                             <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="0">
+                          <widget class="QLabel" name="label_86">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Profile file (def. profile.inp)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="4" column="0">
+                          <widget class="QLabel" name="label_13">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Profile table directory</string>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                           </property>
+                          </widget>
+                         </item>
                          <item row="1" column="0" colspan="4">
                           <widget class="QCheckBox" name="checkIncludeTiledrains">
                            <property name="enabled">
@@ -4449,26 +4542,8 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="3" column="1">
-                          <widget class="QLineEdit" name="E_SwatreTableDir">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="0">
-                          <widget class="QLabel" name="label_13">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
+                         <item row="2" column="0" colspan="4">
+                          <widget class="QCheckBox" name="checkSwatreOutput">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -4478,67 +4553,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Profile table directory</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="1">
-                          <widget class="QLineEdit" name="E_SwatreTableName"/>
-                         </item>
-                         <item row="2" column="0">
-                          <widget class="QLabel" name="label_86">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Profile file (def. profile.inp)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="2">
-                          <widget class="QToolButton" name="toolButton_SwatreTableDir">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="text">
-                            <string>...</string>
-                           </property>
-                           <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
-                             <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="2">
-                          <widget class="QToolButton" name="toolButton_SwatreTableName">
-                           <property name="text">
-                            <string>...</string>
-                           </property>
-                           <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
-                             <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="3">
-                          <widget class="QToolButton" name="toolButton_SwatreTableShow">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="text">
-                            <string>...</string>
-                           </property>
-                           <property name="icon">
-                            <iconset resource="../resources/openlisem.qrc">
-                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
+                            <string>save hydrological data at selected gridcells (swatreoutput.map)</string>
                            </property>
                           </widget>
                          </item>
