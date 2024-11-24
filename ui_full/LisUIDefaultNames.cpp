@@ -360,10 +360,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Nr input layers");									 
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Psi user input");
-    namelist[i].value = QString("c:\\");
-    namelist[i++].name = QString("Table Directory");
     namelist[i].value = QString("profile.inp");
-    namelist[i++].name = QString("Table File");
+    namelist[i++].name = QString("Swatre profile file");
+    namelist[i].value = QString("c:\\");
+    namelist[i++].name = QString("Swatre table directory");
+    //namelist[i].value = QString("profile.inp");
+    //namelist[i++].name = QString("Table File");
     //namelist[i].value = QString("0.01");
     //namelist[i++].name = QString("SWATRE internal minimum timestep");
     namelist[i].value = QString("inithead");

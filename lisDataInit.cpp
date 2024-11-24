@@ -796,6 +796,7 @@ void TWorld::InitSoilInput(void)
     {
         // read all Swatre profile maps
         ProfileID = ReadMap(LDD,getvaluename("profmap"));
+        //SwatreTableName = getvaluename("proftbl");
         SwatreOutput = ReadMap(LDD,getvaluename("swatreout"));
 
         if (SwitchGrassStrip)
@@ -2513,6 +2514,7 @@ void TWorld::InitTiledrains(void)
         crlinkedlddtile_= MakeLinkedList(LDDTile);
 
 
+        TileArea = NewMap(0);
         TileDiameter = NewMap(0);
         TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
@@ -2547,17 +2549,17 @@ void TWorld::InitTiledrains(void)
         if (SwitchIncludeStormDrains && SwitchStormDrainCircular) {
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             FOR_ROW_COL_MV_TILE {
-                double area = TileDiameter->Drc*0.25 * PI;
-                area  *= 2;
-                TileDiameter->Drc = area * 4.0/PI;
+                double area = (TileDiameter->Drc*0.5)*(TileDiameter->Drc*0.5)*PI;//TileDiameter->Drc*0.25 * PI;
+                area  *= 2; // two sides of the street
+                TileArea->Drc = area;//2.0*sqrt(Area/PI);//area * 4.0/PI;  A = pi r^2
             }
             CalcMAXDischCircular();
         }
         if (SwitchIncludeStormDrains && !SwitchStormDrainCircular) {
             //rectangular drainage
             FOR_ROW_COL_MV_TILE {
-                TileDiameter->Drc = TileWidth->Drc*TileHeight->Drc;
-                TileDiameter->Drc *= 2;
+                TileArea->Drc = TileWidth->Drc*TileHeight->Drc;
+                TileArea->Drc *= 2; // two sides of the street
             }
             CalcMAXDischRectangular();
         }

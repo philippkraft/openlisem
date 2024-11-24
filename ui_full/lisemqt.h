@@ -140,7 +140,7 @@ public:
     void ParseInputData();
     void updateModelData();
     void defaultRunFile();
-    QString CheckDir(QString p, bool makeit = false);
+    QString CheckDir(QString p, bool makeit);
     void RunAllChecks();
     void savefile(QString name);
     void SetConnections();
@@ -422,8 +422,8 @@ public slots:
 //    void on_toolButton_ShowRunfile_clicked();
     void on_toolButton_satImageName_clicked();
     //void on_toolButton_fileOpen_clicked();
-   // void on_toolButton_SwatreTableDir_clicked();
-    void on_toolButton_SwatreTableFile_clicked();
+    void on_toolButton_SwatreTableDir_clicked();
+    //void on_toolButton_SwatreTableFile_clicked();
     void on_toolButton_SwatreTableShow_clicked();
     void on_E_floodMinHeight_valueChanged(double);
 
@@ -585,6 +585,8 @@ private slots:
 
 
     void on_spinSoilLayers_valueChanged(int arg1);
+
+    void on_toolButton_SwatreTableName_clicked();
 
 private:
 

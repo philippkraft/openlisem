@@ -1120,8 +1120,7 @@ void lisemqt::resetTabInfiltration()
     checkIncludeTiledrains->setChecked(false);
     //checkGeometric->setChecked(true);
     E_SWATREDtsecFraction->setValue(0.2);
-    E_SwatreTableName->setText("profile.inp");
-    //E_SwatreTableDir->setText("");
+    E_SwatreTableDir->setText("");
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabChannel()
@@ -1375,5 +1374,3 @@ void lisemqt::resizeMap()
             changeSize();
 
 }
-
-

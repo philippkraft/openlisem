@@ -98,17 +98,14 @@ void TWorld::CalcVelDischRectangular()
 }
 
 void TWorld::CalcMAXDischRectangular()
-{
-    double Perim, Area, TileV_;
-    const double _23 = 2.0/3.0;
-
+{    
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_TILEL {
-        double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
-        Area = TileWidth->Drc * TileHeight->Drc;
-        Perim = TileWidth->Drc + 2*TileHeight->Drc;
+        double Area = TileArea->Drc;
+        double width = Area/TileHeight->Drc;
+        double Perim = width+ 2*TileHeight->Drc; // factor 2 width for two drains in a strteet
 
-        TileV_ = powl(Area/Perim,_23) * gradN;
+        double TileV_ = powl(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
         TileMaxQ->Drc = Area*TileV_;
         TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, 0.6);
     }}
@@ -160,12 +157,9 @@ void TWorld::CalcMAXDischCircular()
    #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV_TILEL {
 
-      double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
-      double rr = TileDiameter->Drc/2;
-
-      double Area = rr*rr*PI;
-      double Perim = 2*PI*rr;
-      double TileV_ = std::pow(0.9*Area/Perim,2.0/3.0) * gradN;
+      double Area = TileArea->Drc;
+      double Perim = PI*TileDiameter->Drc;
+      double TileV_ = std::pow(0.95*Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
 
       TileMaxQ->Drc = Area*TileV_;
      // TileMaxAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)/gradN , 0.6);
@@ -222,16 +216,12 @@ void TWorld::TileFlow(void)
 
    #pragma omp parallel for num_threads(userCores)
    FOR_ROW_COL_MV_TILEL {
+        TileQn->Drc = std::min(QinKW->Drc+TileWaterVol->Drc/_dt, TileQn->Drc);
         TileWaterVol->Drc = TileWaterVol->Drc + _dt*(QinKW->Drc - TileQn->Drc);
         TileWaterVol->Drc = std::max(0.0, TileWaterVol->Drc);
 
-        double MaxVol;
-        if (SwitchStormDrainCircular)
-            MaxVol = DX->Drc * PI*TileDiameter->Drc*TileDiameter->Drc*0.25; //(pi r^2)
-        else
-            MaxVol = DX->Drc * TileDiameter->Drc; //rectangular drain, diameter is area in fact
-
-        TileWaterVol->Drc = std::min(TileWaterVol->Drc, MaxVol);
+// prob gives mass balance problems
+        TileWaterVol->Drc = std::min(TileWaterVol->Drc, TileArea->Drc * DX->Drc);
         TileQ->Drc = TileQn->Drc;
    }}
 

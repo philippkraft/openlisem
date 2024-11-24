@@ -80,7 +80,7 @@ void TWorld::ReadSwatreInputNew(void)
     swatreProfileDef.clear();
     swatreProfileNr.clear();
 
-    QFile file(SwatreTableName);
+    QFile file(/*SwatreTableDir + */SwatreTableName);
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
@@ -98,7 +98,7 @@ void TWorld::ReadSwatreInputNew(void)
 
         file.close();
     } else {
-        Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
+        Error(QString("SWATRE: Can't open profile definition file %1").arg(/*SwatreTableDir +*/SwatreTableName));
         throw 1;
     }
 

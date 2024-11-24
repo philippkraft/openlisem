@@ -561,50 +561,20 @@ void lisemqt::on_E_floodMinHeight_valueChanged(double)
     label_107->setText(QString("Flood (mm),h>%1)").arg(E_floodMinHeight->value()*1000));
     label_40->setText(QString("Runoff (mm),h<%1)").arg(E_floodMinHeight->value()*1000));
 }
-//--------------------------------------------------------------------
-// this is for the directory with the table files
-// void lisemqt::on_toolButton_SwatreTableDir_clicked()
-// {
-//     QString path;
-//     QString pathin;
 
-//     pathin = findValidDir(E_SwatreTableDir->text(), false);
-
-//     path = QFileDialog::getExistingDirectory(this, QString("Select the directory with the Swatre tables"),
-//                                              pathin,
-//                                              QFileDialog::ShowDirsOnly
-//                                              | QFileDialog::DontResolveSymlinks);
-//     if(!path.isEmpty())
-//     {
-//         E_SwatreTableDir->setText( path );
-//         SwatreTableDir = path;
-//     }
-// }
 //--------------------------------------------------------------------
-// this is for the file profile.inp
-void lisemqt::on_toolButton_SwatreTableFile_clicked()
+void lisemqt::on_toolButton_SwatreTableDir_clicked()
 {
     if (!QFileInfo(SwatreTableDir).exists() || SwatreTableDir.isEmpty())
         SwatreTableDir = currentDir;
 
-    QStringList filters({"profile text file (*.inp)","Any files (*)"});
-    QString sss = getFileorDir(RainFileDir,"Select the SWATRE profile definition fil", filters, 2);
+    QStringList filters({"profile table files (*.tbl)","Any files (*)"});
+    QString sss = getFileorDir(SwatreTableDir,"Select the SWATRE profile tabel directory", filters, 0);
 
     SwatreTableDir = QFileInfo(sss).absolutePath()+"/";
-    SwatreTableName = QFileInfo(sss).fileName(); //baseName();
+    //SwatreTableName = QFileInfo(sss).fileName(); //baseName();
 
-    E_SwatreTableName->setText(SwatreTableDir+ SwatreTableName);
-/*
-    QString path;
-    path = QFileDialog::getOpenFileName(this,
-                                        QString("Select the SWATRE profile definition file"),
-                                        SwatreTableName,"Profiles (*.inp);;All files (*.*)");
-    if(!path.isEmpty())
-    {
-        SwatreTableName = path;
-        E_SwatreTableName->setText(path);
-    }
-    */
+    E_SwatreTableDir->setText(SwatreTableDir);
 }
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_SwatreTableShow_clicked()
@@ -631,6 +601,22 @@ void lisemqt::on_toolButton_SwatreTableShow_clicked()
     file.close();
 }
 //--------------------------------------------------------------------
+void lisemqt::on_toolButton_SwatreTableName_clicked()
+{
+    // if (!QFileInfo(RainFileDir).exists() || RainFileDir.isEmpty())
+    //     RainFileDir = currentDir;
+
+    QStringList filters({"Text file (*.inp *.txt *.tbl)","Any files (*)"});
+    QString sss = getFileorDir(currentDir,"Select Swatre profile file (def. profile.inp)", filters, 2);
+
+    if(sss.isEmpty()) sss = "profile.inp";
+    SwatreTableName = sss;//QFileInfo(sss).fileName(); //baseName();
+
+    E_SwatreTableName->setText(SwatreTableName);
+}
+
+
+//--------------------------------------------------------------------
 void lisemqt::on_toolButton_satImageName_clicked()
 {
     QString path;
@@ -644,7 +630,7 @@ void lisemqt::on_toolButton_satImageName_clicked()
     {
         QFileInfo fi(path);
         satImageFileName = fi.fileName();
-        satImageFileDir = CheckDir(fi.absolutePath());//Dir().path());
+        satImageFileDir = CheckDir(fi.absolutePath(), false);//Dir().path());
         E_satImageName->setText( satImageFileDir + satImageFileName );
     }
 }

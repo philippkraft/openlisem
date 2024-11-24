@@ -110,6 +110,7 @@ void lisemqt::ParseInputData()
     QLocale loc = QLocale::system(); // current locale
     QString pnt = loc.decimalPoint();
 
+    // loop through the tunfile list and read name=value
     for (j = 0; j < nrnamelist; j++)
     {
 
@@ -130,6 +131,7 @@ void lisemqt::ParseInputData()
         }
 
         bool check = iii == 1;
+        // skip section headers
         if (p1.contains("["))
             continue;
 
@@ -411,7 +413,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("OutSedSS")==0)     checkBox_OutSedSS->setChecked(check);
         if (p1.compare("OutSedBL")==0)     checkBox_OutSedBL->setChecked(check);
 
-   }
+    }  // everything read
 
     // ###################################
 
@@ -464,7 +466,7 @@ void lisemqt::ParseInputData()
         // input output dirs and file names
         if (p1.compare("Map Directory")==0)
         {
-            E_MapDir->setText(CheckDir(p));
+            E_MapDir->setText(CheckDir(p, false));
 
             if (QFileInfo(E_MapDir->text()).exists())
             {
@@ -499,39 +501,39 @@ void lisemqt::ParseInputData()
         // resultDir is added in report operation
 
         if (radioRainFile->isChecked()) {
-            if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p);
+            if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p, false);
             if (p1.compare("Rainfall file")==0) RainFileName = p;
         }
 
         if (radioRainSatFile->isChecked()) {
-            if (p1.compare("Rainfall Map Directory")==0) RainSatFileDir = CheckDir(p);
+            if (p1.compare("Rainfall Map Directory")==0) RainSatFileDir = CheckDir(p, false);
             if (p1.compare("Rainfall maplist name")==0) RainSatFileName = p;
         }
 
         if (radioETfile->isChecked()) {
-            if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p);
+            if (p1.compare("ET Directory")==0) ETFileDir = CheckDir(p, false);
             if (p1.compare("ET file")==0) ETFileName = p;
         }
 
         if (radioETSatfile->isChecked()) {
-            if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p);
+            if (p1.compare("ET Map Directory")==0) ETSatFileDir = CheckDir(p, false);
             if (p1.compare("ET maplist name")==0) ETSatFileName = p;
         }
 
-        //if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p);
+        //if (p1.compare("Snowmelt Directory")==0) SnowmeltFileDir = CheckDir(p, false);
         //if (p1.compare("Snowmelt file")==0) SnowmeltFileName = p;
 
         if (checkDischargeUser->isChecked()) {
-            if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p);
+            if (p1.compare("Discharge inflow directory")==0) DischargeinDir = CheckDir(p, false);
             if (p1.compare("Discharge inflow file")==0) DischargeinFileName = p;
         }
 
         if (checkWaterUserIn->isChecked()) {
-            if (p1.compare("Water level inflow directory")==0) WaveinDir = CheckDir(p);
+            if (p1.compare("Water level inflow directory")==0) WaveinDir = CheckDir(p, false);
             if (p1.compare("Water level inflow file")==0) WaveinFileName = p;
         }
 
-        if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
+        if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p, false);
         if (p1.compare("satImage file")==0) satImageFileName = p;
 
         if (p1.compare("mpegexe Directory")==0) {
@@ -563,23 +565,18 @@ void lisemqt::ParseInputData()
         if (p1.compare("Storm Drain map")==0) E_stormDrainMap->setText(p);
         if (p1.compare("Storm Drain Vol map")==0) E_stormDrainVolMap->setText(p);
 
-        // if (uiInfilMethod == 1 && p1.compare("Table Directory")==0)
-        // {
-        //     SwatreTableDir = CheckDir(p);
-        //     if (SwatreTableDir.isEmpty())
-        //         SwatreTableDir = E_MapDir->text();
-        //     E_SwatreTableDir->setText(SwatreTableDir);
-        // }
-
-        if (uiInfilMethod == 0 && p1.compare("Table File")==0)
-        {
-            SwatreTableDir = QFileInfo(p).absolutePath()+"/";
-            SwatreTableName = QFileInfo(p).fileName(); //baseName();   SwatreTableName = p;
-            if (SwatreTableName.isEmpty()) {
-                SwatreTableName = QString("profile.inp");
-                SwatreTableDir = E_MapDir->text();
+        if (uiInfilMethod == 0) {
+            if (p1.compare("Swatre table directory")==0) {
+                SwatreTableDir = CheckDir(p, false);
+                if (SwatreTableDir.isEmpty())
+                    SwatreTableDir = E_MapDir->text();
+                E_SwatreTableDir->setText(SwatreTableDir);
             }
-            E_SwatreTableName->setText(SwatreTableDir + SwatreTableName);
+            if (p1.compare("Swatre profile file")==0) {
+                if (p.isEmpty())
+                    p = "profile.inp";
+                E_SwatreTableName->setText(p);
+            }
         }
     }
 
@@ -671,7 +668,7 @@ void lisemqt::ParseInputData()
     E_BeginTimeDay->setText(QString("%1:%2").arg(days,3, 10, QLatin1Char('0')).arg(mins,4, 10, QLatin1Char('0')));
     E_EndTimeDay->setText(QString("%1:%2").arg(daye,3, 10, QLatin1Char('0')).arg(mine,4, 10, QLatin1Char('0')));
 
-    on_checkIncludeChannel_clicked(); //why???
+    on_checkIncludeChannel_clicked(); //why??? do baseflow infil stuff?
     //on_checkMaterialDepth_clicked();
 
     //****====------====****//
@@ -686,12 +683,12 @@ void lisemqt::ParseInputData()
             QStringList S = DEFmaps.at(i).split(";",Qt::SkipEmptyParts);
             if (S.contains(namelist[j].name))
             {
-                if(namelist[j].value == "chansedmixdeth.map") namelist[j].value = "chansedmixdepth.map";
-                if(namelist[j].value == "sedmixdeth.map") namelist[j].value = "sedmixdepth.map";
+               // if(namelist[j].value == "chansedmixdeth.map") namelist[j].value = "chansedmixdepth.map";
+               // if(namelist[j].value == "sedmixdeth.map") namelist[j].value = "sedmixdepth.map";
                 //qDebug() << j << namelist[j].value;
 
                 QFileInfo fil(namelist[j].value);
-                S[2] = fil.fileName();  //VJ bug fix from 4 to 2
+                S[2] = fil.fileName();
                 namelist[j].value = fil.fileName();
                 // replace namelist string with filename only
                 // some runfiles have the complete pathname
@@ -701,12 +698,13 @@ void lisemqt::ParseInputData()
     }
 
     // strip pathname from output filename
-    for (int j = 0; j < nrnamelist; j++)
+    for (int j = 0; j < nrnamelist; j++) {
         if (namelist[j].name.startsWith("OUT"))
         {
             QFileInfo fil(namelist[j].value);
             namelist[j].value = fil.fileName();
         }
+    }
 
 //for (int j = 0; j < nrnamelist; j++)
 //    qDebug() << namelist[j].name << namelist[j].value;
@@ -727,7 +725,6 @@ QString lisemqt::CheckDir(QString p, bool makeit)
 {
     /* TODO mulitplatform: fromNativeSeparators etc*/
     QString path;
-//qDebug() << "checkdir";
     if (p.isEmpty() || p == "/")
         return(p);
 
@@ -735,16 +732,12 @@ QString lisemqt::CheckDir(QString p, bool makeit)
     path = QDir(path).absoluteFilePath(path);
     if (!path.endsWith("/"))
         path = path + '/';
-//qDebug() << p << path;
-    if (!QDir(path).exists())
-    {
-        if (makeit)
-        {
+
+    if (!QDir(path).exists()) {
+        if (makeit) {
             QDir(path).mkpath(path);
             //qDebug() << "NOTE: Result dir created !";
-        }
-        else
-        {
+        } else {
             QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
             path.clear();
         }
@@ -780,35 +773,34 @@ void lisemqt::updateModelData()
     {
         QString p1 = namelist[j].name;
 
-        if (p1.compare("Include Rainfall")==0)         namelist[j].value.setNum((int)checkRainfall->isChecked());
-        if (p1.compare("Rainfall file")==0)            namelist[j].value = RainFileName;
-        if (p1.compare("Rainfall Directory")==0)       namelist[j].value = RainFileDir;
-        if (p1.compare("Rainfall ID interpolation")==0)namelist[j].value.setNum((int)checkIDinterpolation->isChecked());
-        if (p1.compare("IDI factor")==0)               namelist[j].value = E_IDIfactor->text();
-        if (p1.compare("Event based")==0)              namelist[j].value.setNum((int)checkEventBased->isChecked());
-        if (p1.compare("Use Rainfall maps")==0)        namelist[j].value.setNum((int)radioRainSatFile->isChecked());
-        if (p1.compare("Rainfall maplist name")==0)    namelist[j].value = RainSatFileName;
-        if (p1.compare("Rainfall Map Directory")==0)   namelist[j].value = RainSatFileDir;
-        if (p1.compare("Rainfall Bias Correction")==0) namelist[j].value = E_biasCorrectionP->text();
+        if (p1.compare("Include Rainfall")==0)               namelist[j].value.setNum((int)checkRainfall->isChecked());
+        if (p1.compare("Rainfall file")==0)                  namelist[j].value = RainFileName;
+        if (p1.compare("Rainfall Directory")==0)             namelist[j].value = RainFileDir;
+        if (p1.compare("Rainfall ID interpolation")==0)      namelist[j].value.setNum((int)checkIDinterpolation->isChecked());
+        if (p1.compare("IDI factor")==0)                     namelist[j].value = E_IDIfactor->text();
+        if (p1.compare("Event based")==0)                    namelist[j].value.setNum((int)checkEventBased->isChecked());
+        if (p1.compare("Use Rainfall maps")==0)              namelist[j].value.setNum((int)radioRainSatFile->isChecked());
+        if (p1.compare("Rainfall maplist name")==0)          namelist[j].value = RainSatFileName;
+        if (p1.compare("Rainfall Map Directory")==0)         namelist[j].value = RainSatFileDir;
+        if (p1.compare("Rainfall Bias Correction")==0)       namelist[j].value = E_biasCorrectionP->text();
 
-        if (p1.compare("Include ET")==0)               namelist[j].value.setNum((int)checkET->isChecked());
-        if (p1.compare("Daily ET")==0)                 namelist[j].value.setNum((int)checkDailyET->isChecked());
-        if (p1.compare("ET file") ==0)                 namelist[j].value = ETFileName;
-        if (p1.compare("ET Directory") ==0)            namelist[j].value = ETFileDir;
-        if (p1.compare("Use ET maps")==0)              namelist[j].value.setNum((int)radioETSatfile->isChecked());
-        if (p1.compare("ET maplist name") ==0)         namelist[j].value = ETSatFileName;
-        if (p1.compare("ET Map Directory") ==0)        namelist[j].value = ETSatFileDir;
-        if (p1.compare("ET Bias Correction")==0)       namelist[j].value = E_biasCorrectionET->text();
-        if (p1.compare("Rainfall ET threshold")==0)    namelist[j].value = E_rainfallETA_threshold->text();
+        if (p1.compare("Include ET")==0)                     namelist[j].value.setNum((int)checkET->isChecked());
+        if (p1.compare("Daily ET")==0)                       namelist[j].value.setNum((int)checkDailyET->isChecked());
+        if (p1.compare("ET file") ==0)                       namelist[j].value = ETFileName;
+        if (p1.compare("ET Directory") ==0)                  namelist[j].value = ETFileDir;
+        if (p1.compare("Use ET maps")==0)                    namelist[j].value.setNum((int)radioETSatfile->isChecked());
+        if (p1.compare("ET maplist name") ==0)               namelist[j].value = ETSatFileName;
+        if (p1.compare("ET Map Directory") ==0)              namelist[j].value = ETSatFileDir;
+        if (p1.compare("ET Bias Correction")==0)             namelist[j].value = E_biasCorrectionET->text();
+        if (p1.compare("Rainfall ET threshold")==0)          namelist[j].value = E_rainfallETA_threshold->text();
 
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());
 
         // interception
-        if (p1.compare("Include Interception")==0)    namelist[j].value.setNum((int)checkInterception->isChecked());;
+        if (p1.compare("Include Interception")==0)           namelist[j].value.setNum((int)checkInterception->isChecked());;
         if (p1.compare("Include litter interception")==0)    namelist[j].value.setNum((int)checkIncludeLitter->isChecked());
         if (p1.compare("Litter interception storage")==0)    namelist[j].value = E_LitterSmax->text();
-        if (p1.compare("Canopy storage equation")==0)
-        {
+        if (p1.compare("Canopy storage equation")==0) {
             int i = 0;
             if(radioButton_1->isChecked()) i = 0;
             if(radioButton_2->isChecked()) i = 1;
@@ -823,29 +815,25 @@ void lisemqt::updateModelData()
         }
 
         //infiltration
-        if (p1.compare("Include Infiltration")==0)    namelist[j].value.setNum((int)checkInfiltration->isChecked());;
-        if (p1.compare("Infil Method")==0)
-        {
-            switch(E_InfiltrationMethod->currentIndex())
-            {
-          //  case 0 : namelist[j].value.setNum(INFIL_NONE);break;
-            case 0 : namelist[j].value.setNum(INFIL_SWATRE);break;
-            case 1 : namelist[j].value.setNum(INFIL_GREENAMPT);break;
-            case 2 : namelist[j].value.setNum(INFIL_SMITH); break;
-            case 3 : namelist[j].value.setNum(INFIL_SOAP); break;
+        if (p1.compare("Include Infiltration")==0)           namelist[j].value.setNum((int)checkInfiltration->isChecked());;
+        if (p1.compare("Infil Method")==0) {
+            switch(E_InfiltrationMethod->currentIndex()) {
+                case 0 : namelist[j].value.setNum(INFIL_SWATRE);break;
+                case 1 : namelist[j].value.setNum(INFIL_GREENAMPT);break;
+                case 2 : namelist[j].value.setNum(INFIL_SMITH); break;
+                case 3 : namelist[j].value.setNum(INFIL_SOAP); break;
             }
         }
-       // if (p1.compare("Table Directory")==0) namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
-        if (p1.compare("Table File")==0) namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
-        if (p1.compare("SWATRE internal minimum timestep")==0)
-        {
+        if (p1.compare("Swatre table directory")==0)         namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
+        if (p1.compare("Swatre profile file")==0)            namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
+        if (p1.compare("SWATRE internal minimum timestep")==0)  {
             double fraction = E_SWATREDtsecFraction->value();
             swatreDT = E_Timestep->text().toDouble()*fraction;
             namelist[j].value.setNum(swatreDT,'g',6);
         }
-        if (p1.compare("Include crusts")==0)                namelist[j].value.setNum((int)checkInfilCrust->isChecked());
-        if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
-        if (p1.compare("Psi user input")==0)                namelist[j].value.setNum((int)checkPsiUser->isChecked());
+        if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
+        if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
+        if (p1.compare("Psi user input")==0)                 namelist[j].value.setNum((int)checkPsiUser->isChecked());
        // if (p1.compare("Geometric mean Ksat")==0)           namelist[j].value.setNum((int)checkGeometric->isChecked());
 
         //channels
@@ -906,7 +894,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkDiffusion->isChecked());
 
-        if (p1.compare("Use 2 phase flow")==0)              namelist[j].value.setNum((int) checkSed2Phase->isChecked());
+        if (p1.compare("Use 2 phase flow")==0)               namelist[j].value.setNum((int) checkSed2Phase->isChecked());
 
        // if (p1.compare("Use material depth")==0)             namelist[j].value.setNum((int)checkMaterialDepth->isChecked());
         if (p1.compare("No detachment boundary")==0)         namelist[j].value.setNum((int)checkNoSedBoundary->isChecked());
@@ -920,11 +908,11 @@ void lisemqt::updateModelData()
         if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
 
         //houses
-        if (p1.compare("Include Infrastructure")==0)          namelist[j].value.setNum((int)checkInfrastructure->isChecked());
-        if (p1.compare("Include buildings")==0)          namelist[j].value.setNum((int)checkHouses->isChecked());
+        if (p1.compare("Include Infrastructure")==0)         namelist[j].value.setNum((int)checkInfrastructure->isChecked());
+        if (p1.compare("Include buildings")==0)              namelist[j].value.setNum((int)checkHouses->isChecked());
         if (p1.compare("Add buildings to DEM")==0)           namelist[j].value.setNum((int)checkAddBuildingDEM->isChecked());
-        if (p1.compare("Add building fraction")==0)           namelist[j].value = E_AddBuildingFraction->text();
-        if (p1.compare("Add building height")==0)           namelist[j].value = E_buildingHeight->text();
+        if (p1.compare("Add building fraction")==0)          namelist[j].value = E_AddBuildingFraction->text();
+        if (p1.compare("Add building height")==0)            namelist[j].value = E_buildingHeight->text();
         if (p1.compare("Include raindrum storage")==0)       namelist[j].value.setNum((int)checkRaindrum->isChecked());
         if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
         if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
@@ -937,17 +925,17 @@ void lisemqt::updateModelData()
         if (p1.compare("Nr user Cores")==0) namelist[j].value.setNum(nrUserCores->value());
 
         if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
-        if (p1.compare("Include compacted")==0)            namelist[j].value.setNum((int)checkInfilCompact->isChecked());
+        if (p1.compare("Include compacted")==0)              namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include grass strips")==0)           namelist[j].value.setNum((int)checkInfilGrass->isChecked());
         if (p1.compare("Grassstrip Mannings n")==0)          namelist[j].value = E_GrassStripN->text();
-        if (p1.compare("Sediment Trap Mannings n")==0)          namelist[j].value = E_SedTrapN->text();
+        if (p1.compare("Sediment Trap Mannings n")==0)       namelist[j].value = E_SedTrapN->text();
 
         if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         if (p1.compare("Report point output separate")==0)   namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
-        if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
+        if (p1.compare("Report digits out")==0)              namelist[j].value = E_DigitsOut->text();
 
-        if (p1.compare("Report format GTiff")==0)             namelist[j].value.setNum((int)checkFormatGtiff->isChecked());
-        if (p1.compare("End run report")==0)                namelist[j].value.setNum((int)checkEndRunReport->isChecked());
+        if (p1.compare("Report format GTiff")==0)            namelist[j].value.setNum((int)checkFormatGtiff->isChecked());
+        if (p1.compare("End run report")==0)                 namelist[j].value.setNum((int)checkEndRunReport->isChecked());
 
         if (p1.compare("Sediment bulk density")==0)          namelist[j].value = E_BulkDens->text();
 
@@ -1062,16 +1050,14 @@ void lisemqt::updateModelData()
         //if (p1.compare("Output times")==0) namelist[j].value.setNum(0);
         //TODO fix output stuff
 
-        if (p1.compare("Report discharge units")==0)
-        {
+        if (p1.compare("Report discharge units")==0) {
             if (checkUnits_ls->isChecked())
                 namelist[j].value.setNum(0);
             if (checkUnits_m3s->isChecked())
                 namelist[j].value.setNum(1);
         }
 
-        if (p1.compare("Erosion map units (0/1/2)")==0)
-        {
+        if (p1.compare("Erosion map units (0/1/2)")==0) {
             if (checkUnits_tonha->isChecked())
                 namelist[j].value.setNum(0);
             if (checkUnits_kgcell->isChecked())
@@ -1136,9 +1122,6 @@ void lisemqt::updateModelData()
                 cntDown.stop();
                 msg.close();
             }
-//            else {
-//                msg.setText(QString("This closes in %1 seconds").arg(cnt));
-//            }
         });
         cntDown.start(500);
         msg.exec();

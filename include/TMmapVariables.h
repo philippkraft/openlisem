@@ -454,7 +454,7 @@ cTMap
 *LDDTile,                    //!< LDD network of tile drains, must be connected to outlet
 *TileDrainSoil,              //!< drain volume from layer
 *TileDiameter,                  //!< total width of drains in cell (m)
-//*TileMaxQ,
+*TileArea,                  //!< total width of drains in cell (m)
 *TileWidth,                  //!< total width of drains in cell (m)
 *TileHeight,                 //!< height of drain (m)
 *TileDepth,                  //!< depth of tiles in soil below surface (m)
