@@ -30,8 +30,7 @@
   \brief Read and parse the temporary runfile produce by the interface.
 
   Functions in here are doubled from the interface. The idea is to keep interface and model\n
-  completely separate. In principle the model could be called directly with a runfile (not implemented).
-  MC - 2023-05-03 added run without GUI - this uses the runfile directly! \n
+  completely separate. The model can be called directly with a runfile, with the '-ni' command lin eoption.\n
 
 functions: \n
 - QString TWorld::getvaluename(QString vname) \n
