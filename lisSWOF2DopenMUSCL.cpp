@@ -86,7 +86,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
         step += 1; // now we have a good dt min, do the real calculations
 
-SwitchHeun = true;
+
         // 2nd order, sort of
         if (SwitchHeun) {
             #pragma omp parallel for num_threads(userCores)

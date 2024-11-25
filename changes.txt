@@ -1,6 +1,11 @@
+241125 - v7.4.2
+- Adjusted the noInterface option. No works well on headless systems.
+- BUG FIX: Swatre interface small bug fixes
+- BUG FIX: 2nd page interface map list greyed out
+
 241118 - v7.4
 - major rewrite of MUSCL 2D flow with 2nd order and Heun averaging (see FullSWOF documentation of Delestre et al.)
-- BUG FIX: small bug fixes in 2D flow\
+- BUG FIX: small bug fixes in 2D flow
 - BUG FIX: culverts work again, still small MB error but not very much
 
 241114 - v7.3

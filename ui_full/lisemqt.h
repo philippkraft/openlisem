@@ -120,6 +120,9 @@ public:
     bool doBatchmode;
     QString batchRunname;
 
+    QString readVersionFromFile(const QString &filePath);
+    bool isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion);
+
    // bool WhasStopped;
 
     void initMapTree();

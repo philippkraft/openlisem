@@ -13,6 +13,10 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, openmp, gdal and (minimal) pcraster
 
+241125 - v7.4.2
+- BUG FIX: Swatre interface small bug fixes
+- BUG FIX: 2nd page interface map list greyed out
+
 241121 - v7.4.1
 - Adjusted the noInterface option. No works well on headless systems.
 
