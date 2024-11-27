@@ -185,13 +185,13 @@ void lisemqt::runmodel()
         if (W->SwitchInfiltration && W->InfilMethod == INFIL_SWATRE && W->initSwatreStructure)
         {
             W->FreeSwatreInfo(); // free horizon structures
-            if (W->SwatreSoilModel)
+            if (W->SwatreSoilModel != nullptr)
                 W->CloseSwatre(W->SwatreSoilModel);  // free pixel_info
-            if (W->SwatreSoilModelCrust)
+            if (W->SwatreSoilModelCrust != nullptr)
                 W->CloseSwatre(W->SwatreSoilModelCrust);
-            if (W->SwatreSoilModelCompact)
+            if (W->SwatreSoilModelCompact != nullptr)
                 W->CloseSwatre(W->SwatreSoilModelCompact);
-            if (W->SwatreSoilModelGrass)
+            if (W->SwatreSoilModelGrass != nullptr)
                 W->CloseSwatre(W->SwatreSoilModelGrass);
         }
 

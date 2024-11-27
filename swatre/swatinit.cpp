@@ -115,6 +115,6 @@ void TWorld::CloseSwatre(SOIL_MODEL *s)
 
     free(s);
     s = nullptr;
-    qDebug() << "closed swatre";
+    //qDebug() << "closed swatre";
 }
 //--------------------------------------------------------------------------------

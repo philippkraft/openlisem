@@ -52,12 +52,14 @@ void lisemqt::handleNetworkReply() {
 
 void lisemqt::checkForUpdates()
 {
-    qDebug() << "hier" << QSslSocket::sslLibraryBuildVersionString();
+ /*
+  *
+  *   qDebug() << "hier" << QSslSocket::sslLibraryBuildVersionString();
 
     QUrl imageUrl("https://github.com/vjetten/openlisem/blob/main_C/version.txt");
     m_pImgCtrl = new FileDownloader(imageUrl, this);
     connect(m_pImgCtrl, SIGNAL (downloaded()), this, SLOT (loadImage()));
-/*
+
     if (QSslSocket::supportsSsl()) {
         qDebug() << "SSL is supported";
     } else {

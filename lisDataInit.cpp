@@ -829,7 +829,7 @@ void TWorld::InitSoilInput(void)
 
         // read the swatre tables and make the information structure ZONE etc
         ReadSwatreInputNew();
-        qDebug() << "SWATRE input New done";
+        //qDebug() << "SWATRE input New done";
     }
 }
 //---------------------------------------------------------------------------
