@@ -55,6 +55,8 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         s->pixel[i].wh = 0;
         s->pixel[i].percolation = 0;
         s->pixel[i].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)
+        // first node ksat adujtedd with this for partial impermeability
+        s->pixel[i].impfrac = 0;
     }
 
     // give each pixel a profile
@@ -63,9 +65,8 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 
         if (profnr > 0)
             s->pixel[i_].profile = profileList[profnr];  // pointer to profile
-        // else
-        //     Error(QString("SWATRE: Profile number %1 in profile.map does not exist in the list of profiles").arg((int)profileMap->Drc));
         // profile = <= 0 now set to impermeable
+        s->pixel[i_].impfrac = fractionImperm->Drc;
 
         if(SwitchDumphead) {
             s->pixel[i_].dumpHid = SwatreOutput->Drc;
@@ -83,6 +84,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 
         FOR_ROW_COL_MV_L {
             s->pixel[i_].h.append(inith->Drc);//*psiCalibration;
+
             // find depth of tilenode
             if (SwitchIncludeTile) {
                 if (!pcr::isMV(TileDepth->Drc) && TileDepth->Drc > 0) {
@@ -92,15 +94,11 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
                         s->pixel[i_].tilenode = k-1;
                 }
             }
-
-            if (SHOWDEBUG) {
-                qDebug() << fname <<i_ << s->pixel[i_].h.size() << s->pixel[i_].h[k] << inith->Drc;
-            }
         }}
 
     }
 
-    qDebug() << "DONE InitSwatre";
+  // qDebug() << "DONE InitSwatre";
     return(s);
 }
 //--------------------------------------------------------------------------------

@@ -740,3 +740,10 @@ void lisemqt::on_spinSoilLayers_valueChanged(int arg1)
     }
 
 }
+//---------------------------------------------------------------------------
+void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
+{
+    groupBox_SwatreOptions->setEnabled(index == 0);
+    groupBox_RichardsOptions->setEnabled(index == 3);
+    groupAdvRichards->setEnabled(index == 0 || index == 3);
+}

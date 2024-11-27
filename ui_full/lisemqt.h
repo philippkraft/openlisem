@@ -36,7 +36,6 @@
 #include <QSystemTrayIcon>
 #include <QTranslator>
 
-
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
@@ -65,6 +64,31 @@
 #include "LisUItreemodel.h"
 #include "LisUImapplot.h"
 #include "lismpeg.h"
+
+
+#include <QObject>
+#include <QByteArray>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+
+class FileDownloader : public QObject
+{
+ Q_OBJECT
+ public:
+  explicit FileDownloader(QUrl imageUrl, QObject *parent = 0);
+  virtual ~FileDownloader();
+  QByteArray downloadedData() const;
+
+ signals:
+  void downloaded();
+
+ private slots:
+  void fileDownloaded(QNetworkReply* pReply);
+  private:
+  QNetworkAccessManager m_WebCtrl;
+  QByteArray m_DownloadedData;
+};
 
 
 
@@ -120,10 +144,10 @@ public:
     bool doBatchmode;
     QString batchRunname;
 
-    QString readVersionFromFile(const QString &filePath);
-    bool isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion);
-
-   // bool WhasStopped;
+    void checkForUpdates();
+//void handleNetworkReply(QNetworkReply *reply);
+QNetworkReply *lisreply;
+FileDownloader *m_pImgCtrl;
 
     void initMapTree();
     void DefaultMapnames();
@@ -482,6 +506,7 @@ public slots:
     QString getFileorDir(QString inputdir,QString title, QStringList filters, int doFile);
 
 private slots:
+    void handleNetworkReply();
 
     void showMapb(bool);
     void showMapd(double);
@@ -567,6 +592,9 @@ private slots:
     void on_spinSoilLayers_valueChanged(int arg1);
 
     void on_toolButton_SwatreTableName_clicked();
+
+    void loadImage();
+    void on_E_InfiltrationMethod_currentIndexChanged(int index);
 
 private:
 

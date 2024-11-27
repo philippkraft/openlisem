@@ -63,38 +63,6 @@ output op;
 #include <QDir>
 #include <QMessageBox>
 
-QString lisemqt::readVersionFromFile(const QString &filePath)
-{
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning("Could not open version file.");
-        return QString();
-    }
-
-    QTextStream in(&file);
-    QString version = in.readLine().trimmed();
-    file.close();
-    return version;
-}
-
-bool lisemqt::isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion)
-{
-    // Assuming version strings are in the format "major.minor.patch"
-    QStringList currentParts = currentVersion.split(".");
-    QStringList latestParts = latestVersion.split(".");
-
-    for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
-        int currentPart = currentParts.at(i).toInt();
-        int latestPart = latestParts.at(i).toInt();
-        if (latestPart > currentPart) {
-            return true;
-        } else if (latestPart < currentPart) {
-            return false;
-        }
-    }
-    return latestParts.size() > currentParts.size();
-}
-
 //--------------------------------------------------------------------
 lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     : QMainWindow(parent)
@@ -108,6 +76,8 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     darkLISEM = false;   
     op.nrRunsDone = 0;
 
+    checkForUpdates();
+
     int ompt = omp_get_max_threads();
     nrUserCores->setMaximum(ompt);//omp_get_max_threads());
 
@@ -120,19 +90,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     op.runfilename.clear();
     E_runFileList->clear();
-
-    QString executableDir = QCoreApplication::applicationDirPath();
-    QString versionFilePath = QDir(executableDir).filePath("version.txt");
-    QString currentVersion = "7.4.2"; // Replace with your current version
-    QString latestVersion = readVersionFromFile(versionFilePath);
-
-    if (isNewVersionAvailable(currentVersion, latestVersion)) {
-        QMessageBox::information(nullptr, "Update Available",
-                                 "A new version (" + latestVersion + ") is available. Please download the latest version.");
-    } else {
-        QMessageBox::information(nullptr, "Up to Date",
-                                 "You are using the latest version (" + currentVersion + ").");
-    }
 
     //TODO: check all options and default values
     resetAll();
@@ -1404,3 +1361,5 @@ void lisemqt::resizeMap()
             changeSize();
 
 }
+
+

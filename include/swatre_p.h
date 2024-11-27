@@ -101,6 +101,7 @@ typedef struct PIXEL_INFO {
     QVector <double> h;
     double wh;
     double infil;
+    double impfrac;
     double percolation;
     double theta; // for pesticides?
     double tiledrain;   /** drainage into tiledrin system at a given depth */

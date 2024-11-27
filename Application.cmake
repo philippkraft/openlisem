@@ -7,6 +7,8 @@ IF(WIN32)
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
+    SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libcrypto.dll.a" "${MINGW_BUILD_DIR}/lib/libssl.dll.a")
+    #SET(OSSL_LIBRARIES "C:/Program Files/OpenSSL-Win64/bin/libcrypto.dll.a")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
@@ -93,6 +95,7 @@ SET(APP_SOURCES
     ui_full/LisUImapplot.h
     ui_full/lismpeg.cpp
     ui_full/lisUIStyle.cpp
+    ui_full/lisUIPatch.cpp
     ui_full/lismpeg.h
     ui_full/lisemqt.h
     swatre/swatstep.cpp
@@ -194,8 +197,8 @@ add_executable(Lisem WIN32
 
 # Link the necessary libraries
 target_link_libraries(Lisem
-    Qt6::Widgets Qt6::Gui Qt6::Core
-    ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
+    Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Network
+    ${GDAL_LIBRARIES} ${QWT_LIBRARIES} ${OSSL_LIBRARIES}
     OpenMP::OpenMP_CXX
 )
 

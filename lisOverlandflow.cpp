@@ -156,6 +156,7 @@ void TWorld::ToChannel()
  */
 void TWorld::CalcVelDisch()//(int r, int c)
 {
+    //qDebug() << SwitchPerimeterKW;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
@@ -163,21 +164,23 @@ void TWorld::CalcVelDisch()//(int r, int c)
         // if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
         // NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
         // slow down water in flood zone, if hmx = 0 then factor = 1
+        double Perim = SwitchPerimeterKW ? FlowWidth->Drc+2*WHrunoff->Drc : FlowWidth->Drc;
+        double Area = FlowWidth->Drc*WHrunoff->Drc;
 
         if (Grad->Drc > MIN_SLOPE)
-            Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(FlowWidth->Drc, 2.0/3.0),0.6);
+            Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(/*FlowWidth->Drc*/ Perim, 2.0/3.0),0.6);
         // perimeter = FlowWidth
         else
             Alpha->Drc = 0;
 
         if (Alpha->Drc > 0)
-            Q->Drc = pow((FlowWidth->Drc*WHrunoff->Drc)/Alpha->Drc, 5.0/3.0); // Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
+            Q->Drc = pow(Area/Alpha->Drc, (5.0/3.0)); // A = aplha*Q^beta => Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
         else
             Q->Drc = 0;
         //Q = (A/alpha)^5/3 => A^5/3 / alpha^5/3 =? aplha^5/3 = (N/sqrtS^3/5)^5/3 *((P^2/3)^3/5)^5/3 =
         //Q =  A^5/3 / [N/Sqrt * P^2/3] => A*A^2/3 / P^2/3 * sqrtS/n = A * R^2/3 sqrtS/N = AV
 
-        V->Drc = pow(WHrunoff->Drc, 2.0/3.0) * sqrtGrad->Drc/N->Drc;
+        V->Drc = pow(Area/Perim, (2.0/3.0)) * sqrtGrad->Drc/N->Drc; //WHrunoff->Drc
         // overlandflow, we do not use perimeter here but height
         // note: we can use tortuosity here: perimeter = R/(w*tortuosity) = hw/(w*tort) = h/tort
         // tortuosity can come from random roughness! use analysis from EU project
@@ -346,7 +349,12 @@ void TWorld::OverlandFlow1D(void)
     //convert calculate Qn back to WH and volume for next loop
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-    //    double InfilKWact = 0;
+/*
+        double Area = Alpha->Drc * pow(Qn->Drc, 0.6);
+        WHrunoff->Drc = Area/FlowWidth->Drc;
+        V->Drc = Area > 0 ? Qn->Drc/Area : 0;
+*/
+
         double WaterVolout = std::max(0.0, QinKW->Drc*_dt + WaterVolin->Drc  - Qn->Drc*_dt);
         // mass balance, this includes now errors!
 
@@ -354,11 +362,6 @@ void TWorld::OverlandFlow1D(void)
         WHrunoff->Drc = WaterVolout/CHAdjDX->Drc;
         // runoff based on water vol out
         // NOTE route substance is already an explicit solution                      
-
-//        double diff = QinKW->Drc*_dt + WaterVolin->Drc - WaterVolout - Qn->Drc * _dt;
-//        InfilKWact = diff;//std::min(-FSurplus->Drc*SoilWidthDX->Drc*DX->Drc, diff);
-
- //       InfilVolKinWave->Drc = InfilKWact;
 
         Alpha->Drc = Qn->Drc > 0 ? (WHrunoff->Drc*FlowWidth->Drc)/pow(Qn->Drc,0.6) : Alpha->Drc;
         // needed for erosion // A = alpha Q^0.6 => alpha = A/Q^0.6

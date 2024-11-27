@@ -397,7 +397,8 @@ void TWorld::ParseRunfileData(void)
         InfilMethod = INFIL_NONE;
     //prob onsolete: deal with old runfil pre 6.6
     SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
-    swatreDT = _dt * SoilWBdtfactor; //getvaluedouble("SWATRE internal minimum timestep");
+    swatreDT = std::min(SoilWBdtfactor, _dt);
+    //swatreDT = _dt * SoilWBdtfactor; //getvaluedouble("SWATRE internal minimum timestep");
 
     if (!SwitchIncludeChannel)
     {

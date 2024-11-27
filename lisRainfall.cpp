@@ -399,7 +399,7 @@ void TWorld::GetRainfallStationData(QString name)
 void TWorld::GetRainfallMapfromStations(double currenttime)
 {
     //double currenttime = (time);
-    double tt = _dt/3600000.0* PBiasCorrection;
+    double tt = _dt/3600000.0 * PBiasCorrection; // biascorrection for stations?
     bool samerain = false;
 
     // from time t to t+1 the rain is the rain of t

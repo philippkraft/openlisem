@@ -319,7 +319,7 @@ void TWorld::GetWHboundaryMap(double currenttime)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (WHboundarea->Drc > 0)
-                WHbound->Drc = WHSeries[currentrow].WH + WaveCalibration;
+                WHbound->Drc = WHSeries[currentrow].WH * WaveCalibration;
             else
                 WHbound->Drc = 0;
         }}

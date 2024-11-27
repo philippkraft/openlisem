@@ -67,7 +67,7 @@
 #define GRAV_DEM 4.90335
 
 #define Aavg(a,b)  (0.5*(a+b))
-#define Savg(a,b)  qSqrt(a*b)
+#define Savg(a,b)  sqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
 #define Mavg(a,b)  std::min(a,b)
 
@@ -482,7 +482,7 @@ public:
         SwitchTwoLayer,
         SwitchThreeLayer,
         //SwitchWaterRepellency,
-        SwitchInterceptionLAI,
+        //SwitchInterceptionLAI,
         SwitchPsiUser,
         SwitchNrLayers,
         //SwitchDumpH,
@@ -521,6 +521,7 @@ public:
         SwitchChannelKinwaveDt,
         SwitchChannelKinwaveAvg,
         SwitchLinkedList,
+        SwitchPerimeterKW,
         SwitchChannelKinWave,
         SwitchChannelMaxV;
 

@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>4</number>
+                  <number>1</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -2871,80 +2871,6 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="6" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_7">
-                        <item>
-                         <widget class="QLabel" name="label_121">
-                          <property name="enabled">
-                           <bool>true</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <pointsize>8</pointsize>
-                            <bold>false</bold>
-                            <underline>false</underline>
-                            <kerning>true</kerning>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>Bias correction factor</string>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QDoubleSpinBox" name="E_biasCorrectionP">
-                          <property name="enabled">
-                           <bool>true</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <pointsize>8</pointsize>
-                            <bold>false</bold>
-                            <underline>false</underline>
-                            <kerning>true</kerning>
-                           </font>
-                          </property>
-                          <property name="minimum">
-                           <double>0.010000000000000</double>
-                          </property>
-                          <property name="singleStep">
-                           <double>0.010000000000000</double>
-                          </property>
-                          <property name="value">
-                           <double>1.000000000000000</double>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_5">
-                          <property name="orientation">
-                           <enum>Qt::Orientation::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                       </layout>
-                      </item>
                       <item row="3" column="0">
                        <widget class="QLabel" name="label_98">
                         <property name="text">
@@ -3209,6 +3135,80 @@
                             <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
                           </property>
                          </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item row="6" column="0" colspan="2">
+                       <layout class="QHBoxLayout" name="horizontalLayout_7">
+                        <item>
+                         <widget class="QLabel" name="label_121">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <pointsize>8</pointsize>
+                            <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>Bias correction factor</string>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QDoubleSpinBox" name="E_biasCorrectionP">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <pointsize>8</pointsize>
+                            <bold>false</bold>
+                            <underline>false</underline>
+                            <kerning>true</kerning>
+                           </font>
+                          </property>
+                          <property name="minimum">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="singleStep">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>1.000000000000000</double>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="horizontalSpacer_5">
+                          <property name="orientation">
+                           <enum>Qt::Orientation::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>40</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
                         </item>
                        </layout>
                       </item>
@@ -8859,11 +8859,17 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
+                        <property name="minimum">
+                         <double>0.010000000000000</double>
+                        </property>
                         <property name="maximum">
-                         <double>10.000000000000000</double>
+                         <double>99.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -8878,7 +8884,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Water level added to the incoming boundary water (in m)</string>
+                         <string>Incoming water level (wave) on boundary</string>
                         </property>
                        </widget>
                       </item>
@@ -9352,121 +9358,10 @@
                          <string>Infiltration SWATRE and Richards</string>
                         </property>
                         <layout class="QGridLayout" name="gridLayout_65">
-                         <property name="leftMargin">
-                          <number>8</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>4</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>8</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>4</number>
-                         </property>
-                         <property name="horizontalSpacing">
-                          <number>8</number>
-                         </property>
-                         <property name="verticalSpacing">
-                          <number>4</number>
-                         </property>
-                         <item row="1" column="0">
-                          <widget class="QSpinBox" name="spinSoilPhysics">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="minimum">
-                            <number>1</number>
-                           </property>
-                           <property name="maximum">
-                            <number>2</number>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="0" colspan="2">
-                          <widget class="QDoubleSpinBox" name="spinInfdt">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="decimals">
-                            <number>0</number>
-                           </property>
-                           <property name="minimum">
-                            <double>1.000000000000000</double>
-                           </property>
-                           <property name="maximum">
-                            <double>600.000000000000000</double>
-                           </property>
-                           <property name="singleStep">
-                            <double>1.000000000000000</double>
-                           </property>
-                           <property name="value">
-                            <double>10.000000000000000</double>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="1" colspan="4">
-                          <widget class="QLabel" name="label_160">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Soil Physics: 1 - Boork-Corey; 2 - Van Genuchten</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="2" colspan="2">
-                          <widget class="QLabel" name="label_159">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Internal timestep (sec)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="0" column="0" colspan="3">
+                         <item row="0" column="0" colspan="2">
                           <widget class="QComboBox" name="comboBox_Kmean">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
@@ -9501,7 +9396,7 @@
                            </item>
                           </widget>
                          </item>
-                         <item row="0" column="3" colspan="2">
+                         <item row="0" column="2">
                           <widget class="QLabel" name="label_158">
                            <property name="font">
                             <font>
@@ -9513,6 +9408,99 @@
                            </property>
                            <property name="text">
                             <string>of Hydraulic Conductivity K between two nodes</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QSpinBox" name="spinSoilPhysics">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="minimum">
+                            <number>1</number>
+                           </property>
+                           <property name="maximum">
+                            <number>2</number>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1" colspan="2">
+                          <widget class="QLabel" name="label_160">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Soil Physics: 1 - Boork-Corey; 2 - Van Genuchten</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QDoubleSpinBox" name="spinInfdt">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="decimals">
+                            <number>0</number>
+                           </property>
+                           <property name="minimum">
+                            <double>1.000000000000000</double>
+                           </property>
+                           <property name="maximum">
+                            <double>600.000000000000000</double>
+                           </property>
+                           <property name="singleStep">
+                            <double>1.000000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>10.000000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1" colspan="2">
+                          <widget class="QLabel" name="label_159">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>minimum internal timestep SWATRE (sec)</string>
                            </property>
                           </widget>
                          </item>
@@ -9801,7 +9789,7 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="2" column="0" colspan="4">
+                         <item row="2" column="0" colspan="5">
                           <widget class="QCheckBox" name="checkHeun">
                            <property name="font">
                             <font>
@@ -10102,6 +10090,21 @@
                            </property>
                            <property name="checked">
                             <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QCheckBox" name="checkPerimeterKW">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Perimeter overland flow as width w [ ], or (w+2h) [v] (backward compatibility)</string>
                            </property>
                           </widget>
                          </item>

@@ -44,7 +44,7 @@ void TWorld::GridCell()
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double dxa = _dx;
-        double HouseWidthDX_ = HouseCover->Drc*_dx;
+        double HouseWidthDX_ = HouseCover->Drc*_dx;// can be zero
         double RoadWidthHSDX_ = RoadWidthHSDX->Drc;
 
         if(SwitchIncludeChannel) {
@@ -64,14 +64,15 @@ void TWorld::GridCell()
         // adjust roads+hardsurf to cell with channels
         RoadWidthHSDX_ = std::min(dxa, RoadWidthHSDX_);
         // decrease roadwidth if roads + houses > dx-channel
-        RoadWidthHSDX_ = std::min(dxa-HouseWidthDX_, RoadWidthHSDX_);
+        RoadWidthHSDX_ = std::max(0.0, std::min(dxa-HouseWidthDX_, RoadWidthHSDX_));
         //HouseWidthDX_ = std::min(dxa-RoadWidthHSDX->Drc , HouseWidthDX_);
         // you cannot have houses and a road larger than a pixel
         //    SoilWidthDX->Drc = std::max(0.0,dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
         SoilWidthDX->Drc = std::max(0.0, dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
-        // soilwidth is used in infil, evap and erosion
+        // soilwidth is used in infil, evap and erosion, NOT flow
 
-        HouseCover->Drc = HouseWidthDX_/_dx;        
+        HouseCover->Drc = HouseWidthDX_/_dx;
+        // recalc the cover if because it may have been adjusted
         //houses are impermeable in ksateff so do have to be done here, with high mannings n, but allow flow
         RoadWidthHSDX->Drc = RoadWidthHSDX_;
 

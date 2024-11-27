@@ -355,6 +355,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Advanced Options")==0)                 checkAdvancedOptions->setChecked(check);
         if (p1.compare("Nr user Cores")==0) nrUserCores->setValue(iii);
         if (p1.compare("Use linked list")==0)        checkLinkedList->setChecked(check);
+        if (p1.compare("Use Perimeter KW")==0)        checkPerimeterKW->setChecked(check);
         if (p1.compare("Flooding SWOF flux limiter")==0)     E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)   E_FloodReconstruction->setValue(iii);
         if (p1.compare("Use time avg V")==0)                 checkTimeavgV->setChecked(check);
@@ -836,7 +837,14 @@ void lisemqt::updateModelData()
         if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
         if (p1.compare("Psi user input")==0)                 namelist[j].value.setNum((int)checkPsiUser->isChecked());
        // if (p1.compare("Geometric mean Ksat")==0)           namelist[j].value.setNum((int)checkGeometric->isChecked());
-
+        if (p1.compare("Nr input layers")==0)               namelist[j].value.setNum(spinSoilLayers->value());
+        if (p1.compare("SoilWB nodes 1")==0)                namelist[j].value.setNum(spinNodes1->value());
+        if (p1.compare("SoilWB nodes 2")==0)                namelist[j].value.setNum(spinNodes2->value());
+        if (p1.compare("SoilWB nodes 3")==0)                namelist[j].value.setNum(spinNodes3->value());
+        if (p1.compare("SoilWB dt factor")==0)              namelist[j].value.setNum(spinInfdt->value());
+        if (p1.compare("Infil Kavg")==0)                    namelist[j].value.setNum(comboBox_Kmean->currentIndex());
+        if (p1.compare("Van Genuchten")==0)                 namelist[j].value.setNum(spinSoilPhysics->value());
+        if (p1.compare("Swatre Output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
@@ -871,6 +879,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flood initial level map")==0)        namelist[j].value.setNum((int)checkFloodInitial->isChecked());
         if (p1.compare("Pit Value")==0)                      namelist[j].value = E_pitValue->text();
         if (p1.compare("Use linked list")==0)                namelist[j].value.setNum((int)checkLinkedList->isChecked());
+        if (p1.compare("Use Perimeter KW")==0)               namelist[j].value.setNum((int)checkPerimeterKW->isChecked());
         if (p1.compare("Use Channel Kinwave dt")==0)         namelist[j].value.setNum((int)checkKinWaveChannel->isChecked());
         if (p1.compare("Channel KinWave dt")==0)             namelist[j].value = E_ChannelKinWaveDt->text();
         if (p1.compare("Use Channel Max V")==0)              namelist[j].value.setNum((int)checkChanMaxVelocity->isChecked());

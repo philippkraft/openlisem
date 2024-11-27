@@ -119,8 +119,8 @@ void TWorld::InitParameters(void)
     WaveCalibration = getvaluedouble("Boundary water level calibration");
 
 
-    ChnTortuosity = 1.0;
-    //ChnTortuosity = getvaluedouble("Channel tortuosity");
+    //ChnTortuosity = 1.0;
+    ChnTortuosity = getvaluedouble("Channel tortuosity");
     if (ChnCalibration == 0)
     {
         ErrorString = QString("Calibration: the calibration factor for Mannings n for channels cannot be zero.");
@@ -154,6 +154,7 @@ void TWorld::InitParameters(void)
         F_minWH = getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = getvalueint("Use linked List") == 1;
+        SwitchPerimeterKW = getvalueint("Use Perimeter KW") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
@@ -163,7 +164,8 @@ void TWorld::InitParameters(void)
         F_fluxLimiter = 1; //minmod, vanleer, albeda
         F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
         F_pitValue = _dx/100;
-        SwitchLinkedList = true;
+        SwitchLinkedList = false;
+        SwitchPerimeterKW = false;
         _dtCHkin = 60.0;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
@@ -432,13 +434,10 @@ void TWorld::InitLULCInput(void)
         IntercETa = NewMap(0);
 
     InterceptionLAIType = getvalueint("Canopy storage equation");
-    SwitchInterceptionLAI = InterceptionLAIType < 8;
 
-    if (SwitchInterceptionLAI)
-    {
+    if (InterceptionLAIType < 8) {
         CanopyStorage = NewMap(0); //in m !!!
-        FOR_ROW_COL_MV
-        {
+        FOR_ROW_COL_MV_L {
             switch (InterceptionLAIType)
             {
                 case 0: CanopyStorage->Drc = 0.4376 * LAI->Drc + 1.0356;break; // gives identical results
@@ -452,20 +451,19 @@ void TWorld::InitLULCInput(void)
                 case 7: CanopyStorage->Drc = 0.59 * pow(LAI->Drc,0.88); break;
 
             }
-        }
-    }
-    else
-    {
+        }}
+    } else {
         CanopyStorage = ReadMap(LDD,getvaluename("smax"));
     }
     calcValue(*CanopyStorage, SmaxCalibration, MUL);
     calcValue(*CanopyStorage, 0.001, MUL); // from mm to m
     //NOTE: LAI is still needed for canopy openness
 
+
     if (SwitchRoadsystem)
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
-        checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
+        checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");       
     }
     else
         RoadWidthDX = NewMap(0);
@@ -481,10 +479,10 @@ void TWorld::InitLULCInput(void)
 
     RoadWidthHSDX = NewMap(0);
     if (SwitchRoadsystem || SwitchHardsurface)
-        FOR_ROW_COL_MV {
+        FOR_ROW_COL_MV_L {
             //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
             RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
-        }
+        }}
 
     if (SwitchHouses)
     {
@@ -509,9 +507,21 @@ void TWorld::InitLULCInput(void)
         checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
         LitterSmax = getvaluedouble("Litter interception storage");
     }
-//    else
-//        Litter = NewMap(0);
 
+    fractionImperm = NewMap(0);
+    FOR_ROW_COL_MV_L {
+        double frac = 0;
+        if (SwitchHouses && !SwitchRoadsystem)
+            frac = HouseCover->Drc;
+        if (SwitchRoadsystem && !SwitchHouses )
+            frac = RoadWidthHSDX->Drc/_dx;
+        if (SwitchRoadsystem && SwitchHouses )
+            frac = RoadWidthHSDX->Drc/_dx + HouseCover->Drc;
+        fractionImperm->Drc = std::min(std::max(0.0, frac), 1.0);
+        // 0 is fully permeable, 1 = impermeable
+    }}
+
+    report(*fractionImperm,"imp.map");
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -2152,7 +2162,6 @@ void TWorld::IntializeOptions(void)
     SwitchHouses = false;
     SwitchRaindrum = false;
 
-    SwitchInterceptionLAI = false;
     SwitchLitter = false;
 
     SwitchLinkedList = false;
@@ -2710,6 +2719,7 @@ void TWorld::InitNewSoilProfile()
     if (SwitchThreeLayer)
         nN3_ = getvalueint("SoilWB nodes 3");
     SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+    swatreDT = std::min(SoilWBdtfactor, _dt);
     KavgType = getvalueint("Infil Kavg");
     int vg = getvalueint("Van Genuchten");
     SwitchBrooksCorey = bool(vg == 1);

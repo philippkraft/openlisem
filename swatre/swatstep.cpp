@@ -178,18 +178,17 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
     double percolation = 0;
     double Theta = 0;
     int tnode = pixel->tilenode;
+    double impfrac = pixel->impfrac;
 
     // if (SHOWDEBUG)
     //     qDebug() << "compute for pixel" << nN << pond << p->profileId;
 
-    //double *h = new double [n];
     NODE_ARRAY h;
     for (int i = 0; i < nN; i++) {
         h[i] = pixel->h[i];
     }
 
-    while (elapsedTime < _dt)
-    {
+    while (elapsedTime < _dt) {
 
         bool isPonded, fltsat;    // flag if ponded or if profile fully saturated
         double qmax, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
@@ -206,21 +205,16 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
             // moisture content from H
         }
 
+        k[0] *= (1.0-impfrac);
+        // adjust k[0] for roads and houses
+
         Theta = (theta[0]+theta[1])/2;
 
         // average K for 1st to n-1 node, top node is done below
-        // for(int j = 1; j < nN; j++) {
-        //     kavg[j] = (k[j-1]+k[j])/2.0;
-        //     //kavg[j] = std::sqrt(k[j-1]*k[j]);
-        // }
+        // original swatre artithmetric mean
+       for(int j = 1; j < nN; j++){ kavg[j] = (k[j]+k[j-1])/2.0;}
 
-        switch (KavgType) {
-            case 0: for(int j = 1; j < nN; j++){ kavg[j] = Aavg(k[j],k[j-1]);} break;
-            case 1: for(int j = 1; j < nN; j++){ kavg[j] = Savg(k[j],k[j-1]);} break;
-            case 2: for(int j = 1; j < nN; j++){ kavg[j] = Havg(k[j],k[j-1],Dz(p)[j],Dz(p)[j-1]); }break;
-            case 3: for(int j = 1; j < nN; j++){ kavg[j] = Mavg(k[j],k[j-1]);} break;
-        }
-
+       //  for(int j = 1; j < nN; j++){ kavg[j] = sqrt(k[j]*k[j-1]);}
         //--- boundary conditions ---
 
         //----- TOP -----
@@ -236,13 +230,21 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
             qbot = kavg[nN-1]*(h[nN-1]-h[nN-2])/DistNode(p)[nN-1] - kavg[nN-1];
 
         // 1st check flux against max flux
-        double Ksat = FindNode(0, p->horizon[0], K_COL)*p->KsatCal[0];
-        kavg[0]= qSqrt( Ksat * k[0]);
-       // kavg[0]= ( Ksat + k[0])/2.0;
+        double Ksat = FindNode(0, p->horizon[0], K_COL)*p->KsatCal[0]*(1.0-impfrac);
+        kavg[0]= sqrt( Ksat * k[0]);
+        // max possible always geometric mean
+
         // geometric avg of ksat and k[0] => is used for max possible
 
-        qmax = -kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
-        qmax = std::min(qmax, 0.0);
+        qmax = kavg[0]*(pond-h[0]) / DistNode(p)[0] - kavg[0];
+        // this has always been strange, but it does work!
+        // q = -k(dh/dz+1) = -kdh/dz-k
+        // dh is in the dircetion of flow: pond - ho = pond - (-100) for instance so suction and pressure
+        // so it should be : qmax = - kavg[0]*((pond-h[0]) / DistNode(p)[0] +1);
+        // qtop is the same below!!!
+        // logic of swatre??? we need original code?
+
+        //qmax = std::min(qmax, 0.0);
         // maximum possible flux, compare to real top flux available
         isPonded = (qtop < qmax);
         // if more flux then max possible flag ponded is true
@@ -355,9 +357,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         percolation += qbot*dt;
 
         if ( isPonded || fltsat)
-            // qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
-            qtop = -kavg[0]*(pond - h[0]) / DistNode(p)[0] - kavg[0];
-        qtop = std::min(0.0,qtop);
+             qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
+          //  qtop = -kavg[0]*(pond - h[0]) / DistNode(p)[0] - kavg[0];
+        //qtop = std::min(0.0,qtop);
 
         // adjust top flux
         // if (SHOWDEBUG) {
