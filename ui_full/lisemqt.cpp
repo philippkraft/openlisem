@@ -49,7 +49,13 @@ update of the runfile before running:
 #include "lisemqt.h"
 #include "model.h"
 #include "global.h"
+#include "version.h"
 #include <omp.h>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
+#include <QString>
+#include <QEventLoop>
+#include <QRegularExpression>
 
 output op;
 // declaration of variable structure between model and interface.
@@ -77,22 +83,32 @@ QString lisemqt::readVersionFromFile(const QString &filePath)
     return version;
 }
 
-bool lisemqt::isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion)
-{
-    // Assuming version strings are in the format "major.minor.patch"
-    QStringList currentParts = currentVersion.split(".");
-    QStringList latestParts = latestVersion.split(".");
+bool lisemqt::isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion) {
+    return currentVersion != latestVersion;
+}
 
-    for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
-        int currentPart = currentParts.at(i).toInt();
-        int latestPart = latestParts.at(i).toInt();
-        if (latestPart > currentPart) {
-            return true;
-        } else if (latestPart < currentPart) {
-            return false;
+QString lisemqt::getLatestVersionFromGitHub() {
+    QNetworkAccessManager manager;
+    QEventLoop loop;
+    QNetworkReply *reply = manager.get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/main_C/include/version.h")));
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    QString latestVersion;
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray response = reply->readAll();
+        QString content(response);
+        QRegularExpression re(R"#(#define VERSIONNR "([^"]+)")#");
+        QRegularExpressionMatch match = re.match(content);
+        if (match.hasMatch()) {
+            latestVersion = match.captured(1);
         }
+    }  else {
+        // Handle the network error silently
+        // qDebug() << "Network error: " << reply->errorString();
     }
-    return latestParts.size() > currentParts.size();
+    reply->deleteLater();
+    return latestVersion;
 }
 
 //--------------------------------------------------------------------
@@ -121,17 +137,30 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     op.runfilename.clear();
     E_runFileList->clear();
 
-    QString executableDir = QCoreApplication::applicationDirPath();
-    QString versionFilePath = QDir(executableDir).filePath("version.txt");
-    QString currentVersion = "7.4.2"; // Replace with your current version
-    QString latestVersion = readVersionFromFile(versionFilePath);
+    QString currentVersion = VERSIONNR; // Find version from header file
+    QString latestVersion = getLatestVersionFromGitHub(); // Finds the version number from main_C on github
 
-    if (isNewVersionAvailable(currentVersion, latestVersion)) {
+    if (!latestVersion.isEmpty() && isNewVersionAvailable(currentVersion, latestVersion)) {
         QMessageBox::information(nullptr, "Update Available",
                                  "A new version (" + latestVersion + ") is available. Please download the latest version.");
+    } else if (latestVersion.isEmpty()) {
+        // Handle offline scenario
+        // qDebug() << "Cannot check for updates while offline.";
     } else {
-        QMessageBox::information(nullptr, "Up to Date",
-                                 "You are using the latest version (" + currentVersion + ").");
+        QMessageBox msg;
+        msg.setText("Up to Date: \nYou are using the latest version (" + currentVersion + ").");
+
+        int cnt = 5;
+
+        QTimer cntDown;
+        QObject::connect(&cntDown, &QTimer::timeout, [&msg,&cnt, &cntDown]()->void{
+            if(--cnt < 0){
+                cntDown.stop();
+                msg.close();
+            }
+        });
+        cntDown.start(500);
+        msg.exec();
     }
 
     //TODO: check all options and default values

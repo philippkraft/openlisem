@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Find the Qt 6 libraries
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui Network)
 
 # Include directories for Qt 6
 include_directories(${Qt6Widgets_INCLUDE_DIRS})

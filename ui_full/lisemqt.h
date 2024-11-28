@@ -122,6 +122,7 @@ public:
 
     QString readVersionFromFile(const QString &filePath);
     bool isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion);
+    QString getLatestVersionFromGitHub();
 
    // bool WhasStopped;
 

@@ -194,7 +194,7 @@ add_executable(Lisem WIN32
 
 # Link the necessary libraries
 target_link_libraries(Lisem
-    Qt6::Widgets Qt6::Gui Qt6::Core
+    Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Network
     ${GDAL_LIBRARIES} ${QWT_LIBRARIES}
     OpenMP::OpenMP_CXX
 )
