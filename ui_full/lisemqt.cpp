@@ -84,7 +84,21 @@ QString lisemqt::readVersionFromFile(const QString &filePath)
 }
 
 bool lisemqt::isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion) {
-    return currentVersion != latestVersion;
+    // Assuming version strings are in the format "major.minor.patch"
+    QStringList currentParts = currentVersion.split(".");
+    QStringList latestParts = latestVersion.split(".");
+
+    for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
+        int currentPart = currentParts.at(i).toInt();
+        int latestPart = latestParts.at(i).toInt();
+        if (latestPart > currentPart) {
+            return true;
+        } else if (latestPart < currentPart) {
+            return false;
+        }
+    }
+    return latestParts.size() > currentParts.size();
+    //return currentVersion != latestVersion;
 }
 
 QString lisemqt::getLatestVersionFromGitHub() {
