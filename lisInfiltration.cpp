@@ -125,36 +125,19 @@ void TWorld::InfilEffectiveKsat(bool first)
 
 }
 //---------------------------------------------------------------------------
-/*!
- \brief Main infiltration function, calls infiltration types (SWATRE, Green and Ampt,
-  Smith and Parlange, Ksat subtraction. Calculates effective Ksat based on different
-  surface types (crust, compaction).
-
-  Main infiltration function that calculates\n
-  - Use ksateff which accounts for different surface types: grass strips, compaction, crusting, roads, hard surface
-  - do SWATRE or one of the other methods, SWATRE is a different set of functions
-  - call one of the infiltration functions for the actual infiltration rate
-  - calc infiltration surplus for the kinematic wave
-  - increase of infiltration depth/wetting front, same function for each infiltration model: L1, L2, Fcum
-  - decrease of surface water layer WH and calculate infiltration volume\n
-  */
-
 // this function is not used!
 void TWorld::Infiltration()
 {
     if (!SwitchInfiltration)
         return;
 
-
     //NOTE fact and fpot have a unit of m (not m/s)
     if (InfilMethod == INFIL_SWATRE) {
-        InfilSwatre();
-        /*
-       #pragma omp parallel for num_threads(userCores)
+        //InfilSwatre();
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            cell_InfilSwatre(r, c);
+            cell_InfilSwatre(i_, r, c);
         }}
-        */
     }
     else
     {
@@ -535,8 +518,6 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 // NOT USED
 void TWorld::cell_InfilSwatre(long i_, int r, int c)
 {
-
-    /*
     //profile number 0 is impeermeable so no need to do anything
     double frac = std::min(1.0, RoadWidthHSDX->Drc/_dx + HouseCover->Drc);
 
@@ -564,7 +545,6 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
     else
         hmx->Drc = tm->Drc;
 
-
     if (CrustFraction->Drc > 0) {
         tm->Drc = WHbef->Drc;
         tma->Drc = 0;
@@ -587,8 +567,7 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
         else
             hmx->Drc = wha;
 
-        fact->Drc = (WHbef->Drc - tm->Drc);
-        //fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
+        fact->Drc = (WHbef->Drc - wha);
         thetaTop->Drc = tmb->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
     }
 
@@ -615,8 +594,7 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
         else
             hmx->Drc = wha;
 
-        fact->Drc = (WHbef->Drc - tm->Drc);
-        //fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
+        fact->Drc = (WHbef->Drc - wha);
         thetaTop->Drc = tmb->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
     }
 
@@ -643,13 +621,12 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
         else
             hmx->Drc = wha;
 
-        fact->Drc = (WHbef->Drc - tm->Drc);
-        //fpot->Drc = tma->Drc*GrassFraction->Drc + fpot->Drc*(1-GrassFraction->Drc);
+        fact->Drc = (WHbef->Drc - wha);
         thetaTop->Drc = tmb->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
     }
 
     InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
-*/
+
 }
 
 //---------------------------------------------------------------------------
@@ -657,7 +634,6 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
 /// OBSOLETE we use cell_infilswatre
 void TWorld::InfilSwatre()
 {
-
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
@@ -677,16 +653,18 @@ void TWorld::InfilSwatre()
         WHbef->Drc = tm->Drc;
 
         SwatreStep(i_, r, c, SwatreSoilModel, tm, TileDrainSoil, thetaTop);
+        // tm = new water level after infiltration
+        // thetatop is not used, meant for pesticides
 
-        // actual infil is dif between WH before and after
         fact->Drc = std::max(0.0, WHbef->Drc - tm->Drc);
+        // actual infil is dif between WH before and after
 
         if (FloodDomain->Drc == 0)
             WH->Drc = tm->Drc;
         else
             hmx->Drc = tm->Drc;
 
-        //TODO check infil swatre for crusts and compaction
+        //TODO test infil swatre for crusts and compaction
         if (CrustFraction->Drc > 0) {
             tm->Drc = WHbef->Drc;
             tma->Drc = 0;
@@ -700,17 +678,16 @@ void TWorld::InfilSwatre()
                 _wh = WH->Drc;
             else
                 _wh = hmx->Drc;
-            // water level on crusted areas
+            // new water level from regular swatre
 
             double wha = tm->Drc*CrustFraction->Drc + _wh*(1-CrustFraction->Drc);
-            // weighted average
+            // weighed average
             if (FloodDomain->Drc == 0)
                 WH->Drc = wha;
             else
                 hmx->Drc = wha;
 
-            fact->Drc = (WHbef->Drc - tm->Drc);
-            //fpot->Drc = tma->Drc*CrustFraction->Drc + fpot->Drc*(1-CrustFraction->Drc);
+            fact->Drc = (WHbef->Drc - wha);
             thetaTop->Drc = tmb->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
         }
 
@@ -736,8 +713,7 @@ void TWorld::InfilSwatre()
             else
                 hmx->Drc = wha;
 
-            fact->Drc = (WHbef->Drc - tm->Drc);
-            //fpot->Drc = tma->Drc*CompactFraction->Drc + fpot->Drc*(1-CompactFraction->Drc);
+            fact->Drc = (WHbef->Drc - wha);
             thetaTop->Drc = tmb->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
         }
 
@@ -763,12 +739,12 @@ void TWorld::InfilSwatre()
             else
                 hmx->Drc = wha;
 
-            fact->Drc = (WHbef->Drc - tm->Drc);
-            //fpot->Drc = tma->Drc*GrassFraction->Drc + fpot->Drc*(1-GrassFraction->Drc);
+            fact->Drc = (WHbef->Drc - wha);
             thetaTop->Drc = tmb->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
         }
 
         InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
+        // calc infilvolume from fact
 
     }}
 

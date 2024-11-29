@@ -533,8 +533,7 @@ void TWorld::InitLULCInput(void)
         copy(*GrassFraction, *GrassWidthDX);
         calcValue(*GrassFraction, _dx, DIV);
         StripN = getvaluedouble("Grassstrip Mannings n");
-        FOR_ROW_COL_MV
-        {
+        FOR_ROW_COL_MV_L {
             if (GrassWidthDX->Drc != 0)
             {
                 N->Drc = N->Drc*(1-GrassFraction->Drc)+StripN*GrassFraction->Drc;
@@ -542,7 +541,7 @@ void TWorld::InitLULCInput(void)
                 LAI->Drc = LAI->Drc*(1-GrassFraction->Drc) + 5.0*GrassFraction->Drc;
             }
             //adjust mann N Cover and height
-        }
+        }}
     }
 
     //## make shaded relief map for display.

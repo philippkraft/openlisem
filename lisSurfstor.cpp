@@ -77,7 +77,7 @@ void TWorld::GridCell()
         RoadWidthHSDX->Drc = RoadWidthHSDX_;
 
         // adjust man N
-        N->Drc = N->Drc + 1.0*HouseCover->Drc; // N is 1 for a house, very high resistance
+        N->Drc = N->Drc + HouseCover->Drc; // increase N for a house, very high resistance
         N->Drc = N->Drc * (1-RoadWidthHSDX->Drc/_dx) + 0.016 * (RoadWidthHSDX->Drc/_dx); // asphalt manning's n
         //https://www.engineeringtoolbox.com/mannings-roughness-d_799.html
 
