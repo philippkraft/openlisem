@@ -1,5 +1,12 @@
+241125 - v7.4.3
+- BUG FIX: Swatre did not account for impermeable surfaces
+- BUG FIX: sign error in Swatre causing invcerse effect of initial h
+- culvert kin wave code extended to subsurface drains, to be tested
+- Interface advanced option: perimeter for overland flow is not just the width but w+2h (compatibility old versions)
+
+
 241125 - v7.4.2
-- Adjusted the noInterface option. No works well on headless systems.
+- Adjusted the noInterface option. Now works well on headless systems.
 - BUG FIX: Swatre interface small bug fixes
 - BUG FIX: 2nd page interface map list greyed out
 
@@ -11,7 +18,6 @@
 241114 - v7.3
 - BUG fix: reading of [rainfall/ET/boundary waterheight/user discharge] time string, was malways rounded to whole minutes
 - BUG fix: finding the right timeseries interval with the current time at the end of the series
-- Known BUG: culverts do not work correctly
 - Code made compatble for Linux compile, instructions for compilation updated
 
 241107 - v7.2
@@ -21,7 +27,6 @@
 241013 - v7.1
 - BUG fix: SWATRE is working again
 - BUG fix: Theta showed NaN in files
-- TODO: Swatre does not interact with groundwater and may crash
 - Small interface bug fixes and more logical positioning of options
 - new option Tab houses, infrastructure and mitigation measures
 - checked reset options of all tabs and overall reset
@@ -37,10 +42,3 @@ Interface
 - Some repositioning of options
 - Rainfall, interception and infiltration can be switched on/off
 - scrollbars correctly triggered
-
-240523 - v6.99
-- BUG FIX: in erosion causing zero flow detachment (only splash)
-- boundary water level inflow (with whboundary.map and file with water levels), for dike break or coastal zone flooding
-- Better hydraulics subsurface storm drains (sewage system) for urban environments (beta, some mass balance errors)
-Interface
-- Make mpeg movies of screenshot series after the simulation. Needs download MPlayer from http://www.mplayerhq.hu
