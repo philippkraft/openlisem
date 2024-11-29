@@ -7,14 +7,12 @@ IF(WIN32)
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
-    SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libcrypto.dll.a" "${MINGW_BUILD_DIR}/lib/libssl.dll.a")
-    #SET(OSSL_LIBRARIES "C:/Program Files/OpenSSL-Win64/bin/libcrypto.dll.a")
+    #SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libcrypto.dll.a" "${MINGW_BUILD_DIR}/lib/libssl.dll.a")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
     FIND_PATH(OMP_INCLUDE_DIRS
         NAMES omp.h
-        #PATHS "${MINGW_BUILD_DIR}/lib/gcc/x86_64-w64-mingw32/14.1.0/include"
         PATHS "${MINGW_BUILD_DIR}/include"
     )
 ENDIF()
