@@ -1,7 +1,7 @@
 ﻿/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2022  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,14 +10,14 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -47,9 +47,7 @@ update of the runfile before running:
 */
 
 #include "lisemqt.h"
-#include "model.h"
-#include "global.h"
-#include <omp.h>
+
 
 output op;
 // declaration of variable structure between model and interface.
@@ -57,11 +55,66 @@ output op;
 // to the interface each timestep, defined in LisUIoutput.h
 
 
-#include <QCoreApplication>
-#include <QFile>
-#include <QTextStream>
-#include <QDir>
-#include <QMessageBox>
+QString lisemqt::readVersionFromFile(const QString &filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning("Could not open version file.");
+        return QString();
+    }
+
+    QTextStream in(&file);
+    QString version = in.readLine().trimmed();
+    file.close();
+    return version;
+}
+
+bool lisemqt::isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion) {
+    // Assuming version strings are in the format "major.minor.patch"
+    QStringList currentParts = currentVersion.split(".");
+    QStringList latestParts = latestVersion.split(".");
+
+    for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
+        int currentPart = currentParts.at(i).toInt();
+        int latestPart = latestParts.at(i).toInt();
+        if (latestPart > currentPart) {
+            return true;
+        } else if (latestPart < currentPart) {
+            return false;
+        }
+    }
+    return latestParts.size() > currentParts.size();
+    //return currentVersion != latestVersion;
+}
+
+QString lisemqt::getLatestVersionFromGitHub()
+{
+    QNetworkAccessManager manager;
+    QEventLoop loop;
+    QNetworkReply *reply = manager.get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/main_C/include/version.h")));
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    qDebug() << "ssl" << QSslSocket::sslLibraryBuildVersionString();
+    qDebug() << "sup ssl" << QSslSocket::supportsSsl();
+
+    QString latestVersion;
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray response = reply->readAll();
+        QString content(response);
+        QRegularExpression re(R"#(#define VERSIONNR "([^"]+)")#");
+        QRegularExpressionMatch match = re.match(content);
+        if (match.hasMatch()) {
+            latestVersion = match.captured(1);
+        }
+    }  else {
+        // Handle the network error silently
+        // qDebug() << "Network error: " << reply->errorString();
+    }
+    reply->deleteLater();
+    return latestVersion;
+
+}
 
 //--------------------------------------------------------------------
 lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
@@ -76,8 +129,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     darkLISEM = false;   
     op.nrRunsDone = 0;
 
-    checkForUpdates();
-
     int ompt = omp_get_max_threads();
     nrUserCores->setMaximum(ompt);//omp_get_max_threads());
 
@@ -90,6 +141,32 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     op.runfilename.clear();
     E_runFileList->clear();
+
+    QString currentVersion = VERSIONNR; // Find version from header file
+    QString latestVersion = getLatestVersionFromGitHub(); // Finds the version number from main_C on github
+    qDebug() << latestVersion;
+    if (!latestVersion.isEmpty() && isNewVersionAvailable(currentVersion, latestVersion)) {
+        QMessageBox::information(nullptr, "Update Available",
+                                 "A new version (" + latestVersion + ") is available. Please download the latest version.");
+    } else if (latestVersion.isEmpty()) {
+        // Handle offline scenario
+        // qDebug() << "Cannot check for updates while offline.";
+    } else {
+        QMessageBox msg;
+        msg.setText("Up to Date: \nYou are using the latest version (" + currentVersion + ").");
+
+        int cnt = 5;
+
+        QTimer cntDown;
+        QObject::connect(&cntDown, &QTimer::timeout, [&msg,&cnt, &cntDown]()->void{
+            if(--cnt < 0){
+                cntDown.stop();
+                msg.close();
+            }
+        });
+        cntDown.start(500);
+        msg.exec();
+    }
 
     //TODO: check all options and default values
     resetAll();

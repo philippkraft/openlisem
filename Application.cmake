@@ -5,9 +5,10 @@ IF(WIN32)
     # QWT configuration for double axis display, note a double axis branch of qwt is used
     SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/git")    # Adjust to your folder names
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
+    SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgnutls-openssl.dll.a")
+    SET(OSSL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include/openssl")
     SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
-    #SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libcrypto.dll.a" "${MINGW_BUILD_DIR}/lib/libssl.dll.a")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
 
@@ -36,6 +37,7 @@ ENDIF()
 # Include directories
 INCLUDE_DIRECTORIES(
     ${GDAL_INCLUDE_DIRS}
+    ${OSSL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
     ${OMP_INCLUDE_DIRS}
     SYSTEM
@@ -93,7 +95,6 @@ SET(APP_SOURCES
     ui_full/LisUImapplot.h
     ui_full/lismpeg.cpp
     ui_full/lisUIStyle.cpp
-    ui_full/lisUIPatch.cpp
     ui_full/lismpeg.h
     ui_full/lisemqt.h
     swatre/swatstep.cpp

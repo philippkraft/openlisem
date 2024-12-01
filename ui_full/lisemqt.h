@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2010,2011,2020  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,17 +10,18 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
-**  website, information and code: http://lisem.sourceforge.net
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
+**  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
+
 
 /*!
  \file lisemqt.h
@@ -35,6 +36,24 @@
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 #include <QTranslator>
+//#include <QObject>
+//#include <QByteArray>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+//#include <QtNetwork/QNetworkAccessManager>
+//#include <QtNetwork/QNetworkReply>
+//#include <QString>
+//#include <QEventLoop>
+//#include <QRegularExpression>
+#include <QSslSocket>
+//#include <QCoreApplication>
+//#include <QFile>
+//#include <QTextStream>
+//#include <QDir>
+#include <QMessageBox>
+
+#include <omp.h>
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -64,33 +83,7 @@
 #include "LisUItreemodel.h"
 #include "LisUImapplot.h"
 #include "lismpeg.h"
-
-
-#include <QObject>
-#include <QByteArray>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-
-class FileDownloader : public QObject
-{
- Q_OBJECT
- public:
-  explicit FileDownloader(QUrl imageUrl, QObject *parent = 0);
-  virtual ~FileDownloader();
-  QByteArray downloadedData() const;
-
- signals:
-  void downloaded();
-
- private slots:
-  void fileDownloaded(QNetworkReply* pReply);
-  private:
-  QNetworkAccessManager m_WebCtrl;
-  QByteArray m_DownloadedData;
-};
-
-
+#include "global.h"
 
 // constants to define the place of the main parts in the map tree structure
 #define RAINFALLMAPS 0
@@ -144,11 +137,11 @@ public:
     bool doBatchmode;
     QString batchRunname;
 
-    void checkForUpdates();
-//void handleNetworkReply(QNetworkReply *reply);
-QNetworkReply *lisreply;
-FileDownloader *m_pImgCtrl;
+    QString readVersionFromFile(const QString &filePath);
+    bool isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion);
+    QString getLatestVersionFromGitHub();
 
+   // bool WhasStopped;
     void initMapTree();
     void DefaultMapnames();
     void fillMapnames();
@@ -172,12 +165,6 @@ FileDownloader *m_pImgCtrl;
     void savefile(QString name);
     void SetConnections();
     QStringList runfilelist;
-
-
-//    bool doNewPlot;
-//    void newPlot(bool refresh);
-//    void setupNewPlot();
-//    void initNewPlot();
 
     QList <QPointF> dataRain;
     QList <QPointF> dataQ;
@@ -506,7 +493,6 @@ public slots:
     QString getFileorDir(QString inputdir,QString title, QStringList filters, int doFile);
 
 private slots:
-    void handleNetworkReply();
 
     void showMapb(bool);
     void showMapd(double);
@@ -593,7 +579,7 @@ private slots:
 
     void on_toolButton_SwatreTableName_clicked();
 
-    void loadImage();
+    //void loadImage();
     void on_E_InfiltrationMethod_currentIndexChanged(int index);
 
 private:

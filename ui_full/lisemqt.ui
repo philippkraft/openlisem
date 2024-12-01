@@ -6147,6 +6147,9 @@
                       </item>
                       <item row="3" column="0" colspan="3">
                        <widget class="QCheckBox" name="checkGridRentention">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
