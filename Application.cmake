@@ -18,6 +18,7 @@ IF(WIN32)
     )
 ENDIF()
 
+
 #linux
 IF(UNIX AND NOT CYGWIN)
     SET(QWT_BUILD_DIR "/usr/local/qwt-6.4.0-ma")
@@ -37,9 +38,10 @@ ENDIF()
 # Include directories
 INCLUDE_DIRECTORIES(
     ${GDAL_INCLUDE_DIRS}
-    ${OSSL_INCLUDE_DIRS}
+    #${OSSL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
     ${OMP_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIRS}
     SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
@@ -51,6 +53,8 @@ find_package(OpenMP REQUIRED)
 
 #Find GDAL
 find_package(GDAL REQUIRED)
+
+find_package(CURL REQUIRED)
 
 # Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
 set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")

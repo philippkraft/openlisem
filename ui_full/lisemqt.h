@@ -36,21 +36,10 @@
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 #include <QTranslator>
-//#include <QObject>
-//#include <QByteArray>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
-//#include <QtNetwork/QNetworkAccessManager>
-//#include <QtNetwork/QNetworkReply>
-//#include <QString>
-//#include <QEventLoop>
-//#include <QRegularExpression>
 #include <QSslSocket>
-//#include <QCoreApplication>
-//#include <QFile>
-//#include <QTextStream>
-//#include <QDir>
 #include <QMessageBox>
 
 #include <omp.h>
@@ -137,11 +126,10 @@ public:
     bool doBatchmode;
     QString batchRunname;
 
-    QString readVersionFromFile(const QString &filePath);
-    bool isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion);
+    bool isNewVersionAvailable(QString &currentVersion, QString &latestVersion);
     QString getLatestVersionFromGitHub();
+    void CheckVersion();
 
-   // bool WhasStopped;
     void initMapTree();
     void DefaultMapnames();
     void fillMapnames();

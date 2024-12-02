@@ -47,7 +47,8 @@ update of the runfile before running:
 */
 
 #include "lisemqt.h"
-
+#include <iostream>
+//#include <string>
 
 output op;
 // declaration of variable structure between model and interface.
@@ -55,21 +56,8 @@ output op;
 // to the interface each timestep, defined in LisUIoutput.h
 
 
-QString lisemqt::readVersionFromFile(const QString &filePath)
+bool lisemqt::isNewVersionAvailable(QString &currentVersion, QString &latestVersion)
 {
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning("Could not open version file.");
-        return QString();
-    }
-
-    QTextStream in(&file);
-    QString version = in.readLine().trimmed();
-    file.close();
-    return version;
-}
-
-bool lisemqt::isNewVersionAvailable(const QString &currentVersion, const QString &latestVersion) {
     // Assuming version strings are in the format "major.minor.patch"
     QStringList currentParts = currentVersion.split(".");
     QStringList latestParts = latestVersion.split(".");
@@ -95,9 +83,6 @@ QString lisemqt::getLatestVersionFromGitHub()
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
-    qDebug() << "ssl" << QSslSocket::sslLibraryBuildVersionString();
-    qDebug() << "sup ssl" << QSslSocket::supportsSsl();
-
     QString latestVersion;
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray response = reply->readAll();
@@ -109,12 +94,34 @@ QString lisemqt::getLatestVersionFromGitHub()
         }
     }  else {
         // Handle the network error silently
-        // qDebug() << "Network error: " << reply->errorString();
+        qDebug() << "Network error: " << reply->errorString();
     }
     reply->deleteLater();
     return latestVersion;
-
 }
+
+void lisemqt::CheckVersion()
+{
+    QMessageBox msg;
+    QString currentVersion = VERSIONNR;
+    QString latestVersion = getLatestVersionFromGitHub();
+
+    if (!latestVersion.isEmpty() && isNewVersionAvailable(currentVersion, latestVersion)) {
+        msg.setText("A new version is available (" + latestVersion + "). Please download the latest version.");
+    } else {
+        if (latestVersion.isEmpty()) {
+            // Handle offline scenario
+            //qDebug() << "Cannot check updates online.";
+        } else {
+            msg.setText("Up to Date: \nYou are using the latest version (" + currentVersion + ").");
+        }
+    }
+
+    // Create a timer to close the message box after 3 seconds
+    QTimer::singleShot(3000, &msg, &QMessageBox::accept);
+    msg.exec();
+}
+
 
 //--------------------------------------------------------------------
 lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
@@ -142,31 +149,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     op.runfilename.clear();
     E_runFileList->clear();
 
-    QString currentVersion = VERSIONNR; // Find version from header file
-    QString latestVersion = getLatestVersionFromGitHub(); // Finds the version number from main_C on github
-    qDebug() << latestVersion;
-    if (!latestVersion.isEmpty() && isNewVersionAvailable(currentVersion, latestVersion)) {
-        QMessageBox::information(nullptr, "Update Available",
-                                 "A new version (" + latestVersion + ") is available. Please download the latest version.");
-    } else if (latestVersion.isEmpty()) {
-        // Handle offline scenario
-        // qDebug() << "Cannot check for updates while offline.";
-    } else {
-        QMessageBox msg;
-        msg.setText("Up to Date: \nYou are using the latest version (" + currentVersion + ").");
-
-        int cnt = 5;
-
-        QTimer cntDown;
-        QObject::connect(&cntDown, &QTimer::timeout, [&msg,&cnt, &cntDown]()->void{
-            if(--cnt < 0){
-                cntDown.stop();
-                msg.close();
-            }
-        });
-        cntDown.start(500);
-        msg.exec();
-    }
+    CheckVersion();
 
     //TODO: check all options and default values
     resetAll();
@@ -1078,7 +1061,7 @@ void lisemqt::aboutInfo()
                                .arg("Details can be found here: https://github.com/vjetten/openlisem")
                                .arg("This software is made available under GNU CPLv3.0")
                                .arg(VERSIONNR)
-                               .arg(DATE)
+                               .arg(VERSIONDATE)
                                );
 }
 
