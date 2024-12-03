@@ -56,8 +56,9 @@ INCLUDE(Application)
 
 target_sources(Lisem
   PRIVATE
+  AUTHORS
   README.txt
-  changes.txt  
+  changes.txt  # changes is a short list with latest changes for the installer
   compile_lisem_windows.txt
   compile_lisem_linux.txt
 )

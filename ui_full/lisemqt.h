@@ -36,10 +36,6 @@
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 #include <QTranslator>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QSslSocket>
 #include <QMessageBox>
 
 #include <omp.h>
@@ -128,6 +124,7 @@ public:
 
     bool isNewVersionAvailable(QString &currentVersion, QString &latestVersion);
     QString getLatestVersionFromGitHub();
+    void downloadPatch();
     void CheckVersion();
 
     void initMapTree();

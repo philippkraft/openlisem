@@ -84,6 +84,7 @@ SET(APP_SOURCES
     fixture.cpp
     io.cpp
     operation.cpp
+    ui_full/LisUIPatch.cpp
     ui_full/LisUIdialogs.cpp
     ui_full/LisUIScreenshot.cpp
     ui_full/LisUItreecheck.cpp
