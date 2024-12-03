@@ -37,6 +37,7 @@
 #include <QSystemTrayIcon>
 #include <QTranslator>
 #include <QMessageBox>
+#include <QNetworkAccessManager>
 
 #include <omp.h>
 
@@ -568,6 +569,7 @@ private slots:
     void on_E_InfiltrationMethod_currentIndexChanged(int index);
 
 private:
+    QNetworkAccessManager *manager;
 
     QSystemTrayIcon *trayIcon;
     //toolbar actions
