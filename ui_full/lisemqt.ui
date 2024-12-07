@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>9</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -9341,7 +9341,7 @@
                       <property name="verticalSpacing">
                        <number>4</number>
                       </property>
-                      <item row="2" column="0" colspan="3">
+                      <item row="3" column="0" colspan="3">
                        <widget class="QGroupBox" name="groupAdvRichards">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -9510,7 +9510,20 @@
                         </layout>
                        </widget>
                       </item>
-                      <item row="1" column="0" colspan="3">
+                      <item row="0" column="5">
+                       <spacer name="horizontalSpacer_19">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="2" column="0" colspan="3">
                        <widget class="QGroupBox" name="groupAdvSWOF">
                         <property name="enabled">
                          <bool>true</bool>
@@ -9810,20 +9823,22 @@
                         </layout>
                        </widget>
                       </item>
-                      <item row="2" column="5">
-                       <spacer name="horizontalSpacer_26">
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="label_56">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
                         </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>264</width>
-                          <height>20</height>
-                         </size>
+                        <property name="text">
+                         <string>Nr of CPU cores (0 = all cores; 1 = 1 core etc.)</string>
                         </property>
-                       </spacer>
+                       </widget>
                       </item>
-                      <item row="4" column="0" colspan="3">
+                      <item row="5" column="0" colspan="3">
                        <widget class="QGroupBox" name="groupAdvChannel">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -9978,60 +9993,7 @@
                         </layout>
                        </widget>
                       </item>
-                      <item row="0" column="3">
-                       <widget class="QToolButton" name="toolButton_resetAdvanced">
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
-                          <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="QSpinBox" name="nrUserCores">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="maximum">
-                         <number>8</number>
-                        </property>
-                        <property name="value">
-                         <number>0</number>
-                        </property>
-                        <property name="displayIntegerBase">
-                         <number>10</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLabel" name="label_56">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Nr of CPU cores (0 = all cores; 1 = 1 core etc.)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0" colspan="3">
+                      <item row="4" column="0" colspan="3">
                        <widget class="QGroupBox" name="groupAdvKinwave">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -10114,33 +10076,69 @@
                         </layout>
                        </widget>
                       </item>
-                      <item row="0" column="5">
-                       <spacer name="horizontalSpacer_19">
+                      <item row="0" column="4">
+                       <widget class="QToolButton" name="toolButton_helpAdvanced">
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QSpinBox" name="nrUserCores">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="maximum">
+                         <number>8</number>
+                        </property>
+                        <property name="value">
+                         <number>0</number>
+                        </property>
+                        <property name="displayIntegerBase">
+                         <number>10</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="5">
+                       <spacer name="horizontalSpacer_26">
                         <property name="orientation">
                          <enum>Qt::Orientation::Horizontal</enum>
                         </property>
                         <property name="sizeHint" stdset="0">
                          <size>
-                          <width>40</width>
+                          <width>264</width>
                           <height>20</height>
                          </size>
                         </property>
                        </spacer>
                       </item>
-                      <item row="4" column="5">
-                       <spacer name="horizontalSpacer_16">
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
+                      <item row="0" column="3">
+                       <widget class="QToolButton" name="toolButton_resetAdvanced">
+                        <property name="text">
+                         <string>...</string>
                         </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                         </property>
-                       </spacer>
+                       </widget>
                       </item>
-                      <item row="1" column="5">
+                      <item row="2" column="5">
                        <spacer name="horizontalSpacer_22">
                         <property name="orientation">
                          <enum>Qt::Orientation::Horizontal</enum>
@@ -10153,14 +10151,30 @@
                         </property>
                        </spacer>
                       </item>
-                      <item row="0" column="4">
-                       <widget class="QToolButton" name="toolButton_helpAdvanced">
-                        <property name="text">
-                         <string>...</string>
+                      <item row="5" column="5">
+                       <spacer name="horizontalSpacer_16">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
                         </property>
-                        <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
-                          <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QToolButton" name="toolButton">
+                        <property name="text">
+                         <string>New Version</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QLabel" name="label_161">
+                        <property name="text">
+                         <string>Check for a new version on GitHub</string>
                         </property>
                        </widget>
                       </item>

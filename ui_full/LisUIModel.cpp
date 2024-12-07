@@ -422,9 +422,6 @@ void lisemqt::worldDone(const QString &results)
     if (QFileInfo(QString(op.userAppDir+"openlisemtmp.run")).exists())
         QFile::remove(QString(op.userAppDir+"openlisemtmp.run"));
 
-    // delete the temp run file
-    //qDebug() << QString(op.LisemDir+"openlisemtmp.run")<< "deleted";
-
     stopAct->setChecked(false);
     runAct->setChecked(false);
     pauseAct->setChecked(false);

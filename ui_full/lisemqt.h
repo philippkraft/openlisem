@@ -121,11 +121,12 @@ public:
 
     bool darkLISEM;
     bool doBatchmode;
+    bool checkforpatch;
     QString batchRunname;
 
-    bool isNewVersionAvailable(QString &currentVersion, QString &latestVersion);
+    bool isNewVersionAvailable(QString &GitHubVersion);
     QString getLatestVersionFromGitHub();
-    void downloadPatch();
+    void downloadPatch(QString latestVersion);
     void CheckVersion();
 
     void initMapTree();
@@ -372,7 +373,7 @@ public slots:
     void shootMultipleScreens();
     void shootMScreen();
     void convertScreenshotsToVideo();
-    void aboutQT();
+    //void aboutQT();
     void aboutInfo();
     void resetAll();
     void setOutputScreen();
@@ -385,7 +386,6 @@ public slots:
     QString findValidDir(QString path, bool up);
     //void on_toolButton_MapDir_clicked();
     void setMapDir();
-    void setWorkDir();
     //void on_toolButton_ResultDir_clicked();
     void setResultDir();
 
@@ -567,6 +567,8 @@ private slots:
 
     //void loadImage();
     void on_E_InfiltrationMethod_currentIndexChanged(int index);
+
+    void on_toolButton_clicked();
 
 private:
     QNetworkAccessManager *manager;

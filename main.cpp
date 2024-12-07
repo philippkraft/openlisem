@@ -65,9 +65,6 @@ int main(int argc, char *argv[])
     if (noInterface) {
         QCoreApplication app(argc, argv); // Use QCoreApplication for headless mode
 
-        op.LisemDir = QCoreApplication::applicationDirPath() + "/";
-        // exe path, used for ini file
-
         QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
         QFileInfo appDataLocalFileInfo(appDataLocalPath);
         QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
@@ -101,9 +98,6 @@ int main(int argc, char *argv[])
         QApplication app(argc, argv); // Use QApplication for GUI mode
         app.setWindowIcon(QIcon(":/openlisemN.ico"));
         app.setStyle(QStyleFactory::create("Fusion"));
-
-        op.LisemDir = QCoreApplication::applicationDirPath() + "/";
-        // exe path, used for ini file
 
         QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
         QFileInfo appDataLocalFileInfo(appDataLocalPath);

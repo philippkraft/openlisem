@@ -35,15 +35,15 @@
 
 //-------------------------------------------------------------------------------------
 
-void lisemqt::downloadPatch()
+void lisemqt::downloadPatch(QString latestVersion)
 {
-    QString patchName = QString("openLisemSetup_%1.exe").arg(VERSIONNR);
+    QString patchName = QString("openLisemSetup_%1.exe").arg(latestVersion);
     QString urltxt = QString("https://github.com/vjetten/openlisem/releases/download/lisem_bin/%1?raw=true").arg(patchName);
 
     // Ask the user if they want to download and install the patch
     QMessageBox::StandardButton replyButton;
     replyButton = QMessageBox::question(nullptr, "New LISEM version",
-                                        QString("A newer LISEM version is available (%1).\nDo you want to download and install the new version?").arg(VERSIONNR),
+                                        QString("A newer LISEM version is available (%1).\nDo you want to download and install the new version?").arg(latestVersion),
                                         QMessageBox::Yes | QMessageBox::No);
 
     if (replyButton == QMessageBox::Yes) {
@@ -130,28 +130,34 @@ void lisemqt::downloadPatch()
 
         // Show the progress dialog
         progressDialog->show();
+    } else {
+        replyButton = QMessageBox::question(nullptr, "New LISEM version",
+                                            QString("Do you want to continue checking for new versions?\nYou can activate this again in the Advanced Options."),
+                                            QMessageBox::Yes | QMessageBox::No);
+        checkforpatch = replyButton == QMessageBox::Yes;
     }
 }
 
 //-------------------------------------------------------------------------------------
-bool lisemqt::isNewVersionAvailable(QString &currentVersion, QString &latestVersion)
+bool lisemqt::isNewVersionAvailable(QString &GitHubVersion)
 {
     // Assuming version strings are in the format "major.minor.patch"
-    QStringList currentParts = currentVersion.split(".");
-    QStringList latestParts = latestVersion.split(".");
+    QStringList currentParts = QString(VERSIONNR).split(".");//currentVersion.split(".");
+    QStringList latestParts = GitHubVersion.split(".");
 
     for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
         int currentPart = currentParts.at(i).toInt();
         int latestPart = latestParts.at(i).toInt();
 
-        if (currentPart > latestPart) {
+        if (currentPart < latestPart) {
             return true;
-        } else if (latestPart < currentPart) {
+        } else if (latestPart > currentPart) {
             return false;
         }
     }
 
-    return currentParts.size() > latestParts.size(); // does this work as default 4.8 versus 4.7.3
+    return currentParts.size() > latestParts.size();
+    // this means that 7.4.4.1 wins from 7.4.4 but 4.8 miust be seen as 4.8.0
 }
 //-------------------------------------------------------------------------------------
 QString lisemqt::getLatestVersionFromGitHub()
@@ -183,14 +189,11 @@ QString lisemqt::getLatestVersionFromGitHub()
 
 void lisemqt::CheckVersion()
 {
-    QString currentVersion = VERSIONNR;
     QString latestVersion = getLatestVersionFromGitHub();
 
-    qDebug() << currentVersion << latestVersion;
+    if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
 
-    if (!latestVersion.isEmpty() && isNewVersionAvailable(currentVersion, latestVersion)) {
-
-        downloadPatch();
+        downloadPatch(latestVersion);
 
     } else {
         if (latestVersion.isEmpty()) {

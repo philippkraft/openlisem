@@ -413,10 +413,6 @@ void lisemqt::showOutputData()
     }
 
     QString format;
-    // if(darkLISEM)
-    //     format = QString("<font color=#ffffaa>%2</font>");
-    // else
-    //     format= QString("<font color=#000000>%2</font>");
     format="%2";
 
     if (startplot) {

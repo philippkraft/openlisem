@@ -46,6 +46,55 @@ void lisemqt::doResetAll()
     E_runFileList->clear();
     resetAll();
 }
+//---------------------------------------------------------------------------
+void lisemqt::on_E_runFileList_currentIndexChanged(int)
+{
+    if (E_runFileList->count() == 0)
+        return;
+    if (E_runFileList->currentText() == "")
+        return;
+    CurrentRunFile = E_runFileList->currentIndex();
+    op.runfilename = E_runFileList->currentText();
+    //RunFileNames.at(CurrentRunFile);
+
+    GetRunfile();   // get the nrunfile and fill namelist
+
+    ParseInputData(); // fill interface with namelist data and fill mapList
+    // also update DEFmaps for map tree view in interface
+
+    initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
+    RunAllChecks(); // activate the maps in the tree parts in response to checks
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_MapDir_returnPressed()
+{
+    QFileInfo fin(E_MapDir->text());
+    if(!fin.exists())
+    {
+        E_MapDir->setText("");
+        QMessageBox::warning(this,"openLISEM",
+                             QString("Map directory does not exist"));
+    }
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_ResultDir_returnPressed()
+{
+    if (E_ResultDir->text().isEmpty())
+        return;
+    QFileInfo fin(E_ResultDir->text());
+    if(!fin.exists())
+    {
+        int ret =
+                QMessageBox::question(this, QString("openLISEM"),
+                                      QString("The directory \"%1\"does not exist.\n"
+                                              "Do you want to create it (apply)?")
+                                      .arg(fin.absoluteFilePath()),
+                                      QMessageBox::Apply |QMessageBox::Cancel,QMessageBox::Cancel);
+        if (ret == QMessageBox::Apply)
+            QDir(E_ResultDir->text()).mkpath(E_ResultDir->text());
+
+    }
+}
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetOptions_clicked()
 {
@@ -746,4 +795,10 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
     groupBox_SwatreOptions->setEnabled(index == 0);
     groupBox_RichardsOptions->setEnabled(index == 3);
     groupAdvRichards->setEnabled(index == 0 || index == 3);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_toolButton_clicked()
+{
+    checkforpatch = true;
+    CheckVersion();
 }

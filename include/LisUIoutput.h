@@ -122,7 +122,6 @@ struct output{
     bool SwitchCorrectMB_WH;
 
     QString runfilename;
-    QString LisemDir;
     QString userAppDir;
     QString format;
     QString timeStartRun;

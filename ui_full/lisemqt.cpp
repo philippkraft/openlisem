@@ -48,7 +48,6 @@ update of the runfile before running:
 
 #include "lisemqt.h"
 #include <iostream>
-//#include <string>
 
 output op;
 // declaration of variable structure between model and interface.
@@ -67,22 +66,13 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     showMaximized();
 
     darkLISEM = false;   
-    op.nrRunsDone = 0;
-
-    int ompt = omp_get_max_threads();
-    nrUserCores->setMaximum(ompt);//omp_get_max_threads());
-
-    helpbox = new QDialog();
-    helpbox->resize(qApp->primaryScreen()->size().height()*2/3,qApp->primaryScreen()->size().height()*2/3);
-    helpbox->setWindowTitle("option help");
-    helpLayout = new QHBoxLayout(helpbox);
-    helptxt = new QTextEdit();
-    helpLayout->addWidget(helptxt);
-
+    checkforpatch = true;
+    op.nrRunsDone = 0;    
     op.runfilename.clear();
     E_runFileList->clear();
 
-    CheckVersion();
+    int ompt = omp_get_max_threads();
+    nrUserCores->setMaximum(ompt);//omp_get_max_threads());
 
     //TODO: check all options and default values
     resetAll();
@@ -109,23 +99,21 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setupMapPlot();
     // set up the raster map drawing
 
-    Ui_lisemqtClass::statusBar->addWidget(progressBar, 1);
-    // put the progress bar into the statusbar
-   // this->statusBar->addPermanentWidget(progressBar);
+    if (!doBatch) {
+        GetStorePath();
+        // openlisem.ini file, contains runfile list als darkmode and fontsize and checkforpatch
+    }
+
+    if (checkforpatch)
+        CheckVersion();
 
     SetStyleUI();
     // do some style things
 
-    tabWidgetOptions->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
     lisMpeg = new lismpeg(this);
-
-    tabWidgetOptions->setCurrentIndex(0);
-    tabWidget_OutputMaps->setCurrentIndex(0);
 
     doBatchmode = doBatch; // save as global var in iface
     //batchRunname = runname;
-    //doCheckRainfall(true); // ???????? why here
     op.doBatchmode = doBatch;  //copy batchmode for inside run
 
     // make the model world once, this structure is always needed regardless of the area
@@ -157,14 +145,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
         runAct->setChecked(true);
         pauseAct->setChecked(false);
         runmodel();
-    }
-    else
-    {
-        GetStorePath();
-        // this gets the lisem.ini file and reads the run files, the first runfile
-        // triggers also loading the interface with all variable values
-        // if ini is empty nothing happens
-        //triggered in on_E_runFileList_currentIndexChanged(int)
     }
 }
 //--------------------------------------------------------------------
@@ -698,21 +678,6 @@ void lisemqt::setMapDir()
     }
 }
 //--------------------------------------------------------------------
-void lisemqt::setWorkDir()
-{
-    //    QString path;
-    //    QString pathin;
-
-    //    pathin = E_WorkDir;//findValidDir(E_WorkDir->text(), false);
-
-    //    path = QFileDialog::getExistingDirectory(this, QString("Select work directory"),
-    //                                             pathin,
-    //                                             QFileDialog::ShowDirsOnly
-    //                                             | QFileDialog::DontResolveSymlinks);
-    //    if(!path.isEmpty())
-    //        E_WorkDir = path;//->setText( path );
-}
-//--------------------------------------------------------------------
 void lisemqt::setResultDir()
 {
     QString path;
@@ -757,7 +722,6 @@ void lisemqt::savefileas()
                                                     op.runfilename,
                                                     QString("Text Files (*.run);;All Files (*)"),
                                                     &selectedFilter);
-qDebug() << fileName;
     if (!fileName.isEmpty()) {
         updateModelData();
         savefile(fileName);
@@ -870,41 +834,61 @@ void lisemqt::GetStorePath()
 
     if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
-    //   QString S = fff.readLine();
+
     while (!fff.atEnd())
     {
         QString  line = fff.readLine();
         if (line.contains('\n'))
             line.remove(line.size()-1,1);
-        //remove '/n'
+
         if (line.isEmpty())
             continue;
-        QFile file(line);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-            continue;
 
-        runfilelist << QString(line);
-        //E_runFileList->addItem(QString(line));
+        if (line.contains("dark=")) {
+            QStringList s = line.split("=");
+            darkLISEM = s[1].toInt() == 1;
+        } else {
+            if (line.contains("font=")) {
+                QStringList s = line.split("=");
+                genfontsize = s[1].toInt();
+            } else {
+                if (line.contains("patch=")) {
+                    QStringList s = line.split("=");
+                    checkforpatch = s[1].toInt() == 1;
+                } else {
+                    QFile file(line);
+                    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                        file.close();
+                        runfilelist << QString(line);
+                    }
+                    // if the file exists and can be opened add it to the runlist
+                }
+            }
+        }
     }
     fff.close();
 
     if (runfilelist.count() == 0)
         return;
 
-    if (!runfilelist[0].isEmpty())
-    {
-        QString S = runfilelist[0];//E_runFileList->currentText();
+//    if (!runfilelist[0].isEmpty())
+//    {
+        // QString S = runfilelist[0];
 
-        QFileInfo fi(S);
-        QDir dir = fi.absoluteDir();
-        if (dir.exists())
-        {
-            currentDir = dir.absolutePath();
-            dir.setPath(S);
-        }
-    }
+        // QFileInfo fi(S);
+        // QDir dir = fi.absoluteDir();
+        // if (dir.exists()) {
+        //     currentDir = dir.absolutePath();
+        //     dir.setPath(S);
+        // }
+//    }
     E_runFileList->addItems(runfilelist);
-
+    op.runfilename = runfilelist[0];
+    E_runFileList->setCurrentIndex(0);
+    //GetRunfile();     // get the nrunfile and fill namelist
+    //ParseInputData(); // fill interface with namelist data and fill mapList
+    //initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
+    //RunAllChecks();   // activate the maps in the tree parts in response to checks
 }
 //---------------------------------------------------------------------------
 void lisemqt::StorePath()
@@ -918,6 +902,10 @@ void lisemqt::StorePath()
 
     QTextStream ts( &fff );
     //  ts << op.runfilename << "\n";// << endl;
+    // add these here because general interface
+    ts << "dark=" <<  (darkLISEM ? 1 : 0) << "\n";
+    ts << "font=" << genfontsize << "\n";
+    ts << "patch=" << (checkforpatch ? 1 : 0) << "\n";
 
     for (int i = 0; i < E_runFileList->count(); i++)
         ts << E_runFileList->itemText(i) << "\n";
@@ -925,61 +913,6 @@ void lisemqt::StorePath()
     fff.close();
 }
 
-//---------------------------------------------------------------------------
-void lisemqt::on_E_runFileList_currentIndexChanged(int)
-{
-    if (E_runFileList->count() == 0)
-        return;
-    if (E_runFileList->currentText() == "")
-        return;
-    CurrentRunFile = E_runFileList->currentIndex();
-    op.runfilename = E_runFileList->currentText();
-    //RunFileNames.at(CurrentRunFile);
-
-    GetRunfile();   // get the nrunfile and fill namelist
-
-    ParseInputData(); // fill interface with namelist data and fill mapList
-    // also update DEFmaps for map tree view in interface
-
-    initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
-    RunAllChecks(); // activate the maps in the tree parts in response to checks
-}
-//--------------------------------------------------------------------
-void lisemqt::on_E_MapDir_returnPressed()
-{
-    QFileInfo fin(E_MapDir->text());
-    if(!fin.exists())
-    {
-        E_MapDir->setText("");
-        QMessageBox::warning(this,"openLISEM",
-                             QString("Map directory does not exist"));
-    }
-}
-//--------------------------------------------------------------------
-void lisemqt::on_E_ResultDir_returnPressed()
-{
-    if (E_ResultDir->text().isEmpty())
-        return;
-    QFileInfo fin(E_ResultDir->text());
-    if(!fin.exists())
-    {
-        int ret =
-                QMessageBox::question(this, QString("openLISEM"),
-                                      QString("The directory \"%1\"does not exist.\n"
-                                              "Do you want to create it (apply)?")
-                                      .arg(fin.absoluteFilePath()),
-                                      QMessageBox::Apply |QMessageBox::Cancel,QMessageBox::Cancel);
-        if (ret == QMessageBox::Apply)
-            QDir(E_ResultDir->text()).mkpath(E_ResultDir->text());
-
-    }
-}
-
-//--------------------------------------------------------------------
-void lisemqt::aboutQT()
-{
-    QMessageBox::aboutQt ( this, "openLISEM" );
-}
 //--------------------------------------------------------------------
 void lisemqt::aboutInfo()
 {
@@ -1276,10 +1209,10 @@ void lisemqt::resetAll()
     checkBox_OutSurfStor->setChecked(false);
     //checkBox_OutChanVol->setChecked(false);
     checkBox_OutTiledrain->setChecked(false);
-   // checkBox_OutHmx->setChecked(false);
-   // checkBox_OutQf->setChecked(false);
-   // checkBox_OutVf->setChecked(false);
-    //checkBox_OutHmxWH->setChecked(false);
+    // checkBox_OutHmx->setChecked(false);
+    // checkBox_OutQf->setChecked(false);
+    // checkBox_OutVf->setChecked(false);
+    // checkBox_OutHmxWH->setChecked(false);
 
     printinterval->setValue(1);
 
@@ -1295,20 +1228,17 @@ void lisemqt::resetAll()
 
     resetTabInfiltration();
 
-    //flow
     resetTabFlow();
 
-    //erosion
     resetTabErosion();
 
-    //calibration
+    resetTabInfra();
+
     resetTabCalibration();
 
-    // advanced hidden options
     resetTabAdvanced();
 
     tabWidget->setCurrentIndex(0);
- //   tabWidget_out->setCurrentIndex(1);
     tabWidget_out->setCurrentIndex(0);
 
     checkBoxComboMaps->setEnabled(true);
@@ -1352,7 +1282,7 @@ void lisemqt::resizeMap()
 {
       if (W && tabWidget_out->currentIndex() == 1)
             changeSize();
-
 }
+//---------------------------------------------------------------
 
 
