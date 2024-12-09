@@ -165,7 +165,7 @@ QString lisemqt::getLatestVersionFromGitHub()
 {
     QEventLoop loop;
     manager = new QNetworkAccessManager();
-    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/dev/include/version.h")));
+    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/main_C/include/version.h")));
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
@@ -213,26 +213,6 @@ void lisemqt::CheckVersion()
     }
 }
 
-
-// void lisemqt::CheckVersion()
-// {
-//     QString latestVersion = getLatestVersionFromGitHub();
-
-//     if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
-
-//         downloadPatch(latestVersion);
-
-//     } else {
-//         if (latestVersion.isEmpty()) {
-//             // Handle offline scenario
-//             //qDebug() << "Cannot check updates online.";
-//         } else {
-//             //msg.setText("Up to Date: \nYou are using the latest version (" + currentVersion + ").");
-//             //QTimer::singleShot(3000, &msg, &QMessageBox::accept);
-//             //msg.exec();
-//         }
-//     }
-// }
 
 
 
