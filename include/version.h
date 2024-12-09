@@ -37,7 +37,7 @@
 #define VERSION_H_
 
 
-#define VERSIONNR "7.4.5"
+#define VERSIONNR "7.4.4"
 #define VERSIONDATE "2024/12/07"
 
 
