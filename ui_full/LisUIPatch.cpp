@@ -165,7 +165,7 @@ QString lisemqt::getLatestVersionFromGitHub()
 {
     QEventLoop loop;
     manager = new QNetworkAccessManager();
-    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/dev/ReleaseVersion.txt")));
+    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/main_C/ReleaseVersion.txt")));
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
