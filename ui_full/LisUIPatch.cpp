@@ -165,7 +165,7 @@ QString lisemqt::getLatestVersionFromGitHub()
 {
     QEventLoop loop;
     manager = new QNetworkAccessManager();
-    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/main_C/include/version.h")));
+    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl("https://raw.githubusercontent.com/vjetten/openlisem/dev/ReleaseVersion.txt")));
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
@@ -173,7 +173,7 @@ QString lisemqt::getLatestVersionFromGitHub()
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray response = reply->readAll();
         QString content(response);
-        QRegularExpression re(R"#(#define VERSIONNR "([^"]+)")#");
+        QRegularExpression re(R"#(VERSIONNR "([^"]+)")#");
         QRegularExpressionMatch match = re.match(content);
         if (match.hasMatch()) {
             latestVersion = match.captured(1);
