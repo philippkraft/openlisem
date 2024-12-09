@@ -28,6 +28,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QSslSocket>
+#include <QSysInfo>
 
 
 // NOTE: on windows for a working version, openssl must be installed in msys. Then the file
@@ -193,7 +194,12 @@ void lisemqt::CheckVersion()
 
     if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
 
+#ifdef Q_OS_WIN
         downloadPatch(latestVersion);
+#elif defined(Q_OS_LINUX)
+        QMessageBox::information(nullptr, "Update Available", "A new version is available. "
+                                                              "Please download it manually from the GitHub repository.");
+#endif
 
     } else {
         if (latestVersion.isEmpty()) {
@@ -206,6 +212,27 @@ void lisemqt::CheckVersion()
         }
     }
 }
+
+
+// void lisemqt::CheckVersion()
+// {
+//     QString latestVersion = getLatestVersionFromGitHub();
+
+//     if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
+
+//         downloadPatch(latestVersion);
+
+//     } else {
+//         if (latestVersion.isEmpty()) {
+//             // Handle offline scenario
+//             //qDebug() << "Cannot check updates online.";
+//         } else {
+//             //msg.setText("Up to Date: \nYou are using the latest version (" + currentVersion + ").");
+//             //QTimer::singleShot(3000, &msg, &QMessageBox::accept);
+//             //msg.exec();
+//         }
+//     }
+// }
 
 
 
