@@ -624,6 +624,7 @@ void TWorld::InitSoilInput(void)
                 Psi1->Drc = std::max(Psi1->Drc, psi1ae->Drc);
             }}
         }
+        calcValue(*Psi1, psiCalibration, MUL);
         calcValue(*Ksat1, ksatCalibration, MUL);
             // apply calibration after all empirical relations
 
@@ -673,10 +674,7 @@ void TWorld::InitSoilInput(void)
                 ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
                 ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
             }}
-// report(*ThetaR2,"tr2.map");
-// report(*ThetaFC2,"tfc2.map");
-// report(*ThetaR1,"tr1.map");
-// report(*ThetaFC1,"tfc1.map");
+
             // wetting front psi
             if (SwitchPsiUser) {
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
@@ -691,6 +689,7 @@ void TWorld::InitSoilInput(void)
                     Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
                 }}
             }
+            calcValue(*Psi2, psiCalibration, MUL);
             calcValue(*Ksat2, ksat2Calibration, MUL);
         }
 
@@ -754,6 +753,7 @@ void TWorld::InitSoilInput(void)
                     Psi3->Drc = std::max(Psi2->Drc,psi3ae->Drc);
                 }}
             }
+            calcValue(*Psi3, psiCalibration, MUL);
             calcValue(*Ksat3, ksat3Calibration, MUL);
         }
 
@@ -2553,23 +2553,20 @@ void TWorld::InitTiledrains(void)
         if (SwitchIncludeStormDrains && SwitchStormDrainCircular) {
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             FOR_ROW_COL_MV_TILE {
-                double area = (TileDiameter->Drc*0.5)*(TileDiameter->Drc*0.5)*PI;//TileDiameter->Drc*0.25 * PI;
-                area  *= 2; // two sides of the street
-                TileArea->Drc = area;//2.0*sqrt(Area/PI);//area * 4.0/PI;  A = pi r^2
+                double area = (TileDiameter->Drc*0.5)*(TileDiameter->Drc*0.5)*PI;// PI r^2
+                TileArea->Drc = area * 2; // two sides of the street
             }
             CalcMAXDischCircular();
         }
         if (SwitchIncludeStormDrains && !SwitchStormDrainCircular) {
             //rectangular drainage
             FOR_ROW_COL_MV_TILE {
-                TileArea->Drc = TileWidth->Drc*TileHeight->Drc;
-                TileArea->Drc *= 2; // two sides of the street
+                TileArea->Drc = 2 * TileWidth->Drc*TileHeight->Drc;
+                // two sides of the street
             }
             CalcMAXDischRectangular();
         }
     }
-  //  report(*TileMaxQ,"tilemq.map");
-  //  report(*TileMaxAlpha,"tilema.map");
 }
 //---------------------------------------------------------------------------
 // Make a shaded relief map from the DEM for map display

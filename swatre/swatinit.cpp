@@ -82,7 +82,8 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         // get inithead information
 
         FOR_ROW_COL_MV_L {
-            s->pixel[i_].h.append(inith->Drc);//*psiCalibration;
+            double ih = inith->Drc*psiCalibration;
+            s->pixel[i_].h.append(ih);
 
             // find depth of tilenode
             if (SwitchIncludeTile) {

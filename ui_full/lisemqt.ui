@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>9</number>
+                  <number>8</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -8492,7 +8492,7 @@
                          <string notr="true"/>
                         </property>
                         <property name="text">
-                         <string>Psi wetting front</string>
+                         <string>Matrix potential (wetting front G&amp;A or SWATRE inithead maps)</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>

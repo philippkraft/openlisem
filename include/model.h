@@ -982,6 +982,7 @@ public:
     void ToChannel();//int r, int c);
     void ToFlood();
     void ToTiledrain();
+    void ToTiledrainAll();
     // <= OF
 
     // => 1D flow on network
