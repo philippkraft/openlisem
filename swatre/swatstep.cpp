@@ -213,7 +213,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         // average K for 1st to n-1 node, top node is done below
         // original swatre artithmetric mean
        for(int j = 1; j < nN; j++){ kavg[j] = (k[j]+k[j-1])/2.0;}
-       //for(int j = 1; j < nN; j++){ kavg[j] = sqrt(k[j]*k[j-1]);}
+     //  for(int j = 1; j < nN; j++){ kavg[j] = sqrt(k[j]*k[j-1]);}
         //--- boundary conditions ---
 
         //----- TOP -----
@@ -231,6 +231,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         // 1st check flux against max flux
         double Ksat = FindValue(0, p->horizon[0], H_COL, K_COL)*p->KsatCal[0]*(1.0-impfrac);
         kavg[0]= sqrt( Ksat * k[0]);
+       // kavg[0]= ( Ksat+ k[0])/2.0;
         // max possible always geometric mean
 
         // geometric avg of ksat and k[0] => is used for max possible

@@ -481,7 +481,7 @@ void lisemqt::showOutputData()
     }
 
     label_qpeaktime->setText(format.arg(QString::number(op.OutletQpeaktime.at(j),'f',2)));
-    if (op.OutletQtot.at(j) < 10000)
+    if (op.OutletQtot.at(j) < 500000)
         label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'f',2)));
     else
         label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'e',3)));
