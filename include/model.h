@@ -1160,7 +1160,6 @@ public:
     double TheNode(double head,const  HORIZON *hor);
     double HcoNode(double head,const HORIZON *hor);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
-    double FindNode(double head,const  HORIZON *hor, int column);
     double FindValue(double value,const  HORIZON *hor, int colv, int col);
     // <= SWATRE
 
