@@ -1873,9 +1873,6 @@ void TWorld::IntializeData(void)
     if (InfilMethod == INFIL_SWATRE) {
         thetaTop = NewMap(0);
 
-        precision = 5.0;
-        // note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
-
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
         SwatreSoilModel = InitSwatre(ProfileID);//, initheadName, TileDepth, swatreDT);
         if (SwatreSoilModel == nullptr)

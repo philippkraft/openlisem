@@ -1135,7 +1135,6 @@ public:
     PROFILE **profileList = nullptr;
     HORIZON **horizonList = nullptr;
     ZONE *zone = nullptr;
-    double precision;
     int tnode; //VJ 110122 node nr in profile with tile drains
     SOIL_MODEL *InitSwatre(cTMap *profileMap);//, QString initHeadMaps, cTMap *tiledepthMap, double dtMin);
     void CloseSwatre(SOIL_MODEL *s);
@@ -1155,8 +1154,7 @@ public:
     void HeadCalc(double *h, const PROFILE *p , bool *isPonded,bool fltsat,
                   const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
                   double dt, double pond, double qtop, double qbot);
-    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes,
-                        double precParam, double dtMin, double dtMax);
+    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin);
     void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
     double HNode(double theta,const  HORIZON *hor);
     double TheNode(double head,const  HORIZON *hor);

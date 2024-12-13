@@ -69,6 +69,7 @@ double TWorld::FindValue(double value, const  HORIZON *hor, int colv, int col)
     }
 }
 //---------------------------------------------- or ------------------------------------
+// NOT USED
 // interpolate for h between two values of theta or vK
 double TWorld::FindNode(double head, const  HORIZON *hor, int column)
 {
@@ -135,7 +136,7 @@ double TWorld::DmcNode(double head, const  HORIZON *hor, bool on_dmch)
         return l->hydro[DMCC_COL].last();
 
     // DMCC depends on DMCH, original swatre
-    //if (on_dmch) {
+    if (on_dmch) {
         auto it = std::lower_bound(l->hydro[DMCH_COL].begin(), l->hydro[DMCH_COL].end(), head);
         if (it == l->hydro[DMCH_COL].begin()) {
             return(l->hydro[DMCC_COL][0]);
@@ -153,7 +154,7 @@ double TWorld::DmcNode(double head, const  HORIZON *hor, bool on_dmch)
 
             return (dmccl + (head-dmchl)*(dmccu-dmccl)/(dmchu-dmchl));
         }
-        /*
+
     } else {
         // DMCC depends directly on H
         auto it = std::lower_bound(l->hydro[H_COL].begin(), l->hydro[H_COL].end(), head);
@@ -174,8 +175,7 @@ double TWorld::DmcNode(double head, const  HORIZON *hor, bool on_dmch)
 
             return (lC+f*(uC-lC));
         }
-    }
-    */
+    }   
 }
 //-----------------------------------------------------------------------------------
 /// hydraulic conductivity from head
@@ -206,7 +206,7 @@ double TWorld::HcoNode(double head,const HORIZON *hor)
 }
 //-----------------------------------------------------------------------------------
 /// theta from head
-//OBSOLETE
+/// OBSOLETE
 double TWorld::TheNode(
         double head,           // current head value of this node
         const  HORIZON *hor)   // parameters of horizon this node belongs to

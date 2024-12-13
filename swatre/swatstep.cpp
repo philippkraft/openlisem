@@ -138,12 +138,12 @@ double  TWorld::NewTimeStep(
         const double *hLast,
         const double *h,
         int    		 nrNodes,
-        double 		 precParam,
-        double 		 dtMin,
-        double 		 dtMax)
+        double 		 dtMin)
 {
+    double precParam = 5.0;
+    // note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
     int i;
-    double dt = _dt;//dtMax;
+    double dt = _dt;
     double accur1 = 0.3 - 0.02 * precParam;
     double accur2 = 0.03 - 0.002 * precParam;
 
@@ -166,7 +166,7 @@ double  TWorld::NewTimeStep(
 
 void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction)
 {
-    NODE_ARRAY theta, thetaPrev, hPrev, dimoca, kavg, k;
+    NODE_ARRAY dimoca, kavg, k, thetaPrev, hPrev, theta;
     const PROFILE *p = pixel->profile;
 
     int nN = p->zone->nrNodes;//NrNodes(p);
@@ -180,6 +180,10 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
     int tnode = pixel->tilenode;
     double impfrac = pixel->impfrac;
 
+    // QVector <double> h;
+    // QVector <double> hPrev;
+    // QVector <double> theta;
+    // QVector <double> thetaPrev;
     NODE_ARRAY h;
     for (int i = 0; i < nN; i++) {
         h[i] = pixel->h[i];
@@ -195,8 +199,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         for (int j = 0; j < nN; j++) {
             k[j] = FindValue(h[j], p->horizon[j], H_COL, K_COL)*p->KsatCal[j];
             // K in cm/sec from h
-            //dimoca[j] = FindValue(h[j], p->horizon[j], DMCH_COL,DMCC_COL);
-            dimoca[j] = DmcNode(h[j], p->horizon[j], true);
+            dimoca[j] = DmcNode(h[j], p->horizon[j],  true); // true is more detailed method, false is DMCH directly from H
             // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
             theta[j] = FindValue(h[j], p->horizon[j], H_COL, THETA_COL);
             // moisture content from H
@@ -293,6 +296,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
         std::memcpy(hPrev, h, nN * sizeof(double));
         std::memcpy(thetaPrev, theta, nN * sizeof(double));
+        // hPrev = h;
+        // thetaPrev = theta;
 
         //HeadCalc(h, p , &isPonded, fltsat,thetaPrev, hPrev, kavg, dimoca,dt, pond, qtop, qbot);
         //moved in the code
@@ -415,18 +420,17 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
         elapsedTime += dt;
         /* estimate new dt within lisemtimestep */
-        dt = NewTimeStep(dt, hPrev, h, nN, precision, s->minDt, _dt);
+        dt = NewTimeStep(dt, hPrev, h, nN, s->minDt);
 
         if (elapsedTime+dt+TIME_EPS >= _dt)
             dt = _dt - elapsedTime;
 
     } // elapsedTime < lisemTimeStep
 
-    // put new h back into h
+    //put new h back into h
     for (int i = 0; i < nN; i++) {
         pixel->h[i] = h[i];
     }
-
 
     // these variables can ll be direcvtly saved to the maps, inflated pixel structure
     pixel->wh = pond;
@@ -434,11 +438,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
     pixel->infil = influx;
     pixel->percolation = -percolation; // in cm
     pixel->theta = Theta;
-
-    pixel->h.clear();
-    for (int i = 0; i < nN; i++) {
-        pixel->h.append(h[i]);
-    }
 
 }
 //--------------------------------------------------------------------------------
