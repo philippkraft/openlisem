@@ -52,7 +52,7 @@ void TWorld::ToTiledrainAll()
         FOR_ROW_COL_MV_TILEL {
             //double fractiontotile = std::max(1.0, 2*0.09/CHAdjDX->Drc) * RoadWidthDX->Drc/_dx;
             //or:
-            double fractiontotile  = std::min(1.0, _dt*V->Drc/(2*0.09/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;;
+            double fractiontotile  = std::min(1.0, _dt*V->Drc/(0.09/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;;
             // 30x30cm = 0.09 m2, 2 is both sides of the street
             //Street inlet is assumed to be a hole in the street
             // fraction based on surface, simpel! or as velocity

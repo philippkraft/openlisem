@@ -139,16 +139,16 @@ void TWorld::TotalsHydro(void)
         if (SwitchIncludeChannel && SwitchChannelInfil) {
             InfilTot += MapTotal(*ChannelInfilVol); //m3
         }
-
-        InfilKWTot += MapTotal(*InfilVolKinWave); // not really used, available for output when needed
         InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
         // infiltration mm and m3
+        // OBSOLETE
+        //InfilKWTot += MapTotal(*InfilVolKinWave);
 
         // flood infil
         // used for reporting only
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            InfilVolCum->Drc += InfilVol->Drc + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
+            InfilVolCum->Drc += InfilVol->Drc;// + InfilVolKinWave->Drc;// + InfilVolFlood->Drc;
             if (SwitchIncludeChannel && SwitchChannelInfil)
                 InfilVolCum->Drc += ChannelInfilVol->Drc;
 

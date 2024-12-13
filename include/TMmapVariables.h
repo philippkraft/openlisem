@@ -125,7 +125,7 @@ cTMap
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]
 *Qsoutput,                   //!< sediment outflow for screen/file output, sum of overland flow and channel [kg/s]
-*q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
+//*q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
 *R,                          //!< hydraulic radius overland flow [m]
 *N,                          //!< Manning's n
 *Norg,                          //!< Manning's n
@@ -239,7 +239,7 @@ cTMap
 *FFull,                      //!< map flagging when the soil is full
 *fact,                       //!< actual infiltration rate [m/s]
 //*fpot,                       //!< potential infiltration rate [m/s]
-*InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
+//*InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
 *InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 *ChannelInfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
 
@@ -314,6 +314,8 @@ cTMap
 
 //swatre
 *thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
+*OMcorr,
+*DensFact,
 *ProfileID,                  //!< SWATRE profile unit number map
 *ProfileIDCrust,             //!< SWATRE profile unit number map for crusted areas
 *ProfileIDCompact,           //!< SWATRE profile unit number map for compacted areas

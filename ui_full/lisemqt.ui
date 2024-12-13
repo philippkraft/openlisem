@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2180,7 +2180,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1014</width>
+                <width>1067</width>
                 <height>770</height>
                </rect>
               </property>
@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>8</number>
+                  <number>3</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4096,7 +4096,28 @@
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
-                         <item row="5" column="0">
+                         <item row="5" column="0" colspan="2">
+                          <widget class="QCheckBox" name="checkInfilCrust">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Top layer crusts (needs ksatcrst.map and porecrst.map)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="0">
                           <widget class="QSpinBox" name="spinSoilLayers">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4126,8 +4147,8 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="5" column="1">
-                          <widget class="QLabel" name="label_153">
+                         <item row="1" column="0">
+                          <widget class="QCheckBox" name="checkInfilOMcorrection">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -4137,49 +4158,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Nr. of input soil layers (1,2 or 3) for Green and Ampt or Richards FE</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="4" column="0" colspan="2">
-                          <widget class="QCheckBox" name="checkInfilCrust">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Top layer crusts (needs ksatcrst.map and porecrst.map)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="0" colspan="2">
-                          <widget class="QCheckBox" name="checkInfilCompact">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Top layer compacted areas (needs ksatcomp.map and porecomp.map)</string>
+                            <string>Apply Org.Mat. correction to Ksat and Pore (needs omcorr.map)</string>
                            </property>
                           </widget>
                          </item>
@@ -4201,6 +4180,57 @@
                            </property>
                            <property name="text">
                             <string>Impermeable lower soil boundary (1) or free drainage (0)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="1">
+                          <widget class="QLabel" name="label_153">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Nr. of input soil layers (1,2 or 3) for Green and Ampt or Richards FE</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="4" column="0" colspan="2">
+                          <widget class="QCheckBox" name="checkInfilCompact">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Top layer compacted areas (needs ksatcomp.map and porecomp.map)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QCheckBox" name="checkInfilDensfactor">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Apply desity factor correction to Ksat and Pore (needs densfact.map)</string>
                            </property>
                           </widget>
                          </item>

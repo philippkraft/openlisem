@@ -258,6 +258,8 @@ void TWorld::ParseRunfileData(void)
 
         //infiltration
         if (p1.compare("Include Infiltration")==0)              SwitchInfiltration = iii == 1;
+        if (p1.compare("Use OM correction")==0)                 SwitchOMCorrection = iii == 1;
+        if (p1.compare("Use Density correction")==0)            SwitchDensCorrection = iii == 1;
         if (p1.compare("Include compacted")==0)                 SwitchInfilCompact = iii == 1;
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;

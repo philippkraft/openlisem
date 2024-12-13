@@ -180,9 +180,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
     int tnode = pixel->tilenode;
     double impfrac = pixel->impfrac;
 
-    // if (SHOWDEBUG)
-    //     qDebug() << "compute for pixel" << nN << pond << p->profileId;
-
     NODE_ARRAY h;
     for (int i = 0; i < nN; i++) {
         h[i] = pixel->h[i];
@@ -205,12 +202,28 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
             // moisture content from H
         }
 
+        // poer pixel correction of Ks and Pore! so for h > -1 cm
+        if (SwitchOMCorrection) {
+            int j = 0;
+            while (p->zone->endComp[j] <= 30 && h[j] > -1.0) {
+                k[j] = pixel->corrKsOA*k[j]+pixel->corrKsOB;
+                j++;
+            }
+        }
+        if (SwitchDensCorrection) {
+            int j = 0;
+            while (p->zone->endComp[j] <= 30 && h[j] > -1.0) {
+                k[j] = pixel->corrKsDA*k[j]+pixel->corrKsDB;
+                j++;
+            }
+        }
+
         k[0] *= (1.0-impfrac);
         // adjust k[0] for roads and houses, impermeable fraction
 
         Theta = (theta[0]+theta[1])/2;
+        // average K for 1st to n-1 node, top node is done below\
 
-        // average K for 1st to n-1 node, top node is done below
         // original swatre artithmetric mean
        for(int j = 1; j < nN; j++){ kavg[j] = (k[j]+k[j-1])/2.0;}
        //for(int j = 1; j < nN; j++){ kavg[j] = sqrt(k[j]*k[j-1]);}
@@ -230,6 +243,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
         // 1st check flux against max flux
         double Ksat = FindValue(0, p->horizon[0], H_COL, K_COL)*p->KsatCal[0]*(1.0-impfrac);
+        if (SwitchOMCorrection) {
+            Ksat = pixel->corrKsOA*Ksat+pixel->corrKsOB;
+        }
+        if (SwitchDensCorrection) {
+            Ksat = pixel->corrKsDA*Ksat+pixel->corrKsDB;
+        }
+
         kavg[0]= sqrt( Ksat * k[0]);
         // max possible always geometric mean
 
@@ -363,16 +383,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
           //  qtop = -kavg[0]*(pond - h[0]) / disnod(p)[0] - kavg[0];
         //qtop = std::min(0.0,qtop);
 
-        // adjust top flux
-        // if (SHOWDEBUG) {
-        //     QList <double> s;
-        //     for (int j=0; j < nN; j++)
-        //         s << h[j];
-
-        //     qDebug()<< dt << qtop << "h" << s;
-        //     //qDebug()<< qtop << "th" << theta[0] << theta[2] << theta[3] << theta[4] << theta[5] << theta[6] << theta[7] << theta[8] << theta[9];
-        // }
-
         pond += qtop*dt;       // decrease pond with top flux
         if (pond < POND_EPS)
             pond = 0;
@@ -412,19 +422,17 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
 
     } // elapsedTime < lisemTimeStep
 
-    //TODO:
-    /*
-    if (pixel->dumpH>0)
-       printf("Cell %4d : wh after infil. %8.5f (mm) infil. %8.5f (mm)\n"\
-       ,pixel->dumpH,pond*10,-influx*10);
-   //   if (pixel->dumpHid == 1)
-   //      qDebug() << pond << influx << h[0] << h[1] << h[2] << h[3] << h[4] << h[5] << h[6] << h[7] << h[8] << h[9];
-   */
+    // put new h back into h
+    for (int i = 0; i < nN; i++) {
+        pixel->h[i] = h[i];
+    }
 
+
+    // these variables can ll be direcvtly saved to the maps, inflated pixel structure
     pixel->wh = pond;
     pixel->tiledrain = drainout;
     pixel->infil = influx;
-    pixel->percolation = -percolation;
+    pixel->percolation = -percolation; // in cm
     pixel->theta = Theta;
 
     pixel->h.clear();
@@ -453,10 +461,11 @@ void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap 
     ComputeForPixel(&s->pixel[i_], s, drainfraction);
     // estimate new h and theta at the end of dt
 
+    // ?????? this only makes the output name
     if(SwitchDumphead) {
         if(s->pixel[i_].dumpHid > 0) {
             for (int i = 0; i < zone->nrNodes; i++) {
-                QString name = QString("SwH%1").arg(runstep,2, 10, QLatin1Char('0'));
+                QString name = QString("SWH%1").arg(runstep,2, 10, QLatin1Char('0'));
                 dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
                 name=name+dig;
                 name.insert(8, ".");
@@ -466,7 +475,8 @@ void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap 
     }
 
     _WH->Drc = s->pixel[i_].wh*0.01; // cm to m
-    _theta->Drc = s->pixel[i_].theta;
+    _theta->Drc = s->pixel[i_].theta; // for pesticides ?
+    Perc->Drc = s->pixel[i_].percolation*0.01;
 
     if (SwitchIncludeTile)
         _drain->Drc = s->pixel[i_].tiledrain*0.01;  // in m

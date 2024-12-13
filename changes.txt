@@ -1,7 +1,10 @@
 241207 - v7.4.5
-- Bug fix: Update system, wrong check
-- interface: make update optional and reacitivate in advanced options
-- save fontsize and dark lisem in openlisem.ini
+- BUG FIX: Update system, wrong check
+- BUG FIX: Swatre compacted profiles incorrectly named
+- BUG FIX: check if compacted or crusted porosity is smaller than ninitial moisture
+- Added options of dealing with Org.Mat. differences and Density Factor in infiltration
+- Interface: make LISEM update optional and reacitivate in advanced options
+- Save fontsize and dark lisem in openlisem.ini
 
 241203 - v7.4.4
 - Update system: lisem will check online in github if a newer version exists

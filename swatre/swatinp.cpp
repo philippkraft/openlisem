@@ -62,9 +62,6 @@ profile node setup:
 
 #define LIST_INC	10
 
-/// array of pointers to horizons, nullptr if not allocated
-//static HORIZON **horizonList = nullptr;
-//static int nrHorizonList=0, sizeHorizonList=0;
 
 //----------------------------------------------------------------------------------------------
 /// read and parse profile.inp
@@ -255,7 +252,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         h = ReadHorizonNew(SwatreTableDir, tableName);
 
         // copy horizon info to all nodes of this horizon
-        // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)
+        // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)       
         while (i < z->nrNodes && z->endComp[i] <= endHor ) {
             p->horizon[i] = h;
 

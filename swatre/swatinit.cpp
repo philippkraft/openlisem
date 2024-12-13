@@ -35,13 +35,12 @@ functions:
 
 //--------------------------------------------------------------------------------
 // make the 3d structure PIXEL_INFO, based on profile numbers in map
-// zone exists is done before
+// needs zone info which needs to be done before in readswatreinput
 SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 {
     SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
-    /* TODO check if this needs freeing when error */
-
-    // long nrCel = _nrCols*_nrRows;
+    // TODO check if this needs freeing when error
+    // why not new?
 
     s->minDt = swatreDT;
     s->pixel = new PIXEL_INFO[(long)nrCells];
@@ -56,6 +55,10 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         s->pixel[i].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)
         // first node ksat adujtedd with this for partial impermeability
         s->pixel[i].impfrac = 0;
+        s->pixel[i].corrKsOA = 1.0;
+        s->pixel[i].corrKsOB = 0.0;
+        s->pixel[i].corrKsDA = 1.0;
+        s->pixel[i].corrKsDB = 0.0;
     }
 
     // give each pixel a profile
@@ -67,6 +70,18 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         // profile = <= 0 now set to impermeable
         s->pixel[i_].impfrac = fractionImperm->Drc;
 
+        if (SwitchOMCorrection) {
+            s->pixel[i_].corrKsOA = -0.0065*(OMcorr->Drc*OMcorr->Drc) - 0.0415*OMcorr->Drc + 1.0001;
+            s->pixel[i_].corrKsOB = -2.6319*OMcorr->Drc + 0.0197;
+        }
+        if (SwitchDensCorrection) {
+            //A	-3.28	4.30
+            //B	-96.65	98.28
+            s->pixel[i_].corrKsDA =  -3.28*DensFact->Drc + 4.3;
+            s->pixel[i_].corrKsDB = -96.65*DensFact->Drc + 98.28;
+        }
+
+        // TODO: does not work yet!
         if(SwitchDumphead) {
             s->pixel[i_].dumpHid = SwatreOutput->Drc;
         } else
@@ -95,10 +110,9 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
                 }
             }
         }}
-
     }
 
-  // qDebug() << "DONE InitSwatre";
+   //qDebug() << "DONE InitSwatre";
     return(s);
 }
 //--------------------------------------------------------------------------------

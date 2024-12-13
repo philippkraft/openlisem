@@ -482,6 +482,8 @@ public:
         SwitchGeometric,
         SwitchTwoLayer,
         SwitchThreeLayer,
+        SwitchOMCorrection,
+        SwitchDensCorrection,
         //SwitchWaterRepellency,
         //SwitchInterceptionLAI,
         SwitchPsiUser,
