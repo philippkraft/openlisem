@@ -1,7 +1,7 @@
 /*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
-**  Copyright (C) 2024  Victor Jetten
-**  contact:
+**  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
+**  contact: v.g.jetten AD utwente DOT nl
 **
 **  This program is free software: you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License GPLv3 as published by
@@ -10,14 +10,14 @@
 **
 **  This program is distributed in the hope that it will be useful,
 **  but WITHOUT ANY WARRANTY; without even the implied warranty of
-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 **  GNU General Public License for more details.
 **
 **  You should have received a copy of the GNU General Public License
-**  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**  along with this program. If not, see <http://www.gnu.org/licenses/>.
 **
-**  Authors: Victor Jetten, Bastian van de Bout
-**  Developed in: MingW/Qt/
+**  Authors: Victor Jetten, Bastian van de Bout, Meindert Commelin
+**  Developed in: MingW/Qt/, GDAL, PCRaster
 **  website, information and code: https://github.com/vjetten/openlisem
 **
 *************************************************************************/
@@ -45,6 +45,55 @@ void lisemqt::doResetAll()
     op.runfilename.clear();
     E_runFileList->clear();
     resetAll();
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_E_runFileList_currentIndexChanged(int)
+{
+    if (E_runFileList->count() == 0)
+        return;
+    if (E_runFileList->currentText() == "")
+        return;
+    CurrentRunFile = E_runFileList->currentIndex();
+    op.runfilename = E_runFileList->currentText();
+    //RunFileNames.at(CurrentRunFile);
+
+    GetRunfile();   // get the nrunfile and fill namelist
+
+    ParseInputData(); // fill interface with namelist data and fill mapList
+    // also update DEFmaps for map tree view in interface
+
+    initMapTree();  // fill the tree strcuture on page 2 with DEFmaps
+    RunAllChecks(); // activate the maps in the tree parts in response to checks
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_MapDir_returnPressed()
+{
+    QFileInfo fin(E_MapDir->text());
+    if(!fin.exists())
+    {
+        E_MapDir->setText("");
+        QMessageBox::warning(this,"openLISEM",
+                             QString("Map directory does not exist"));
+    }
+}
+//--------------------------------------------------------------------
+void lisemqt::on_E_ResultDir_returnPressed()
+{
+    if (E_ResultDir->text().isEmpty())
+        return;
+    QFileInfo fin(E_ResultDir->text());
+    if(!fin.exists())
+    {
+        int ret =
+                QMessageBox::question(this, QString("openLISEM"),
+                                      QString("The directory \"%1\"does not exist.\n"
+                                              "Do you want to create it (apply)?")
+                                      .arg(fin.absoluteFilePath()),
+                                      QMessageBox::Apply |QMessageBox::Cancel,QMessageBox::Cancel);
+        if (ret == QMessageBox::Apply)
+            QDir(E_ResultDir->text()).mkpath(E_ResultDir->text());
+
+    }
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetOptions_clicked()
@@ -746,4 +795,10 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
     groupBox_SwatreOptions->setEnabled(index == 0);
     groupBox_RichardsOptions->setEnabled(index == 3);
     groupAdvRichards->setEnabled(index == 0 || index == 3);
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_toolButton_clicked()
+{
+    checkforpatch = true;
+    CheckVersion();
 }

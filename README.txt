@@ -13,6 +13,9 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, openmp, gdal and (minimal) pcraster
 
+241203 - v7.4.4
+- Update system: lisem will check online in github if a newer version exists
+
 241125 - v7.4.3
 - BUG FIX: Swatre did not account for impermeable surfaces
 - BUG FIX: sign error in Swatre causing invcerse effect of initial h
