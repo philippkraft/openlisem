@@ -74,14 +74,19 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         s->pixel[i_].impfrac = fractionImperm->Drc;
 
         if (SwitchOMCorrection) {
+            // these correction come from calculations based on Saxton and rawls
             s->pixel[i_].corrKsOA = -0.0065*(OMcorr->Drc*OMcorr->Drc) - 0.0415*OMcorr->Drc + 1.0001;
             s->pixel[i_].corrKsOB = -2.6319*OMcorr->Drc + 0.0197;
+            s->pixel[i_].corrPOA =  -0.1065*(OMcorr->Drc*OMcorr->Drc) - 0.0519*OMcorr->Drc + 0.9932;
+            s->pixel[i_].corrPOB = 0.0532*(OMcorr->Drc*OMcorr->Drc) + 0.008*OMcorr->Drc + 0.0037;
         }
         if (SwitchDensCorrection) {
             //A	-3.28	4.30
             //B	-96.65	98.28
             s->pixel[i_].corrKsDA =  -3.28*DensFact->Drc + 4.3;
             s->pixel[i_].corrKsDB = -96.65*DensFact->Drc + 98.28;
+            s->pixel[i_].corrPDA =  DensFact->Drc;
+            s->pixel[i_].corrPDB = -1.0 * DensFact->Drc + 1.0;
         }
 
         // TODO: does not work yet!
