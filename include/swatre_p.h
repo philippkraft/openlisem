@@ -98,6 +98,7 @@ typedef double NODE_ARRAY[MAX_NODES+3];
 typedef struct PIXEL_INFO {
     const PROFILE *profile;    /** profile this pixel belongs to */
     QVector <double> h;
+    //double *h;
     double wh;
     double infil;
     double impfrac;

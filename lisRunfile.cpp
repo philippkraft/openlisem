@@ -262,6 +262,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use Density correction")==0)            SwitchDensCorrection = iii == 1;
         if (p1.compare("Include compacted")==0)                 SwitchInfilCompact = iii == 1;
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
+        if (p1.compare("Use one matrix potential")==0)          SwitchHinit4all  =  iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
         if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
         if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
@@ -448,8 +449,8 @@ void TWorld::ParseRunfileData(void)
             if (p1.compare("Swatre profile file")==0) {
                 SwatreTableName = p;
             }
-
-            initheadName = getvaluename("inithead");
+            if (!SwitchHinit4all)
+                initheadName = getvaluename("inithead");
         }
 
         if (SwitchRainfall)

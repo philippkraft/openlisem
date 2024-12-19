@@ -34,12 +34,14 @@ functions:
 #include "model.h"
 
 //--------------------------------------------------------------------------------
-// make the 3d structure PIXEL_INFO, based on profile numbers in map
+// make the 3D structure PIXEL_INFO, based on profile numbers in map
 // needs zone info which needs to be done before in readswatreinput
+// read optional Hinit maps
 SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 {
     SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
-    // TODO check if this needs freeing when error
+
+    // TODO check if this needs freeing when error;
     // why not new?
 
     s->minDt = swatreDT;
@@ -62,6 +64,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
     }
 
     // give each pixel a profile
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
 
@@ -88,17 +91,24 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
             s->pixel[i_].dumpHid = 0;
     }}
 
+
     // fill the inithead structure of each pixel and set tiledrain depth if any
+    double hi = HinitValue*psiCalibration;
+
     for (int k = 0; k < zone->nrNodes; k++) {
-        QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
-        // make inithead.001 to .00n name
 
-        inith = ReadMap(LDD,fname);
+        if (!SwitchHinit4all) {
+            QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
+            // make inithead.001 to .00n name
+            inith = ReadMap(LDD,fname);
+        }
+
         // get inithead information
-
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            double ih = inith->Drc*psiCalibration;
-            s->pixel[i_].h.append(ih);
+            if (!SwitchHinit4all)
+                hi = inith->Drc*psiCalibration;
+            s->pixel[i_].h.append(hi);
 
             // find depth of tilenode
             if (SwitchIncludeTile) {

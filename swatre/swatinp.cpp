@@ -27,18 +27,11 @@
   \brief SWATRE: initialize and read profile data
 
   functions:
-- void TWorld::InitializeProfile( void )
 - void TWorld::ReadSwatreInputNew(void) \n
 - ZONE * TWorld::ReadNodeDefinitionNew(void) \n
 - PROFILE * TWorld::ReadProfileDefinitionNew(int pos,ZONE *z) \n
-- HORIZON * TWorld::ReadHorizon(const char *tablePath, const char *tableName) \n
+- HORIZON * TWorld::ReadHorizonNew(const char *tablePath, const char *tableName) \n
 - void  TWorld::FreeSwatreInfo(void) \n
-
-- obsolete !!!!!!!!:
-- int TWorld::ReadSwatreInput(QString fileName, QString tablePath) \n
-- ZONE * TWorld::ReadNodeDefinition(FILE *f) \n
-- PROFILE * TWorld::ReadProfileDefinitionNew(FILE *f,ZONE *z,const char *tablePath) \n
-- PROFILE * TWorld::ProfileNr(int profileNr) \n
 
 profile node setup:
     endComp is what is in the profile.inp file, the bottom of the layer
@@ -56,7 +49,6 @@ profile node setup:
     etc.
 */
 
-#include <algorithm>
 #include "lerror.h"
 #include "model.h"
 
@@ -194,7 +186,6 @@ void TWorld::ReadSwatreInputNew(void)
             nrProfileList++;
         }
     }
-    //qDebug() << "DONE: ReadSwatreInputNew(void)";
 }
 //----------------------------------------------------------------------------------------------
 // for reference:
@@ -267,7 +258,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         // if (z->endComp[i-1] != endHor)
         //     Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
         //           .arg(endHor).arg(p->profileId).arg(tableName));
-        //? what does this error mean exactly, hrozions do not have to end on nodes?
+        //? what does this error mean exactly, horizons do not have to end exacvtly on nodes
     }
 
     return(p);
@@ -297,7 +288,6 @@ HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
     h->lut = ReadSoilTableNew(tablePath + tableName);
     h->name = tableName;
 
-    //qDebug() << "ReadHorizonNew" << tableName;
     return(h);
 }
 //----------------------------------------------------------------------------------------------
@@ -305,8 +295,6 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
 {
     // read the table in a stringlist
     QStringList list;
-
-   // checkFileForInvalidLetters(fileName);
 
     QRegularExpression regex("[a-df-zA-DF-Z]");
 
@@ -373,13 +361,6 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
     l->hydro[DMCH_COL] << 0;
     l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->nrRows-2] + (l->hydro[DMCC_COL][l->nrRows-2] - l->hydro[DMCC_COL][l->nrRows-3]);
 
-    // qDebug() << fileName;
-    // for (int i = 0; i < l->nrRows; i++) {
-    // qDebug() << l->hydro[0][i] <<  l->hydro[1][i] << l->hydro[2][i] << l->hydro[3][i] << l->hydro[4][i];
-    // }
-
-    // WORKS
-
     return(l);
 }
 //----------------------------------------------------------------------------------------------
@@ -440,5 +421,14 @@ void  TWorld::FreeSwatreInfo(void)
 
     nrHorizonList = 0;
     sizeHorizonList = 0;
-    //qDebug() << "free:" << zone << profileList << horizonList;
+
+    // free pixel_info
+    if (SwatreSoilModel != nullptr)
+        CloseSwatre(SwatreSoilModel);
+    if (SwatreSoilModelCrust != nullptr)
+        CloseSwatre(SwatreSoilModelCrust);
+    if (SwatreSoilModelCompact != nullptr)
+        CloseSwatre(SwatreSoilModelCompact);
+    if (SwatreSoilModelGrass != nullptr)
+        CloseSwatre(SwatreSoilModelGrass);
 }

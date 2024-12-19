@@ -83,6 +83,8 @@ void TWorld::InitParameters(void)
     rainfallETa_threshold = getvaluedouble("Rainfall ET threshold");
     rainIDIfactor = getvaluedouble("IDI factor");
 
+    HinitValue = getvaluedouble("Initial matrix potential");
+
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
     //GW_inflow = getvaluedouble("GW river inflow factor");
@@ -521,7 +523,7 @@ void TWorld::InitLULCInput(void)
         // 0 is fully permeable, 1 = impermeable
     }}
 
-    report(*fractionImperm,"imp.map");
+    report(*fractionImperm,"fracimpermeable.map");
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -1874,25 +1876,25 @@ void TWorld::IntializeData(void)
         thetaTop = NewMap(0);
 
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
-        SwatreSoilModel = InitSwatre(ProfileID);//, initheadName, TileDepth, swatreDT);
+        SwatreSoilModel = InitSwatre(ProfileID);
         if (SwatreSoilModel == nullptr)
             throw 3;
 
         if (SwitchInfilCrust)
         {
-            SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);//, initheadName, TileDepth, swatreDT);
+            SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);
             if (SwatreSoilModelCrust == nullptr)
                 throw 3;
         }
         if (SwitchInfilCompact)
         {
-            SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);//, initheadName, TileDepth, swatreDT);
+            SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);
             if (SwatreSoilModelCompact == nullptr)
                 throw 3;
         }
         if (SwitchGrassStrip)
         {
-            SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);//, initheadName, TileDepth, swatreDT);
+            SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);
             if (SwatreSoilModelGrass == nullptr)
                 throw 3;
         }

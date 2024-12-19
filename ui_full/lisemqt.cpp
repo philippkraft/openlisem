@@ -851,6 +851,9 @@ void lisemqt::GetStorePath()
             if (line.contains("font=")) {
                 QStringList s = line.split("=");
                 genfontsize = s[1].toInt();
+                if (genfontsize == 0)
+                    genfontsize = 11;
+                setfontSize();
             } else {
                 if (line.contains("patch=")) {
                     QStringList s = line.split("=");
@@ -1029,6 +1032,7 @@ void lisemqt::resetTabInfiltration()
     checkInfilCrust->setChecked(false);
     //checkInfil2layer->setChecked(false);
     checkInfilImpermeable->setChecked(false);
+    checkInfilHinit->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
     checkSwatreOutput->setChecked(false);
     //checkGeometric->setChecked(true);

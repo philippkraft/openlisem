@@ -215,7 +215,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
     }}
 
  //  #pragma omp parallel for ordered num_threads(userCores)
- // parallel doesn't work here
+ // parallel doesn't work here because you have to calculate accoring to the order of cells from top to bottom, to determine the inflow
     for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
         int r = _crlinked_.at(i_).r;
@@ -226,6 +226,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
             for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
                 int rr = _crlinked_.at(i_).inn[j].r;
                 int cr = _crlinked_.at(i_).inn[j].c;
+                //Qin += _Q->Drcr;
                 Qin += _Qn->Drcr;
             }
         }
@@ -233,7 +234,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
 
         if (Qin > 0 || _Q->Drc > 0) {
             itercount = 0;
-            _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
+               _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
            // tmb->Drc = itercount;
         }
     }
@@ -515,8 +516,9 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             QinKW->data[rowNr][colNr] = Qin;
 
             itercount = 0;
+            double f = ((int) _LDD->data[rowNr][colNr] % 2 == 1) ? 1.414214 : 1.0;
             _Qn->data[rowNr][colNr] =
-                    IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
+                    IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr]*f,
                                   _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
               /* cell rowN, colNr is now done */
 
@@ -639,8 +641,9 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                 }
             }
 
+            double f = ((int) _LDD->data[rowNr][colNr] % 2 == 1) ? 1.414214 : 1.0;
             _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
-                                                          Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _DX->data[rowNr][colNr]);
+                                                          Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _DX->data[rowNr][colNr]*f);
 
             _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell

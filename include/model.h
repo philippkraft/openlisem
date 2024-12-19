@@ -482,6 +482,7 @@ public:
         SwitchGeometric,
         SwitchTwoLayer,
         SwitchThreeLayer,
+        SwitchHinit4all,
         SwitchOMCorrection,
         SwitchDensCorrection,
         //SwitchWaterRepellency,
@@ -660,6 +661,7 @@ public:
     double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
     double maxRainaxis;
     double latitude;
+    double HinitValue;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
@@ -1154,7 +1156,8 @@ public:
     void HeadCalc(double *h, const PROFILE *p , bool *isPonded,bool fltsat,
                   const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
                   double dt, double pond, double qtop, double qbot);
-    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin);
+//    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin);
+    double  NewTimeStep(double prevDt, QVector <double> hlast, QVector <double> h, int nrNodes, double dtMin);
     void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
     double HNode(double theta,const  HORIZON *hor);
     double TheNode(double head,const  HORIZON *hor);

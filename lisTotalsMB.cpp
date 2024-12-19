@@ -347,8 +347,6 @@ void TWorld::TotalsFlow(void)
     // which is reported separatedly (because it is a messy flux)!
 
    // report(*Qototal,"qtotm3.map");
-    report(*Qm3max,"qm3smax.map");
-
     Qtot += Qtot_dt;
     // add timestep total to run total in m3
     Qtotmm = Qtot*catchmentAreaFlatMM;
