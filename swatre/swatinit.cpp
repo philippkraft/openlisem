@@ -61,6 +61,10 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         s->pixel[i].corrKsOB = 0.0;
         s->pixel[i].corrKsDA = 1.0;
         s->pixel[i].corrKsDB = 0.0;
+        s->pixel[i].corrPOA = 1.0;
+        s->pixel[i].corrPOB = 0.0;
+        s->pixel[i].corrPDA = 1.0;
+        s->pixel[i].corrPDB = 0.0;
     }
 
     // give each pixel a profile

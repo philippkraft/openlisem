@@ -38,8 +38,8 @@
 #define TIME_EPS             (1.0E-6)
 
 //#define NrNodes(profile)        (zone->nrNodes)  //profile->zone->nrNodes)
-#define Dz(profile)             (profile->zone->dz)
-#define disnod(profile)       (profile->zone->disnod)
+//#define Dz(profile)             (profile->zone->dz)
+//#define disnod(profile)       (profile->zone->disnod)
 #define Horizon(profile, node)  (profile->horizon[node])
 
 #define THETA_COL	    0 // moisture content theta (-)

@@ -96,6 +96,8 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
     const PROFILE *p = pixel->profile;
 
     int nN = p->zone->nrNodes;//NrNodes(p);
+    QVector <double> disnod = p->zone->disnod;
+    QVector <double> dz = p->zone->dz;
     double dt = _dt/5;
     double pond = pixel->wh;
     double elapsedTime = 0;
@@ -120,7 +122,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         // get nodal values of theta, K, dif moist cap
         for (int j = 0; j < nN; j++) {
             k[j] = FindValue(h[j], p->horizon[j], H_COL, K_COL);
-            //if (h[j] > -1.0) k[j] *= p->KsatCal[j]; //??? only for ksat
             // K in cm/sec from h, ksatcal filled with values for ksat1,2,3
             dimoca[j] = DmcNode(h[j], p->horizon[j],  true); // true is more detailed method, false is DMCH directly from H
             // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
@@ -147,8 +148,10 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
             }
         }
         // do calibration  after dens and OM calculations
-        for (int j = 0; j < nN; j++)
+        for (int j = 0; j < nN; j++) {
              k[j] *= p->KsatCal[j];
+             //if (h[j] > -1.0) k[j] *= p->KsatCal[j]; //??? only for ksat
+        }
 
         k[0] *= (1.0-impfrac);
         // adjust k[0] for roads and houses, impermeable fraction
@@ -157,7 +160,9 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         // average K for 1st to n-1 node, top node is done below\
 
         // original swatre artithmetric mean
-       for(int j = 1; j < nN; j++){ kavg[j] = (k[j]+k[j-1])/2.0;}
+       for(int j = 1; j < nN; j++) {
+           kavg[j] = (k[j]+k[j-1])/2.0;
+       }
        //for(int j = 1; j < nN; j++){ kavg[j] = sqrt(k[j]*k[j-1]);}
         //--- boundary conditions ---
 
@@ -194,7 +199,6 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         // so it should be : qmax = - kavg[0]*((pond-h[0]) / disnod(p)[0] +1);
         // so theoretically a minus sign, but that does not work, more infiltration when soil is wetter!
         // qtop is the same below!!!
-        // logic of swatre??? we need original code?
 
         //qmax = std::min(qmax, 0.0);
         // maximum possible flux, compare to real top flux available
@@ -320,7 +324,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfract
         //qtop = std::min(0.0,qtop);
 
         pond += qtop*dt;       // decrease pond with top flux
-        if (pond < POND_EPS)
+        if (pond < POND_EPS)   // why?
             pond = 0;
         influx += qmax*dt;
         // add max infil to influx (negative), to get potential infil  WHY???
