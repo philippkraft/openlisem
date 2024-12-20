@@ -37,11 +37,6 @@
 // maximum amount of time for which it is not worth doing an iteration
 #define TIME_EPS             (1.0E-6)
 
-//#define NrNodes(profile)        (zone->nrNodes)  //profile->zone->nrNodes)
-#define Dz(profile)             (profile->zone->dz)
-#define disnod(profile)       (profile->zone->disnod)
-#define Horizon(profile, node)  (profile->horizon[node])
-
 #define THETA_COL	    0 // moisture content theta (-)
 #define H_COL           1 // suction (-cm)
 #define K_COL           2 // hydraulic conductivity (cm/day)
@@ -77,8 +72,8 @@ typedef struct ZONE   {
 //---------------------------------------------------------------------------
 /// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
 typedef struct LUT {
-    int   nrRows, nrCols;
-    QVector<double> hydro[5];
+    int   Rows;
+    QVector<double> hydro[5]; // theta,h,k,dmch,dmcc
 } LUT;
 //---------------------------------------------------------------------------
 typedef struct HORIZON {
@@ -98,13 +93,21 @@ typedef double NODE_ARRAY[MAX_NODES+3];
 typedef struct PIXEL_INFO {
     const PROFILE *profile;    /** profile this pixel belongs to */
     QVector <double> h;
+    //double *h;
     double wh;
     double infil;
     double impfrac;
     double percolation;
     double theta; // for pesticides?
     double tiledrain;   /** drainage into tiledrin system at a given depth */
-    int tilenode;    /** nearest node that has the tiledrain */
+    double corrKsOA;
+    double corrKsOB;
+    double corrKsDA;
+    double corrKsDB;
+    double corrPOA;
+    double corrPOB;
+    double corrPDA;
+    double corrPDB;    int tilenode;    /** nearest node that has the tiledrain */
     int dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
 } PIXEL_INFO;
 //---------------------------------------------------------------------------

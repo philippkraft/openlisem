@@ -843,6 +843,8 @@ void TWorld::ReportMaps(void)
     report(*WHmax, floodWHmaxFileName);
     // report(*floodHmxMax, floodWHmaxFileName);  // BOTH overland flow and flood for all combinations
 
+    report(*Qm3max,"qm3smax.map");
+
     // max velocity on land in m/s
     report(*floodVMax, floodMaxVFileName);  // BOTH overland flow and flood for all combinations
     report(*floodVHMax, floodMaxVHFileName);  // momentum of all flow

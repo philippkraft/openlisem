@@ -64,8 +64,7 @@ void lisemqt::GetRunfile()
     int i = 0;
     //int found = 0;
 
-    while (!fin.atEnd())
-    {
+    while (!fin.atEnd()) {
         QString S = fin.readLine().trimmed();
 
         if (i == 0 && !S.contains("openLISEM"))
@@ -74,8 +73,7 @@ void lisemqt::GetRunfile()
             saveRunFileOnce = true;
 
         i++;
-        if (S.contains("="))
-        {
+        if (S.contains("=")) {
             QStringList SL = S.split(QRegularExpression("="));
 
             for (int j = 0; j < nrnamelist; j++) {
@@ -89,10 +87,10 @@ void lisemqt::GetRunfile()
     }
 
     for (int i = 0; i < nrnamelist; i++) {
- //      if (!namelist[i].value.isEmpty() && namelist[i].gotit)
-   //       qDebug() << namelist[i].name << namelist[i].value << namelist[i].gotit;
-        if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
-            saveRunFileOnce = true;
+        if (!namelist[i].value.isEmpty() && !namelist[i].gotit) {
+            qDebug() << i << namelist[i].name << namelist[i].value;
+            saveRunFileOnce = true;            
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -210,8 +208,12 @@ void lisemqt::ParseInputData()
             case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(3); break;
             }
         }
+        if (p1.compare("Use OM correction")==0)             checkInfilOMcorrection->setChecked(check);
+        if (p1.compare("Use Density correction")==0)        checkInfilDensfactor->setChecked(check);
         if (p1.compare("Include compacted")==0)             checkInfilCompact->setChecked(check);
         if (p1.compare("Include crusts")==0)                checkInfilCrust->setChecked(check);
+        if (p1.compare("Use one matrix potential")==0)      checkInfilHinit->setChecked(check);
+        if (p1.compare("Initial matrix potential")==0)      spinHinit->setValue(valc);
         if (p1.compare("Impermeable sublayer")==0)          checkInfilImpermeable->setChecked(check);
         if (p1.compare("Nr input layers")==0)               spinSoilLayers->setValue(iii);
         if (p1.compare("Psi user input")==0)                checkPsiUser->setChecked(check);
@@ -831,9 +833,15 @@ void lisemqt::updateModelData()
             swatreDT = E_Timestep->text().toDouble()*fraction;
             namelist[j].value.setNum(swatreDT,'g',6);
         }
-        if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
-        if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
-        if (p1.compare("Psi user input")==0)                 namelist[j].value.setNum((int)checkPsiUser->isChecked());
+
+        if (p1.compare("Use OM correction")==0)             namelist[j].value.setNum((int)checkInfilOMcorrection->isChecked());
+        if (p1.compare("Use Density correction")==0)        namelist[j].value.setNum((int)checkInfilDensfactor->isChecked());
+        if (p1.compare("Include compacted")==0)             namelist[j].value.setNum((int)checkInfilCompact->isChecked());
+        if (p1.compare("Include crusts")==0)                namelist[j].value.setNum((int)checkInfilCrust->isChecked());
+        if (p1.compare("Use one matrix potential")==0)      namelist[j].value.setNum((int)checkInfilHinit->isChecked());
+        if (p1.compare("Initial matrix potential")==0)      namelist[j].value.setNum(spinHinit->value());
+        if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
+        if (p1.compare("Psi user input")==0)                namelist[j].value.setNum((int)checkPsiUser->isChecked());
        // if (p1.compare("Geometric mean Ksat")==0)           namelist[j].value.setNum((int)checkGeometric->isChecked());
         if (p1.compare("Nr input layers")==0)               namelist[j].value.setNum(spinSoilLayers->value());
         if (p1.compare("SoilWB nodes 1")==0)                namelist[j].value.setNum(spinNodes1->value());
@@ -932,7 +940,6 @@ void lisemqt::updateModelData()
 
         if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
         if (p1.compare("Include Sediment traps")==0)        namelist[j].value.setNum((int)checkSedtrap->isChecked());
-        if (p1.compare("Include compacted")==0)             namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include grass strips")==0)          namelist[j].value.setNum((int)checkInfilGrass->isChecked());
         if (p1.compare("Grassstrip Mannings n")==0)         namelist[j].value = E_GrassStripN->text();
         if (p1.compare("Sediment Trap Mannings n")==0)      namelist[j].value = E_SedTrapN->text();

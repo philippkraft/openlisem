@@ -69,9 +69,9 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
     DEFmaps.append("2;Profile soil;profile.map;ID numbers corresponding to land units in profile table;profmap");
-    DEFmaps.append("2;Prof. Crust;profcrst.map;ID numbers of crusted soils (using also profile table);profcrst");
-    DEFmaps.append("2;Prof. Wheel;profwltr.map;ID numbers of compacted wheel tracks (using also profile table);profwltr");
-    DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras");
+    DEFmaps.append("2;Prof. Crust;profcrst.map;ID numbers of crusted soils (defined in the profile table);profcrst");
+    DEFmaps.append("2;Prof. Compact;profcomp.map;ID numbers of compacted areas (defined in the profile table);profcomp");
+    DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras");    
     DEFmaps.append("2;Initial suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead");
     DEFmaps.append("2;Swatre Output points;swatreoutput.map;Points for swatre profile output 1-n);swatreout");
  //   DEFmaps.append("2;Repellency;repel.map;Gridcells included in water repellency (1/0);repelcell");
@@ -97,7 +97,9 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Thetai3;thetai3.map;Layer 3: Initial moisture content (-);thetai3");
     DEFmaps.append("2;Depth3;soildep3.map;Layer 3: Depth (mm) to bottom of layer 2;soildep3");
 
-    DEFmaps.append("1;Special surfaces");
+    DEFmaps.append("1;Surafce features influencing infiltration");
+    DEFmaps.append("2;Organic Matter;omcorr.map;Organic matter correction increase or decrease (%);OMmap");
+    DEFmaps.append("2;Density Factor;densfact.map;Density factor relative to 2650 kg/m3 (-1 to 1);Densmap");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
     DEFmaps.append("2;Porosity Crust;porecrst.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
     DEFmaps.append("2;Ksat Compacted;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
@@ -348,11 +350,19 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("2");  //GA =2
     namelist[i++].name = QString("Infil Method");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use OM correction");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use Density correction");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include compacted");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include crusts");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Impermeable sublayer");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use one matrix potential");
+    namelist[i].value = QString("-100");
+    namelist[i++].name = QString("Initial matrix potential");
 //    namelist[i].value = QString("0");
 //    namelist[i++].name = QString("Two layer");
 //    namelist[i++].name = QString("Two layer");

@@ -83,6 +83,8 @@ void TWorld::InitParameters(void)
     rainfallETa_threshold = getvaluedouble("Rainfall ET threshold");
     rainIDIfactor = getvaluedouble("IDI factor");
 
+    HinitValue = getvaluedouble("Initial matrix potential");
+
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
     //GW_inflow = getvaluedouble("GW river inflow factor");
@@ -521,7 +523,7 @@ void TWorld::InitLULCInput(void)
         // 0 is fully permeable, 1 = impermeable
     }}
 
-    report(*fractionImperm,"imp.map");
+    report(*fractionImperm,"fracimpermeable.map");
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -559,9 +561,45 @@ void TWorld::InitLULCInput(void)
 //---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
 {
+    // safeguard for deleting, set to null pointer
+    SwatreSoilModel = nullptr;
+    SwatreSoilModelCrust = nullptr;
+    SwatreSoilModelCompact = nullptr;
+    SwatreSoilModelGrass = nullptr;
+
     LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
     ThetaI1a = NewMap(0); // used for screen output
     ThetaI2a = NewMap(0); // for output, average soil layer 2
+
+    if(SwitchOMCorrection)
+        OMcorr = ReadMap(LDD,getvaluename("OMmap"));
+    else
+        OMcorr = NewMap(0);
+
+    if(SwitchDensCorrection)
+        DensFact = ReadMap(LDD,getvaluename("Densmap"));
+    else
+        DensFact  = NewMap(0);
+
+    if (SwitchInfilCrust) {
+        CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
+        checkMap(*CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
+    } else {
+        CrustFraction = NewMap(0);
+    }
+
+    if (SwitchInfilCompact) {
+        CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
+        checkMap(*CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
+    } else {
+        CompactFraction = NewMap(0);
+    }
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (CrustFraction->Drc + CompactFraction->Drc > 1.0) {
+            CrustFraction->Drc = 1.0-CompactFraction->Drc;
+        }
+    }}
 
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
@@ -590,6 +628,7 @@ void TWorld::InitSoilInput(void)
         vgalpha1 = NewMap(0);
         vgn1 = NewMap(0);
 
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
             // comes form CHARIM somehow
@@ -611,14 +650,16 @@ void TWorld::InitSoilInput(void)
             ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
             // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
         }}
-//report(*vgalpha1,"valpha.map");
-//report(*vgn1,"vn.map");
+        //report(*vgalpha1,"valpha.map");
+        //report(*vgn1,"vn.map");
+
         if (SwitchPsiUser) {
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
             calcValue(*Psi1, psiCalibration, MUL); //calibration of user input psi
             calcValue(*Psi1, 0.01, MUL); //cm to m
         } else {
             Psi1 = NewMap(0);
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 Psi1->Drc = exp(-0.3382*log(std::max(0.5,Ksat1->Drc)) + 3.3425)*0.01;
                // double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
@@ -665,6 +706,7 @@ void TWorld::InitSoilInput(void)
             ThetaFC2 = NewMap(0);
             vgalpha2 = NewMap(0);
             vgn2 = NewMap(0);
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
                 double ks = log(std::min(1000.0,std::max(0.5,Ksat2->Drc)));
@@ -685,6 +727,7 @@ void TWorld::InitSoilInput(void)
                 calcValue(*Psi2, 0.01, MUL);
             } else {
                 Psi2 = NewMap(0);
+                #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     Psi2->Drc = exp(-0.3382*log(std::max(0.5,Ksat2->Drc)) + 3.3425)*0.01;
                     //double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
@@ -705,6 +748,7 @@ void TWorld::InitSoilInput(void)
             SoilDepth3init = NewMap(0);
             copy(*SoilDepth3init, *SoilDepth3);
 
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (SoilDepth3->Drc < 0)
                 {
@@ -749,6 +793,7 @@ void TWorld::InitSoilInput(void)
                 calcValue(*Psi3, 0.01, MUL);
             } else {
                 Psi3 = NewMap(0);
+                #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
                     //double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
@@ -760,50 +805,75 @@ void TWorld::InitSoilInput(void)
             calcValue(*Ksat3, ksat3Calibration, MUL);
         }
 
-        if (SwitchInfilCrust)
-        {
-            CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-            checkMap(*CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
+        if (SwitchInfilCrust) {
             KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
             calcValue(*KsatCrust, ksatCalibration, MUL);
 			//DO THIS, else inconsistency, and Ksat can be smaller than ksatcrust
 
             PoreCrust = ReadMap(LDD,getvaluename("porecrst"));
-        }
-        else
-        {
-            CrustFraction = NewMap(0);
+        } else {
             KsatCrust = NewMap(0);
             PoreCrust = NewMap(0);
         }
 
         if (SwitchInfilCompact)
         {
-            CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
-            checkMap(*CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
             KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
             calcValue(*KsatCompact, ksatCalibration, MUL);
             //DO THIS, else inconsistency, Ksat can be smaller than ksatcomp
-            PoreCompact = ReadMap(LDD,getvaluename("porecomp"));
-        }
-        else
-        {
-            CompactFraction = NewMap(0);
+            PoreCompact = ReadMap(LDD,getvaluename("porecomp"));                       
+        } else {
             KsatCompact = NewMap(0);
             PoreCompact = NewMap(0);
         }
-        FOR_ROW_COL_MV
-        {
-            if (CrustFraction->Drc +  CompactFraction->Drc > 1.0) 
-            {
-                CrustFraction->Drc = 1.0-CompactFraction->Drc;
+
+        // check if compacted porosity is smaller than initial theta1
+        if (SwitchInfilCompact) {
+            double cnt = 0;
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                if(PoreCompact->Drc*CompactFraction->Drc+(1-CompactFraction->Drc)*ThetaS1->Drc < ThetaI1->Drc)
+                    cnt+=1.0;
+            }}
+            if (cnt > 0) {
+                ErrorString = QString("WARNING: Compacted porosity is smaller than initial moisture content in %1% of the cells, these cells will be seen as impermeable.").arg(cnt/nrCells*100);
+                DEBUG(ErrorString);
+             }
+        }
+
+        // check if crusted porosity is smaller than initial theta1
+        if (SwitchInfilCrust) {
+            double cnt = 0;
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                if(PoreCrust->Drc*CrustFraction->Drc+(1-CrustFraction->Drc)*ThetaS1->Drc < ThetaI1->Drc)
+                    cnt+=1.0;
+            }}
+            if (cnt > 0) {
+                ErrorString = QString("WARNING: Porosity in crusted cells is smaller than initial moisture content in %1% of the cells, these cells will be seen as impermeable.").arg(cnt/nrCells*100);
+                DEBUG(ErrorString);
             }
         }
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Ksat1->Drc *= _dt/3600000.0; // mm/h to m
+            if (SwitchTwoLayer)
+                Ksat2->Drc *= _dt/3600000.0;
+            if (SwitchThreeLayer)
+                Ksat3->Drc *= _dt/3600000.0;
+            if (SwitchInfilCrust)
+                KsatCrust->Drc *= _dt/3600000.0;
+            if (SwitchInfilCompact)
+                KsatCompact->Drc *= _dt/3600000.0;
+        }}
+
+
     } // not swatre
 
     // SWATRE infiltration read maps and structures
-    if (InfilMethod == INFIL_SWATRE)
-    {
+    if (InfilMethod == INFIL_SWATRE) {
+
         // read all Swatre profile maps
         ProfileID = ReadMap(LDD,getvaluename("profmap"));
 
@@ -814,24 +884,14 @@ void TWorld::InitSoilInput(void)
             ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
 
         if (SwitchInfilCrust)
-        {
-            CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
             ProfileIDCrust = ReadMap(LDD,getvaluename("profcrst"));
-        }
-        else
-            CrustFraction = NewMap(0);
 
         if (SwitchInfilCompact)
-        {
-            CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
             ProfileIDCompact = ReadMap(LDD,getvaluename("profcomp"));
-        }
-        else
-            CompactFraction = NewMap(0);
 
         // read the swatre tables and make the information structure ZONE etc
+        // this does not make the profile information
         ReadSwatreInputNew();
-        //qDebug() << "SWATRE input New done";
     }
 }
 //---------------------------------------------------------------------------
@@ -1721,12 +1781,13 @@ void TWorld::IntializeData(void)
     floodBoundaryTot = 0;
     floodBoundarySedTot = 0;
 
+    // infiltration
     InfilVolFlood = NewMap(0);
-    InfilVolKinWave = NewMap(0);
+    //InfilVolKinWave = NewMap(0);
     InfilVol = NewMap(0);
     InfilmmCum = NewMap(0);
     InfilVolCum = NewMap(0);
-    fact = NewMap(0);
+    fact = NewMap(0); // used in SWATRE
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
@@ -1736,19 +1797,6 @@ void TWorld::IntializeData(void)
     Fcum = NewMap(0);
     Lw = NewMap(0);
     Lwmm = NewMap(0);
-
-    if (SwitchInfilCompact) {
-        double cnt = 0;
-        FOR_ROW_COL_MV {
-            if(PoreCompact->Drc*CompactFraction->Drc+(1-CompactFraction->Drc)*ThetaS1->Drc < ThetaI1->Drc)
-                cnt+=1.0;
-        }
-        if (cnt > 0) {
-            ErrorString = QString("WARNING: Compacted porosity is smaller than initial moisture content in %1% of the cells, these cells will be seen as impermeable.").arg(cnt/nrCells*100);
-            DEBUG(ErrorString);
-            // throw 1;
-        }
-    }
 
     //### runoff maps
     Qtot = 0;
@@ -1761,16 +1809,14 @@ void TWorld::IntializeData(void)
     GWdeeptot = 0;
     Qpeak = 0;
     QpeakTime = 0;
+
     WH = NewMap(0);
     WHbef = NewMap(0);
     WHrunoff = NewMap(0);
     WHmax = NewMap(0);
     WHstore = NewMap(0);
     MicroStoreVol = NewMap(0);
-    //WHroad = NewMap(0);
-    //WHGrass = NewMap(0);
     FlowWidth = NewMap(0);
-    //fpa = NewMap(0);
     V = NewMap(0);
     VH = NewMap(0);
     Alpha = NewMap(0);
@@ -1801,7 +1847,7 @@ void TWorld::IntializeData(void)
         }}
         WHbound = NewMap(0);
         WHboundRain = NewMap(0);
-        report(*WHboundarea,"b.map");
+        report(*WHboundarea,"b.map"); // test delete later?
     }
 
     //flowmask = NewMap(0);
@@ -1819,14 +1865,11 @@ void TWorld::IntializeData(void)
     }
 
     QinKW = NewMap(0);
-    //    QKW = NewMap(0);
     Qoutput = NewMap(0);
     Qm3total = NewMap(0);
     Qm3max = NewMap(0);
     FHI = NewMap(0);
-
     Qsoutput = NewMap(0);
-    q = NewMap(0);
 
     WaterVolin = NewMap(0);
     WaterVolall = NewMap(0);
@@ -1838,43 +1881,35 @@ void TWorld::IntializeData(void)
 
     if (SwitchFloodInitial) {
         hmxInit = ReadMap(LDD, getvaluename("whinit"));
-        report(*hmxInit,"whi.map");
+        report(*hmxInit,"wh_init.map");
     } else {
         hmxInit = NewMap(0);
     }
 
-    // swatre get input data is called before, ReadSwatreInput
-    SwatreSoilModel = nullptr;
-    SwatreSoilModelCrust = nullptr;
-    SwatreSoilModelCompact = nullptr;
-    SwatreSoilModelGrass = nullptr;
-    if (InfilMethod == INFIL_SWATRE)
-    {
+    // needs to be done here because profile uses data like impermable fration, tiledrain etc
+    if (InfilMethod == INFIL_SWATRE) {
         thetaTop = NewMap(0);
 
-        precision = 5.0;
-        // note "5" is a precision factor dewtermining next timestep, set to 5 in old lisem
-
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
-        SwatreSoilModel = InitSwatre(ProfileID);//, initheadName, TileDepth, swatreDT);
+        SwatreSoilModel = InitSwatre(ProfileID);
         if (SwatreSoilModel == nullptr)
             throw 3;
 
         if (SwitchInfilCrust)
         {
-            SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);//, initheadName, TileDepth, swatreDT);
+            SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);
             if (SwatreSoilModelCrust == nullptr)
                 throw 3;
         }
         if (SwitchInfilCompact)
         {
-            SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);//, initheadName, TileDepth, swatreDT);
+            SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);
             if (SwatreSoilModelCompact == nullptr)
                 throw 3;
         }
         if (SwitchGrassStrip)
         {
-            SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);//, initheadName, TileDepth, swatreDT);
+            SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);
             if (SwatreSoilModelGrass == nullptr)
                 throw 3;
         }
@@ -1882,46 +1917,45 @@ void TWorld::IntializeData(void)
         // flag: structure is created and can be destroyed in function destroydata
     }
 
+    // SwitchUseMaterialDepth not active!
     SwitchUseMaterialDepth = false;
-    if(SwitchErosion && SwitchUseMaterialDepth)
-    {
-        Storage = ReadMap(LDD, getvaluename("detmat"));
-        StorageDep = NewMap(0.0);
-        SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
-        FOR_ROW_COL_MV
-        {
-            if(Storage->Drc != -1)
-            {
-                Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
-            }else
-            {
-                Storage->Drc = -999999;
-            }
-            SedimentMixingDepth->Drc  = std::max(0.01, SedimentMixingDepth->Drc);
-        }
+    // if(SwitchErosion && SwitchUseMaterialDepth)
+    // {
+    //     Storage = ReadMap(LDD, getvaluename("detmat"));
+    //     StorageDep = NewMap(0.0);
+    //     SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
+    //     FOR_ROW_COL_MV
+    //     {
+    //         if(Storage->Drc != -1)
+    //         {
+    //             Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
+    //         }else
+    //         {
+    //             Storage->Drc = -999999;
+    //         }
+    //         SedimentMixingDepth->Drc  = std::max(0.01, SedimentMixingDepth->Drc);
+    //     }
+    // }
 
-    }
-
-    if(SwitchIncludeChannel)
-    {
-        if(SwitchErosion && SwitchUseMaterialDepth)
-        {
-            RStorageDep = NewMap(0.0);
-            RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
-            RStorage = ReadMap(LDD, getvaluename("chandetmat"));
-            FOR_ROW_COL_MV
-            {
-                if(RStorage->Drc != -1)
-                {
-                    RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
-                }else
-                {
-                    RStorage->Drc = -999999;
-                }
-                RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
-            }
-        }
-    }
+    // if(SwitchIncludeChannel) {
+    //     if(SwitchErosion && SwitchUseMaterialDepth)
+    //     {
+    //         RStorageDep = NewMap(0.0);
+    //         RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
+    //         RStorage = ReadMap(LDD, getvaluename("chandetmat"));
+    //         FOR_ROW_COL_MV
+    //         {
+    //             if(RStorage->Drc != -1)
+    //             {
+    //                 RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
+    //             }else
+    //             {
+    //                 RStorage->Drc = -999999;
+    //             }
+    //             RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
+    //         }
+    //     }
+    // }
 
     if (SwitchChannelBaseflowStationary)
         FindStationaryBaseFlow();

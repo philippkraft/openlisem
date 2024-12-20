@@ -34,14 +34,15 @@ functions:
 #include "model.h"
 
 //--------------------------------------------------------------------------------
-// make the 3d structure PIXEL_INFO, based on profile numbers in map
-// zone exists is done before
+// make the 3D structure PIXEL_INFO, based on profile numbers in map
+// needs zone info which needs to be done before in readswatreinput
+// read optional Hinit maps
 SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 {
     SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
-    /* TODO check if this needs freeing when error */
 
-    // long nrCel = _nrCols*_nrRows;
+    // TODO check if this needs freeing when error;
+    // why not new?
 
     s->minDt = swatreDT;
     s->pixel = new PIXEL_INFO[(long)nrCells];
@@ -56,9 +57,18 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         s->pixel[i].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)
         // first node ksat adujtedd with this for partial impermeability
         s->pixel[i].impfrac = 0;
+        s->pixel[i].corrKsOA = 1.0;
+        s->pixel[i].corrKsOB = 0.0;
+        s->pixel[i].corrKsDA = 1.0;
+        s->pixel[i].corrKsDB = 0.0;
+        s->pixel[i].corrPOA = 1.0;
+        s->pixel[i].corrPOB = 0.0;
+        s->pixel[i].corrPDA = 1.0;
+        s->pixel[i].corrPDB = 0.0;
     }
 
     // give each pixel a profile
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
 
@@ -67,23 +77,48 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         // profile = <= 0 now set to impermeable
         s->pixel[i_].impfrac = fractionImperm->Drc;
 
+        if (SwitchOMCorrection) {
+            // these correction come from calculations based on Saxton and rawls
+            double OM2 = OMcorr->Drc*OMcorr->Drc;
+            s->pixel[i_].corrKsOA = -0.0065*(OM2) - 0.0415*OMcorr->Drc + 1.0001;
+            s->pixel[i_].corrKsOB = -2.6319*OMcorr->Drc + 0.0197;
+            s->pixel[i_].corrPOA =  -0.1065*(OM2) - 0.0519*OMcorr->Drc + 0.9932;
+            s->pixel[i_].corrPOB = 0.0532*(OM2) + 0.008*OMcorr->Drc + 0.0037;
+        }
+        if (SwitchDensCorrection) {
+            //A	-3.28	4.30
+            //B	-96.65	98.28
+            s->pixel[i_].corrKsDA =  -3.28*DensFact->Drc + 4.3;
+            s->pixel[i_].corrKsDB = -96.65*DensFact->Drc + 98.28;
+            s->pixel[i_].corrPDA =  DensFact->Drc;
+            s->pixel[i_].corrPDB = -1.0 * DensFact->Drc + 1.0;
+        }
+
+        // TODO: does not work yet!
         if(SwitchDumphead) {
             s->pixel[i_].dumpHid = SwatreOutput->Drc;
         } else
             s->pixel[i_].dumpHid = 0;
     }}
 
+
     // fill the inithead structure of each pixel and set tiledrain depth if any
+    double hi = HinitValue*psiCalibration;
+
     for (int k = 0; k < zone->nrNodes; k++) {
-        QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
-        // make inithead.001 to .00n name
 
-        inith = ReadMap(LDD,fname);
+        if (!SwitchHinit4all) {
+            QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
+            // make inithead.001 to .00n name
+            inith = ReadMap(LDD,fname);
+        }
+
         // get inithead information
-
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            double ih = inith->Drc*psiCalibration;
-            s->pixel[i_].h.append(ih);
+            if (!SwitchHinit4all)
+                hi = inith->Drc*psiCalibration;
+            s->pixel[i_].h.append(hi);
 
             // find depth of tilenode
             if (SwitchIncludeTile) {
@@ -95,10 +130,9 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
                 }
             }
         }}
-
     }
 
-  // qDebug() << "DONE InitSwatre";
+   //qDebug() << "DONE InitSwatre";
     return(s);
 }
 //--------------------------------------------------------------------------------

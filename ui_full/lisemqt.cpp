@@ -1031,6 +1031,7 @@ void lisemqt::resetTabInfiltration()
     checkInfilCrust->setChecked(false);
     //checkInfil2layer->setChecked(false);
     checkInfilImpermeable->setChecked(false);
+    checkInfilHinit->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
     checkSwatreOutput->setChecked(false);
     //checkGeometric->setChecked(true);
