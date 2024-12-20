@@ -594,6 +594,7 @@ void TWorld::InitSoilInput(void)
     } else {
         CompactFraction = NewMap(0);
     }
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (CrustFraction->Drc + CompactFraction->Drc > 1.0) {
             CrustFraction->Drc = 1.0-CompactFraction->Drc;
@@ -627,6 +628,7 @@ void TWorld::InitSoilInput(void)
         vgalpha1 = NewMap(0);
         vgn1 = NewMap(0);
 
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
             // comes form CHARIM somehow
@@ -655,6 +657,7 @@ void TWorld::InitSoilInput(void)
             calcValue(*Psi1, 0.01, MUL);
         } else {
             Psi1 = NewMap(0);
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 Psi1->Drc = exp(-0.3382*log(std::max(0.5,Ksat1->Drc)) + 3.3425)*0.01;
                // double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
@@ -700,6 +703,7 @@ void TWorld::InitSoilInput(void)
             ThetaFC2 = NewMap(0);
             vgalpha2 = NewMap(0);
             vgn2 = NewMap(0);
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
                 double ks = log(std::min(1000.0,std::max(0.5,Ksat2->Drc)));
@@ -720,6 +724,7 @@ void TWorld::InitSoilInput(void)
                 calcValue(*Psi2, 0.01, MUL);
             } else {
                 Psi2 = NewMap(0);
+                #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     Psi2->Drc = exp(-0.3382*log(std::max(0.5,Ksat2->Drc)) + 3.3425)*0.01;
                     //double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
@@ -740,6 +745,7 @@ void TWorld::InitSoilInput(void)
             SoilDepth3init = NewMap(0);
             copy(*SoilDepth3init, *SoilDepth3);
 
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (SoilDepth3->Drc < 0)
                 {
@@ -784,6 +790,7 @@ void TWorld::InitSoilInput(void)
                 calcValue(*Psi3, 0.01, MUL);
             } else {
                 Psi3 = NewMap(0);
+                #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
                     Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
                     //double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
@@ -820,6 +827,7 @@ void TWorld::InitSoilInput(void)
         // check if compacted porosity is smaller than initial theta1
         if (SwitchInfilCompact) {
             double cnt = 0;
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if(PoreCompact->Drc*CompactFraction->Drc+(1-CompactFraction->Drc)*ThetaS1->Drc < ThetaI1->Drc)
                     cnt+=1.0;
@@ -833,6 +841,7 @@ void TWorld::InitSoilInput(void)
         // check if crusted porosity is smaller than initial theta1
         if (SwitchInfilCrust) {
             double cnt = 0;
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if(PoreCrust->Drc*CrustFraction->Drc+(1-CrustFraction->Drc)*ThetaS1->Drc < ThetaI1->Drc)
                     cnt+=1.0;
@@ -842,6 +851,20 @@ void TWorld::InitSoilInput(void)
                 DEBUG(ErrorString);
             }
         }
+
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Ksat1->Drc *= _dt/3600000.0; // mm/h to m
+            if (SwitchTwoLayer)
+                Ksat2->Drc *= _dt/3600000.0;
+            if (SwitchThreeLayer)
+                Ksat3->Drc *= _dt/3600000.0;
+            if (SwitchInfilCrust)
+                KsatCrust->Drc *= _dt/3600000.0;
+            if (SwitchInfilCompact)
+                KsatCompact->Drc *= _dt/3600000.0;
+        }}
+
 
     } // not swatre
 
@@ -858,25 +881,14 @@ void TWorld::InitSoilInput(void)
             ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
 
         if (SwitchInfilCrust)
-        {
-            CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
             ProfileIDCrust = ReadMap(LDD,getvaluename("profcrst"));
-        }
-        else
-            CrustFraction = NewMap(0);
 
         if (SwitchInfilCompact)
-        {
-            CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
             ProfileIDCompact = ReadMap(LDD,getvaluename("profcomp"));
-        }
-        else
-            CompactFraction = NewMap(0);
 
-        // OVERAL swatre INFORMATION, read the swatre tables and make the information structure ZONE etc
+        // read the swatre tables and make the information structure ZONE etc
         // this does not make the profile information
         ReadSwatreInputNew();
-
     }
 }
 //---------------------------------------------------------------------------

@@ -43,19 +43,21 @@ functions: \n
 // Calculate effective Ksat based on surface structure, impermeable etc.
 void TWorld::InfilEffectiveKsat(bool first)
 {
-    // todo, move to datainit!
-    if (first) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            Ksat1->Drc *= _dt/3600000.0; // mm/h to m
-            if (SwitchTwoLayer)
-                Ksat2->Drc *= _dt/3600000.0;
-            if (SwitchInfilCrust)
-                KsatCrust->Drc *= _dt/3600000.0;
-            if (SwitchInfilCompact)
-                KsatCompact->Drc *= _dt/3600000.0;
-        }}
-    }
+    // moved to datainit!
+    // if (first) {
+    //     #pragma omp parallel for num_threads(userCores)
+    //     FOR_ROW_COL_MV_L {
+    //         Ksat1->Drc *= _dt/3600000.0; // mm/h to m
+    //         if (SwitchTwoLayer)
+    //             Ksat2->Drc *= _dt/3600000.0;
+    //         if (SwitchThreeLayer)
+    //             Ksat3->Drc *= _dt/3600000.0;
+    //         if (SwitchInfilCrust)
+    //             KsatCrust->Drc *= _dt/3600000.0;
+    //         if (SwitchInfilCompact)
+    //             KsatCompact->Drc *= _dt/3600000.0;
+    //     }}
+    // }
 
     if (SwitchInfiltration && InfilMethod != INFIL_SWATRE)
     {
@@ -66,7 +68,7 @@ void TWorld::InfilEffectiveKsat(bool first)
 
             // exponential crusting proces with cumulative rainfall
             if (SwitchInfilCrust) {
-                double factor = 1.0-exp(-0.2*std::max(RainCum->Drc/1000-5,0));  //
+                double factor = 1.0-exp(-0.2*std::max(0.0, RainCum->Drc/1000-5.0));  //
                 // exponential decline until from no crusting to full crusting at ~ 30 mm,
                 //old research Jean Boiffin, multiple rainfall in a growing season, progressive crusting
 
@@ -75,11 +77,6 @@ void TWorld::InfilEffectiveKsat(bool first)
 
                 double porediff = std::max(0.0,ThetaS1->Drc - PoreCrust->Drc);
                 Poreeff->Drc = PoreCrust->Drc + porediff * factor;
-
-                // to avoid pore is less than thetaR else nan in redistribution
-                if (Poreeff->Drc < ThetaR1->Drc)
-                    ThetaR1->Drc = 0.5*Poreeff->Drc;
-
             }
             Thetaeff->Drc = std::max(ThetaR1->Drc,ThetaI1->Drc);
 
@@ -118,8 +115,9 @@ void TWorld::InfilEffectiveKsat(bool first)
 
             Ksateff->Drc *= 1.0-fractionImperm->Drc;
 
-            if (Poreeff->Drc <= ThetaR1->Drc)
-                Poreeff->Drc = ThetaR1->Drc+0.1;//std::max(ThetaR1->Drc, Poreeff->Drc+0.05); // makes no sense
+            // to avoid pore is less than thetaR else nan in redistribution
+            if (Poreeff->Drc < ThetaR1->Drc)
+                ThetaR1->Drc = 0.5*Poreeff->Drc;
             Ksateff->Drc = std::max(0.0, Ksateff->Drc);
 
             // may be a problem in for instance redistribution            

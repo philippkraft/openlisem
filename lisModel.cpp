@@ -247,8 +247,9 @@ void TWorld::DoModel()
 
         GetComboMaps(); // moved to outside timeloop!
 
-        if (SwitchInfiltration && InfilMethod != INFIL_SWATRE )
-            InfilEffectiveKsat(true);
+        // if (SwitchInfiltration && InfilMethod != INFIL_SWATRE )
+        //     InfilEffectiveKsat(true);
+        // moved to datainit
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
