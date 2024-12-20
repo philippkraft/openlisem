@@ -37,11 +37,6 @@
 // maximum amount of time for which it is not worth doing an iteration
 #define TIME_EPS             (1.0E-6)
 
-//#define NrNodes(profile)        (zone->nrNodes)  //profile->zone->nrNodes)
-//#define Dz(profile)             (profile->zone->dz)
-//#define disnod(profile)       (profile->zone->disnod)
-#define Horizon(profile, node)  (profile->horizon[node])
-
 #define THETA_COL	    0 // moisture content theta (-)
 #define H_COL           1 // suction (-cm)
 #define K_COL           2 // hydraulic conductivity (cm/day)
@@ -77,8 +72,8 @@ typedef struct ZONE   {
 //---------------------------------------------------------------------------
 /// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
 typedef struct LUT {
-    int   nrRows, nrCols;
-    QVector<double> hydro[5];
+    int   Rows;
+    QVector<double> hydro[5]; // theta,h,k,dmch,dmcc
 } LUT;
 //---------------------------------------------------------------------------
 typedef struct HORIZON {

@@ -79,10 +79,11 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 
         if (SwitchOMCorrection) {
             // these correction come from calculations based on Saxton and rawls
-            s->pixel[i_].corrKsOA = -0.0065*(OMcorr->Drc*OMcorr->Drc) - 0.0415*OMcorr->Drc + 1.0001;
+            double OM2 = OMcorr->Drc*OMcorr->Drc;
+            s->pixel[i_].corrKsOA = -0.0065*(OM2) - 0.0415*OMcorr->Drc + 1.0001;
             s->pixel[i_].corrKsOB = -2.6319*OMcorr->Drc + 0.0197;
-            s->pixel[i_].corrPOA =  -0.1065*(OMcorr->Drc*OMcorr->Drc) - 0.0519*OMcorr->Drc + 0.9932;
-            s->pixel[i_].corrPOB = 0.0532*(OMcorr->Drc*OMcorr->Drc) + 0.008*OMcorr->Drc + 0.0037;
+            s->pixel[i_].corrPOA =  -0.1065*(OM2) - 0.0519*OMcorr->Drc + 0.9932;
+            s->pixel[i_].corrPOB = 0.0532*(OM2) + 0.008*OMcorr->Drc + 0.0037;
         }
         if (SwitchDensCorrection) {
             //A	-3.28	4.30

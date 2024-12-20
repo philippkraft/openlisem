@@ -319,7 +319,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         file.close();
     }
     LUT *l = new LUT;
-    l->nrRows = list.count();
+    l->Rows = list.count();
 
     for (int i = 0; i < list.count(); i++) {
         QStringList SL = list[i].split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
@@ -327,8 +327,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         bool ok;
         SL[0].toDouble(&ok);
         if (!ok || SL.count() < 3) {
-            //qDebug() << "not ok" << SL;
-            l->nrRows--;
+            l->Rows--;
             break; // sometimes table ends with a non empty line with some char code
         }
         l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
@@ -336,7 +335,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         l->hydro[K_COL].append(SL[K_COL].toDouble()/86400); // cm/day to cm/sec
     }
 
-    for (int i = 0; i < l->nrRows-1; i++) {
+    for (int i = 0; i < l->Rows-1; i++) {
         if (l->hydro[H_COL][i+1] <= l->hydro[H_COL][i])
             Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
         if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
@@ -345,7 +344,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
             Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
     }
 
-    for (int i = 0; i < l->nrRows - 1; i++) {
+    for (int i = 0; i < l->Rows - 1; i++) {
         double v = 0.5*(l->hydro[H_COL][i] + l->hydro[H_COL][i+1]);
         l->hydro[DMCH_COL] << v; // NOTE DMCH_COL is not used!
 
@@ -359,7 +358,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
 
     // fill l->nrRows-1
     l->hydro[DMCH_COL] << 0;
-    l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->nrRows-2] + (l->hydro[DMCC_COL][l->nrRows-2] - l->hydro[DMCC_COL][l->nrRows-3]);
+    l->hydro[DMCC_COL] << l->hydro[DMCC_COL][l->Rows-2] + (l->hydro[DMCC_COL][l->Rows-2] - l->hydro[DMCC_COL][l->Rows-3]);
 
     return(l);
 }
