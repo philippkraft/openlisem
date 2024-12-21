@@ -70,7 +70,7 @@ typedef struct ZONE   {
     QVector <double> disnod;   
 } ZONE;
 //---------------------------------------------------------------------------
-/// SWATRE Land use tables, nrRows and nrCols mean rows and cols (3) in the table
+/// SWATRE Land use tables, Rows is nr of lines in table, always 3+2 cols
 typedef struct LUT {
     int   Rows;
     QVector<double> hydro[5]; // theta,h,k,dmch,dmcc
@@ -78,7 +78,7 @@ typedef struct LUT {
 //---------------------------------------------------------------------------
 typedef struct HORIZON {
     QString name;
-    LUT  *lut;     /** lut of theta, h, k, dmch, dmcc */
+    LUT  *lut;     // lut of theta, h, k, dmch, dmcc
 } HORIZON;
 //---------------------------------------------------------------------------
 typedef struct PROFILE {

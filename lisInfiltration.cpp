@@ -97,16 +97,19 @@ void TWorld::InfilEffectiveKsat(bool first)
             // these correction come from calculations based on Saxton and Rawls
             if (SwitchOMCorrection) {
                 double OM2 = OMcorr->Drc*OMcorr->Drc;
-                double corrKsOA = -0.0065*OM2 - 0.0415*OMcorr->Drc + 1.0001;
-                double corrKsOB = -2.6319*OMcorr->Drc + 0.0197;
+                double f = 0.001/3600*_dt;//mm/h to m/timestep
+                double corrKsOA = 0.0359*OMcorr->Drc + 1.0026; //0.0359x + 1.0026
+                double corrKsOB = 2.9368*f*OMcorr->Drc + 0.2537*f; //2.9368x + 0.2537
                 double corrPOA =  -0.1065*OM2 - 0.0519*OMcorr->Drc + 0.9932;
                 double corrPOB = 0.0532*OM2 + 0.008*OMcorr->Drc + 0.0037;
                 Ksateff->Drc = corrKsOA*Ksateff->Drc + corrKsOB;
                 Poreeff->Drc = corrPOA*Poreeff->Drc + corrPOB;
             }
             if (SwitchDensCorrection) {
-                double corrKsDA =  -3.28*DensFact->Drc + 4.3;
-                double corrKsDB = -96.65*DensFact->Drc + 98.28;
+                double f = 0.001/3600*_dt;//mm/h to m/timestep
+                double corrKsDA =  -3.28*DensFact->Drc + 4.2957;//-3.28x + 4.2957
+                double corrKsDB = 135.4*f*(DensFact->Drc*DensFact->Drc) - 311.07*f*DensFact->Drc + 175.67*f;
+
                 double corrPDA = DensFact->Drc;
                 double corrPDB = -1.0 * DensFact->Drc + 1.0;
                 Ksateff->Drc = corrKsDA*Ksateff->Drc + corrKsDB;
@@ -652,9 +655,8 @@ void TWorld::InfilSwatre()
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
-        double frac = std::min(1.0, RoadWidthHSDX->Drc/_dx + HouseCover->Drc);
-
-        if (ProfileID->Drc <= 0 || frac == 1.0) {
+        // profile 0 is for impermeable surfaces
+        if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.99) {
             fact->Drc = 0;
             InfilVol->Drc = 0;
             continue;
@@ -667,7 +669,7 @@ void TWorld::InfilSwatre()
 
         WHbef->Drc = tm->Drc;
 
-        SwatreStep(i_, r, c, SwatreSoilModel, tm, TileDrainSoil, thetaTop);
+        SwatreStep(i_, r, c, SwatreSoilModel, tm, TileDrainSoil, thetaTop);        
         // tm = new water level after infiltration
         // thetatop is not used, meant for pesticides
 
@@ -762,5 +764,5 @@ void TWorld::InfilSwatre()
         // calc infilvolume from fact
 
     }}
-
+report(*tmd,"k0a");
 }

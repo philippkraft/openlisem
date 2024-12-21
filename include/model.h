@@ -1153,17 +1153,18 @@ public:
     void checkFileForInvalidLetters(const QString &filePath);
     void cell_InfilSwatre(long i_, int r, int c);
     void SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_drain, cTMap *_theta);
-    void HeadCalc(double *h, const PROFILE *p , bool *isPonded,bool fltsat,
+    void HeadCalc(const PROFILE *p, double *h, bool *isPonded, bool fltsat,
                   const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
                   double dt, double pond, double qtop, double qbot);
-//    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin);
-    double  NewTimeStep(double prevDt, QVector <double> hlast, QVector <double> h, int nrNodes, double dtMin);
-    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
-    double HNode(double theta,const  HORIZON *hor);
-    double TheNode(double head,const  HORIZON *hor);
-    double HcoNode(double head,const HORIZON *hor);
+    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin);
+//    double  NewTimeStep(double prevDt, QVector <double> hlast, QVector <double> h, int nrNodes, double dtMin);
+//    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
+    void ComputeForPixel(SOIL_MODEL *s, double drainfraction);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
     double FindValue(double value,const  HORIZON *hor, int colv, int col);
+    double HNode(double theta,const  HORIZON *hor); // obsolete
+    double TheNode(double head,const  HORIZON *hor);// obsolete
+    double HcoNode(double head,const HORIZON *hor); // obsolete
     // <= SWATRE
 
 int showr;// for debugging
