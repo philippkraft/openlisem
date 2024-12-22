@@ -64,13 +64,6 @@ dz and disnod are negative distances
 void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_drain, cTMap *_theta)
 {
     double drainfraction = 0;
-    QString dig;
-
-    double Ksat = FindValue(0, s->pixel[i_].profile->horizon[0], H_COL, K_COL);
-    if (SwitchDensCorrection) {
-        Ksat = s->pixel->corrKsDA*Ksat+s->pixel->corrKsDB;
-    }
-    tmd->Drc = Ksat;
 
     s->pixel[i_].wh = _WH->Drc*100;    // WH is in m, convert to cm
     s->pixel[i_].tiledrain = 0;
@@ -80,21 +73,6 @@ void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap 
 
     ComputeForPixel(i_, s, drainfraction);
     // estimate new h and theta at the end of dt
-
-    // if(SwitchDumphead) {
-    //     for (int i = 0; i < zone->nrNodes; i++) {
-    //         QString name = QString("head%1").arg(runstep,2, 10, QLatin1Char('0'));
-    //         dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
-    //         name=name+dig;
-    //         name.insert(8, ".");
-
-    //         #pragma omp parallel for num_threads(userCores)
-    //         FOR_ROW_COL_MV_L {
-    //             Hswatre->Drc = s->pixel[i_].h[i];
-    //         }}
-    //         report(*Hswatre, name);
-    //     }
-    // }
 
     _WH->Drc = s->pixel[i_].wh*0.01; // cm to m
     _theta->Drc = s->pixel[i_].theta; // for pesticides ?
@@ -182,21 +160,16 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         // per pixel correction of Ks and Pore for org mat and density
         // near saturated so for h > -1 cm, and only for topsoil, assumed to be 30 cm
         if (SwitchOMCorrection) {
-            for (int j = 0; j < nN && p->zone->endComp[j] <= 30; j++) {
-                if (h[j] > -1.0) {
-                    k[j] = pixel->corrKsOA*k[j] + pixel->corrKsOB;
-                //    theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
-                }
+            for (int j = 0; j < nN && p->zone->endComp[j] <= 30 && h[j] > -10; j++) {
+                k[j] = pixel->corrKsOA*k[j] + pixel->corrKsOB;
+                theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
             }
         }
 
         if (SwitchDensCorrection) {
-            for (int j = 0; j < nN  && p->zone->endComp[j] <= 30; j++) {
-                if (h[j] > -1.0) {
-                    k[j] = pixel->corrKsDA*k[j] + pixel->corrKsDB;
-                  //  theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
-                    // changing theta on the fly causes problems with dimoca
-                }
+            for (int j = 0; j < nN  && p->zone->endComp[j] <= 30 && h[j] > -10.0; j++) {
+                k[j] = pixel->corrKsDA*k[j] + pixel->corrKsDB;
+                theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
             }
         }
 
@@ -279,12 +252,80 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         std::memcpy(thetaPrev, theta, nN * sizeof(double));
         //thetaPrev = theta;
         //hPrev = h;
+        NODE_ARRAY thoma, thomb, thomc, thomf, beta;
+        //HeadCalc(p, h, &isPonded, fltsat, thetaPrev, hPrev, kavg, dimoca, dt, WH, qtop, qbot);
 
-        HeadCalc(p, h, &isPonded, fltsat, thetaPrev, hPrev, kavg, dimoca, dt, WH, qtop, qbot);
 
-        // for (int j = 0; j < nN; j++) {
+        // First node : 0 (include boundary cond. qtop or pond)
+        if (isPonded || fltsat) {
+            // h at soil surface prescribed, ponding
+            thomc[0] = -dt * kavg[1]/dz[0]/disnod[1];
+            thomb[0] = -thomc[0] + dimoca[0] + dt*kavg[0]/disnod[0]/dz[0];
+            thomf[0] = dimoca[0]*h[0] + dt/(-dz[0]) * (kavg[0] - kavg[1]) +
+                    dt*kavg[0]*WH/disnod[0]/dz[0];
+        } else {
+            //  q at soil surface prescribed, qtop = rainfall
+            isPonded = false;
+            thomc[0] = -dt * kavg[1] / dz[0] / disnod[1];
+            thomb[0] = -thomc[0] + dimoca[0];
+            thomf[0] = dimoca[0]*h[0] + dt/(-dz[0]) * (-qtop - kavg[1]);
+        }
+
+        // Intermediate nodes: i = 1 to n-2
+        for (int i = 1; i < nN-1; i++) {
+            thoma[i] = -dt*kavg[i]/dz[i]/disnod[i];
+            thomc[i] = -dt*kavg[i+1]/dz[i]/disnod[i+1];
+            thomb[i] = -thoma[i] - thomc[i] + dimoca[i];
+            thomf[i] = dimoca[i]*h[i] + dt/(-dz[i])*(kavg[i]-kavg[i+1]);
+        }
+
+        // last node : nN-1 (include boundary cond. qbot)
+        thoma[nN-1] = -dt*kavg[nN-1]/dz[nN-1]/disnod[nN-1];
+        thomb[nN-1] = -thoma[nN-1] + dimoca[nN-1];
+        thomf[nN-1] = dimoca[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot);
+
+        // Gaussian elimination and backsubstitution h - first time
+        double alpha = thomb[0];
+        h[0] = thomf[0] / alpha;
+        for (int i = 1; i < nN; i++) {
+            beta[i] = thomc[i-1] / alpha;
+            alpha = thomb[i] - thoma[i] * beta[i];
+            h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+        }
+        for (int i = (nN-2); i >= 0; i--)
+            h[i] -= beta[i+1] * h[i+1];
+
+        // correct tridiagonal matrix
+        for (int i = 0; i < nN; i++) {
+            double thetaNew = FindValue(h[i], p->horizon[i], H_COL, THETA_COL);
+
+            if (SwitchDensCorrection && p->zone->endComp[i] <= 30 && h[i] > -10.0)
+                thetaNew = pixel->corrPDA*thetaNew + pixel->corrPDB;
+            if (SwitchOMCorrection && p->zone->endComp[i] <= 30 && h[i] > -10.0)
+                thetaNew = pixel->corrPOA*thetaNew + pixel->corrPOB;
+
+            double dimocaNew = FindValue(h[i], p->horizon[i], DMCH_COL, DMCC_COL);
+            thomb[i] = thomb[i] - dimoca[i] + dimocaNew;
+            thomf[i] = thomf[i] - dimoca[i]*hPrev[i] + dimocaNew*h[i]
+                    - thetaNew + thetaPrev[i];
+        }
+
+        // Gaussian elimination and backsubstitution h - second time
+        alpha = thomb[0];
+        h[0] = thomf[0] / alpha;
+        for (int i = 1; i < nN; i++) {
+            beta[i] = thomc[i-1] / alpha;
+            alpha = thomb[i] - thoma[i] * beta[i];
+            h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
+        }
+
+        for (int i = (nN-2); i >= 0; i--)
+            h[i] -= beta[i+1] * h[i+1];
+
+        // we don't nreed this unless for output
+        // for (int j = 0; j < nN; j++)
         //     theta[j] = FindValue(h[j], p->horizon[j], H_COL, THETA_COL);
-        // }
+        //
 
         // determine new boundary fluxes
 
