@@ -523,7 +523,7 @@ void TWorld::InitLULCInput(void)
         // 0 is fully permeable, 1 = impermeable
     }}
 
-    report(*fractionImperm,"fracimpermeable.map");
+   // report(*fractionImperm,"fracimpermeable.map");
 
     GrassFraction = NewMap(0);
     if (SwitchGrassStrip)
@@ -579,7 +579,11 @@ void TWorld::InitSoilInput(void)
     if(SwitchDensCorrection)
         DensFact = ReadMap(LDD,getvaluename("Densmap"));
     else
-        DensFact  = NewMap(0);
+        DensFact  = NewMap(1.0);
+    FOR_ROW_COL_MV_L {
+        DensFact->Drc = std::min(1.2, std::max(0.9, DensFact->Drc));
+        OMcorr->Drc = std::min(2.0, std::max(-2.0, OMcorr->Drc));
+    }}
 
     if (SwitchInfilCrust) {
         CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
@@ -2492,11 +2496,10 @@ void TWorld::FindStationaryBaseFlow()
         }
     }
 
-    FOR_ROW_COL_MV_CH
-    {
+    FOR_ROW_COL_MV_CHL {
         tmc->Drc = 0;
         tmd->Drc = 0;
-    }
+    }}
     report(*BaseFlowInitialVolume,"baseflowinitm3s.map");
     report(*BaseFlowInflow,"baseinflow.map");
 

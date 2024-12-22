@@ -96,12 +96,13 @@ void TWorld::InfilEffectiveKsat(bool first)
             // because SWATRE also needs this
             // these correction come from calculations based on Saxton and Rawls
             if (SwitchOMCorrection) {
-                double OM2 = OMcorr->Drc*OMcorr->Drc;
                 double f = 0.001/3600*_dt;//mm/h to m/timestep
+                double OM2 = OMcorr->Drc*OMcorr->Drc;
                 double corrKsOA = 0.0359*OMcorr->Drc + 1.0026; //0.0359x + 1.0026
                 double corrKsOB = 2.9368*f*OMcorr->Drc + 0.2537*f; //2.9368x + 0.2537
                 double corrPOA =  -0.1065*OM2 - 0.0519*OMcorr->Drc + 0.9932;
                 double corrPOB = 0.0532*OM2 + 0.008*OMcorr->Drc + 0.0037;
+
                 Ksateff->Drc = corrKsOA*Ksateff->Drc + corrKsOB;
                 Poreeff->Drc = corrPOA*Poreeff->Drc + corrPOB;
             }
@@ -109,14 +110,15 @@ void TWorld::InfilEffectiveKsat(bool first)
                 double f = 0.001/3600*_dt;//mm/h to m/timestep
                 double corrKsDA =  -3.28*DensFact->Drc + 4.2957;//-3.28x + 4.2957
                 double corrKsDB = 135.4*f*(DensFact->Drc*DensFact->Drc) - 311.07*f*DensFact->Drc + 175.67*f;
-
                 double corrPDA = DensFact->Drc;
                 double corrPDB = -1.0 * DensFact->Drc + 1.0;
+
                 Ksateff->Drc = corrKsDA*Ksateff->Drc + corrKsDB;
                 Poreeff->Drc = corrPDA*Poreeff->Drc + corrPDB;
             }
 
             Ksateff->Drc *= 1.0-fractionImperm->Drc;
+            //fractionImperm was made fopr SWATRE, total of houses, roads, hard surfaces
 
             // to avoid pore is less than thetaR else nan in redistribution
             if (Poreeff->Drc < ThetaR1->Drc)

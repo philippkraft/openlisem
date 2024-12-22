@@ -1,10 +1,12 @@
 ### this file is a list of changes per major commit, for developers only ###
 
 241207 - v7.4.5
-- BUG FIX: Update system, wrong check
+- BUG FIX: Update Lisem, wrong check
 - BUG FIX: Swatre compacted profiles incorrectly named
-- BUG FIX: check if compacted or crusted porosity is smaller than initial moisture
-- Added options of dealing with Org.Mat. differences and Density Factor in infiltration
+- BUG FIX: Swatre impermeable surfaces no longer ignored
+- BUG FIX: check if compacted or crusted porosity is smaller than ninitial moisture
+- SWATRE improved
+- Added options of dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
 - Interface: make LISEM update optional and reacitivate in advanced options
 - Save fontsize and dark lisem in openlisem.ini
 

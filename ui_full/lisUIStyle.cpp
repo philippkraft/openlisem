@@ -105,7 +105,7 @@ void lisemqt::SetStyleUISize()
     toolBar->setMovable(false);
 
     //genfontsize = screen->devicePixelRatio()*(disp+8);
-    qDebug() << genfontsize << screen->devicePixelRatio();
+    //qDebug() << genfontsize << screen->devicePixelRatio();
     //setfontSize();
 }
 
