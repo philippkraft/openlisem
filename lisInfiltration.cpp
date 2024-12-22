@@ -764,5 +764,4 @@ void TWorld::InfilSwatre()
         // calc infilvolume from fact
 
     }}
-report(*tmd,"k0a");
 }

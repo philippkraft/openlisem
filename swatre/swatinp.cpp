@@ -172,8 +172,8 @@ void TWorld::ReadSwatreInputNew(void)
             DEBUG(QString("Warning SWATRE: profile id %1 defined more than once").arg(swatreProfileNr[i+1]));
     }
 
-    //profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
-    profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
+    profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
+ //   profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
     // profile list is a list of pointers to PROFILE
 
     nrProfileList = 0;
@@ -344,9 +344,10 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
             Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
     }
 
+    // dimoica
     for (int i = 0; i < l->Rows - 1; i++) {
         double v = 0.5*(l->hydro[H_COL][i] + l->hydro[H_COL][i+1]);
-        l->hydro[DMCH_COL] << v; // NOTE DMCH_COL is not used!
+        l->hydro[DMCH_COL] << v;
 
         v = (l->hydro[THETA_COL][i+1] - l->hydro[THETA_COL][i])/(l->hydro[H_COL][i+1] - l->hydro[H_COL][i]);
         if (i > 0 && v < l->hydro[DMCC_COL][i-1]) {
@@ -382,52 +383,3 @@ void TWorld::checkFileForInvalidLetters(const QString &filePath)
     file.close();
 }
 //----------------------------------------------------------------------------------------------
-// free the zone, luts and profiles, these are only pointers in PIXEL_INFO
-void  TWorld::FreeSwatreInfo(void)
-{
-    if (zone == nullptr)
-       return;
-
-    if (zone != nullptr) {
-        zone->dz.clear();
-        zone->z.clear();
-        zone->endComp.clear();
-        zone->disnod.clear();
-        delete(zone);
-        zone = nullptr;
-    }
-
-    if (profileList != nullptr) {
-        if (profileList[0] != nullptr) {
-            for(int i=0; i < sizeProfileList; i++)
-                if (profileList[i] != nullptr)
-                    free(profileList[i]);
-        }
-        free(profileList);
-        profileList = nullptr;
-    }
-
-    if (horizonList != nullptr) {
-        for(int i=0; i < nrHorizonList; i++)
-        {
-            for(int k = 0; k < 5; k++)
-                horizonList[i]->lut->hydro[k].clear();
-            free(horizonList[i]);
-        }
-        free(horizonList);
-        horizonList = nullptr;
-    }
-
-    nrHorizonList = 0;
-    sizeHorizonList = 0;
-
-    // free pixel_info
-    if (SwatreSoilModel != nullptr)
-        CloseSwatre(SwatreSoilModel);
-    if (SwatreSoilModelCrust != nullptr)
-        CloseSwatre(SwatreSoilModelCrust);
-    if (SwatreSoilModelCompact != nullptr)
-        CloseSwatre(SwatreSoilModelCompact);
-    if (SwatreSoilModelGrass != nullptr)
-        CloseSwatre(SwatreSoilModelGrass);
-}

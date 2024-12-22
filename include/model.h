@@ -1159,7 +1159,7 @@ public:
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin);
 //    double  NewTimeStep(double prevDt, QVector <double> hlast, QVector <double> h, int nrNodes, double dtMin);
 //    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
-    void ComputeForPixel(SOIL_MODEL *s, double drainfraction);
+    void ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
     double FindValue(double value,const  HORIZON *hor, int colv, int col);
     double HNode(double theta,const  HORIZON *hor); // obsolete

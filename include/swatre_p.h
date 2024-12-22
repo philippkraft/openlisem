@@ -33,7 +33,7 @@
 //#define MAX_NODES_P          (MAX_NODES+3)
 
 // maximum amount of ponding that is regarded as no ponding (0)
-#define POND_EPS             (1.0E-6)
+#define POND_EPS             (1.0E-8)
 // maximum amount of time for which it is not worth doing an iteration
 #define TIME_EPS             (1.0E-6)
 
@@ -93,9 +93,7 @@ typedef double NODE_ARRAY[MAX_NODES+3];
 typedef struct PIXEL_INFO {
     const PROFILE *profile;    /** profile this pixel belongs to */
     QVector <double> h;
-    //double *h;
     double wh;
-    double infil;
     double impfrac;
     double percolation;
     double theta; // for pesticides?
@@ -104,10 +102,11 @@ typedef struct PIXEL_INFO {
     double corrKsOB;
     double corrKsDA;
     double corrKsDB;
-    double corrPOA;
-    double corrPOB;
-    double corrPDA;
-    double corrPDB;    int tilenode;    /** nearest node that has the tiledrain */
+    // double corrPOA;
+    // double corrPOB;
+    // double corrPDA;
+    // double corrPDB;
+    int tilenode;    /** nearest node that has the tiledrain */
     int dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
