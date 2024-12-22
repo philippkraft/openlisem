@@ -536,6 +536,7 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 // NOT USED
 void TWorld::cell_InfilSwatre(long i_, int r, int c)
 {
+    /*
     //profile number 0 is impeermeable so no need to do anything
     double frac = std::min(1.0, RoadWidthHSDX->Drc/_dx + HouseCover->Drc);
 
@@ -644,7 +645,7 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
     }
 
     InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
-
+*/
 }
 
 //---------------------------------------------------------------------------
@@ -764,4 +765,34 @@ void TWorld::InfilSwatre()
         // calc infilvolume from fact
 
     }}
+
+    //find depth wetting front
+    Fill(*Lwmm,0);
+    for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
+        cTMap *map = inith->at(i);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (SwatreSoilModel->pixel[i_].h[i] > map->Drc+1.0) {
+                Lw->Drc = SwatreSoilModel->pixel[0].profile->zone->endComp[i]*0.01; // in m
+            }
+        }}
+    }
+
+    if(SwitchDumphead) {
+        for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
+            // QString name = QString("head%1").arg(runstep,2, 10, QLatin1Char('0'));
+            // QString dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
+            // name=name+dig;
+            // name.insert(8, ".");
+
+            QString dig = QString("%1").arg(i+1, 3, 10, QLatin1Char('0'));
+            QString name = QString("head0000.") + dig;
+
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                Hswatre->Drc = SwatreSoilModel->pixel[i_].h[i];
+            }}
+            report(*Hswatre, name);
+        }
+    }
 }

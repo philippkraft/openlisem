@@ -874,11 +874,14 @@ void TWorld::InitSoilInput(void)
     // SWATRE infiltration read maps and structures
     if (InfilMethod == INFIL_SWATRE) {
 
+        inith = new QVector<cTMap*>();
+
+        Hswatre = NewMap(0);
         // read all Swatre profile maps
         ProfileID = ReadMap(LDD,getvaluename("profmap"));
 
-        if (SwitchDumphead)
-            SwatreOutput = ReadMap(LDD,getvaluename("swatreout"));
+        // if (SwitchDumphead)
+        //     SwatreOutput = ReadMap(LDD,getvaluename("swatreout"));
 
         if (SwitchGrassStrip)
             ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));

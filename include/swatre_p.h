@@ -107,7 +107,7 @@ typedef struct PIXEL_INFO {
     // double corrPDA;
     // double corrPDB;
     int tilenode;    /** nearest node that has the tiledrain */
-    int dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
+   // int dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
 } PIXEL_INFO;
 //---------------------------------------------------------------------------
 typedef struct SOIL_MODEL {

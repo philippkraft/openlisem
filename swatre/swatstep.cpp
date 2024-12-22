@@ -73,7 +73,6 @@ void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap 
     tmd->Drc = Ksat;
 
     s->pixel[i_].wh = _WH->Drc*100;    // WH is in m, convert to cm
-    s->pixel[i_].infil = 0;
     s->pixel[i_].tiledrain = 0;
 
     if (SwitchIncludeTile)
@@ -82,18 +81,20 @@ void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap 
     ComputeForPixel(i_, s, drainfraction);
     // estimate new h and theta at the end of dt
 
-    // ?????? this only makes the output name
-    if(SwitchDumphead) {
-        if(s->pixel[i_].dumpHid > 0) {
-            for (int i = 0; i < zone->nrNodes; i++) {
-                QString name = QString("SWH%1").arg(runstep,2, 10, QLatin1Char('0'));
-                dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
-                name=name+dig;
-                name.insert(8, ".");
-                //qDebug() << name << dig;
-            }
-        }
-    }
+    // if(SwitchDumphead) {
+    //     for (int i = 0; i < zone->nrNodes; i++) {
+    //         QString name = QString("head%1").arg(runstep,2, 10, QLatin1Char('0'));
+    //         dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
+    //         name=name+dig;
+    //         name.insert(8, ".");
+
+    //         #pragma omp parallel for num_threads(userCores)
+    //         FOR_ROW_COL_MV_L {
+    //             Hswatre->Drc = s->pixel[i_].h[i];
+    //         }}
+    //         report(*Hswatre, name);
+    //     }
+    // }
 
     _WH->Drc = s->pixel[i_].wh*0.01; // cm to m
     _theta->Drc = s->pixel[i_].theta; // for pesticides ?

@@ -4324,7 +4324,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>save hydrological data at selected gridcells (swatreoutput.map)</string>
+                            <string>save matrix potential for nodes as maps</string>
                            </property>
                           </widget>
                          </item>

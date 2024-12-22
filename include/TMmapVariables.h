@@ -27,13 +27,11 @@
 \brief List of maps with descriptions and units. Linked directly in the model class.
 */
 
-cTMap
+QVector <cTMap*> *inith; // swatre matrix potential nodes
 
-//*_MASK,
+cTMap
 *DEM,                        //!< DEM [m]
 *MBm,
-//*DEMdz,                        //!< DEM [m]
-//*Shade,                      //!< Shaded relief for display [0-1]
 *ShadeBW,                      //!< Shaded relief for display [0-1]
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
@@ -49,8 +47,6 @@ cTMap
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *ETZone,                     //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
-//*IDIw,
-//*noRain,
 *Rainc,                      //!< map with rain from tis time intervall, spread over the surface (corrected or slope) [m]
 *RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]
 *RainCumFlat,                //!< cumulative rainfall [m]
@@ -143,6 +139,7 @@ cTMap
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
 *fractionImperm,            //!<// 0 is fully permeable, 1 = impermeable [-]
 *runoffTotalCell,
+*Hswatre,
 
 *PlantHeight,                //!< height of vegetation/crops [m]
 *Cover,                      //!< vegetation canopy cover fraction [-]
@@ -321,7 +318,7 @@ cTMap
 *ProfileIDCompact,           //!< SWATRE profile unit number map for compacted areas
 *ProfileIDGrass,             //!< SWATRE profile unit number map for grass strips
 *SwatreOutput,               //!< SWATRE cells flagged for output
-*inith,                      //!< SWATRE inithead in -cm
+//*inith,                      //!< SWATRE inithead in -cm
 
 *LDDChannel,                 //!<
 *LDDbaseflow,

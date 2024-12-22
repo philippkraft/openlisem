@@ -223,7 +223,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("SoilWB dt factor")==0)              spinInfdt->setValue(valc);
         if (p1.compare("Infil Kavg")==0)                    comboBox_Kmean->setCurrentIndex(iii);
         if (p1.compare("Van Genuchten")==0)                 spinSoilPhysics->setValue(valc);
-        if (p1.compare("Swatre Output")==0)                 checkSwatreOutput->setChecked(check);
+        if (p1.compare("Swatre output")==0)                 checkSwatreOutput->setChecked(check);
 
         // FLOW
         if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
@@ -850,7 +850,7 @@ void lisemqt::updateModelData()
         if (p1.compare("SoilWB dt factor")==0)              namelist[j].value.setNum(spinInfdt->value());
         if (p1.compare("Infil Kavg")==0)                    namelist[j].value.setNum(comboBox_Kmean->currentIndex());
         if (p1.compare("Van Genuchten")==0)                 namelist[j].value.setNum(spinSoilPhysics->value());
-        if (p1.compare("Swatre Output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
+        if (p1.compare("Swatre output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());

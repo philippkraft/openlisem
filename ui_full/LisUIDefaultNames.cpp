@@ -73,7 +73,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Prof. Compact;profcomp.map;ID numbers of compacted areas (defined in the profile table);profcomp");
     DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras");    
     DEFmaps.append("2;Initial suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead");
-    DEFmaps.append("2;Swatre Output points;swatreoutput.map;Points for swatre profile output 1-n);swatreout");
+ //   DEFmaps.append("2;Swatre Output points;swatreoutput.map;Points for swatre profile output 1-n);swatreout");
  //   DEFmaps.append("2;Repellency;repel.map;Gridcells included in water repellency (1/0);repelcell");
 
     DEFmaps.append("1;1st layer Green&Ampt/Smith&Parlange");

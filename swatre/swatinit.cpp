@@ -48,7 +48,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
     // set initial values
     for (long i = 0; i < (long)nrCells; i++) {
         s->pixel[i].profile = nullptr;
-        s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
+        //s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
         s->pixel[i].tiledrain = 0;
         s->pixel[i].wh = 0;
         s->pixel[i].percolation = 0;
@@ -92,34 +92,37 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
             s->pixel[i_].corrKsDB = 0.1/3600.0*(135.4*D2 - 311.07*DensFact->Drc + 175.67);
             // for D = 1, A = 1 and B = 0
           // s->pixel[i_].corrPDA =  DensFact->Drc;
-          //  s->pixel[i_].corrPDB = -1.0 * DensFact->Drc + 1.0;
+          // s->pixel[i_].corrPDB = -1.0 * DensFact->Drc + 1.0;
         }
-
-        // TODO: does not work yet!
-        if(SwitchDumphead) {
-            s->pixel[i_].dumpHid = SwatreOutput->Drc;
-        } else
-            s->pixel[i_].dumpHid = 0;
     }}
 
 
     // fill the inithead structure of each pixel and set tiledrain depth if any
-    double hi = HinitValue*psiCalibration;
-
     for (int k = 0; k < zone->nrNodes; k++) {
 
         if (!SwitchHinit4all) {
-            QString fname = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
+            QString name = QString("%1.%2").arg(initheadName).arg(k+1, 3, 10, QLatin1Char('0'));
             // make inithead.001 to .00n name
-            inith = ReadMap(LDD,fname);
+            cTMap* map = ReadMap(LDD, name);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                map->Drc *= psiCalibration;
+            }}
+            inith->append(map);
+        } else {
+            cTMap* map = NewMap(HinitValue);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                map->Drc *= psiCalibration;
+            }}
+            inith->append(map);
         }
 
         // get inithead information
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (!SwitchHinit4all)
-                hi = inith->Drc*psiCalibration;
-            s->pixel[i_].h.append(hi);
+            cTMap *map = inith->at(k);
+            s->pixel[i_].h.append(map->Drc);
 
             // find depth of tilenode
             if (SwitchIncludeTile) {
@@ -133,7 +136,6 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         }}
     }
 
-   //qDebug() << "DONE InitSwatre";
     return(s);
 }
 //--------------------------------------------------------------------------------
