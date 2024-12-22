@@ -772,8 +772,10 @@ void TWorld::InfilSwatre()
         cTMap *map = inith->at(i);
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (SwatreSoilModel->pixel[i_].h[i] > map->Drc+1.0) {
-                Lw->Drc = SwatreSoilModel->pixel[0].profile->zone->endComp[i]*0.01; // in m
+            if (i > 0 && SwatreSoilModel->pixel[i_].h[i] > map->Drc+1.0) {
+                double l = SwatreSoilModel->pixel[0].profile->zone->endComp[i-1]*0.01; // in m
+                double l1 = SwatreSoilModel->pixel[0].profile->zone->endComp[i]*0.01; // in m
+                Lw->Drc = 0.5*(l+l1);
             }
         }}
     }
