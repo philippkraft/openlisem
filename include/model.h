@@ -591,7 +591,6 @@ public:
     //Groundwater flow parameters
     double GW_recharge;
     double GW_flow;
-    //double GW_inflow;
     double GW_slope;
     double GW_deep;
     double GW_threshold;
@@ -611,8 +610,8 @@ public:
     double nCalibration;
     double thetaCalibration;
     double psiCalibration;
-    double SD1Calibration;
-    double SD2Calibration;
+//    double SD1Calibration;
+//    double SD2Calibration;
     double ChnCalibration;
     double WaveCalibration;
     double ChnTortuosity;
@@ -969,7 +968,7 @@ public:
     void cell_ETa(int r, int c);
     double getETaFactor();
     double ETafactor;
-    void InfilEffectiveKsat(bool first);
+    void InfilEffectiveKsat();
     void InfilSwatre();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);

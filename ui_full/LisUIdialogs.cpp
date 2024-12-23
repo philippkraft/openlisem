@@ -183,12 +183,12 @@ void lisemqt::on_toolButton_helpErosion_clicked()
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_helpCalibration_clicked()
 {
-    on_toolButton_help(HELPINFRA);
+    on_toolButton_help(HELPCALIBRATION);
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_helpInfra_clicked()
 {
-    on_toolButton_help(HELPCALIBRATION);
+    on_toolButton_help(HELPINFRA);
 
 }
 //---------------------------------------------------------------
@@ -207,7 +207,7 @@ void lisemqt::on_toolButton_help(int page)
     if (page == HELPFLOW        ) filename = ":/help4.html";
     if (page == HELPCHANNEL     ) filename = ":/help9.html";
     if (page == HELPEROSION     ) filename = ":/help5.html";
-    if (page == HELPINFRA       ) filename = ":/help8.html";
+    if (page == HELPINFRA       ) filename = ":/help10.html";
     if (page == HELPCALIBRATION ) filename = ":/help7.html";
     if (page == HELPADVANCED    ) filename = ":/help8.html";
 

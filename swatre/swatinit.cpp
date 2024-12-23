@@ -26,7 +26,8 @@
 \brief SWATRE: initialize soil profile with inithead maps data and clean up after run
 
 functions:
-- SOIL_MODEL * TWorld::InitSwatre(cTMap *profileMap); \n
+- SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap); \n
+- void TWorld::FreeSwatreInfo(void);\n
 - void TWorld::CloseSwatre(SOIL_MODEL *s); \n
 */
 
@@ -59,10 +60,10 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         s->pixel[i].corrKsOB = 0.0;
         s->pixel[i].corrKsDA = 1.0;
         s->pixel[i].corrKsDB = 0.0;
-        // s->pixel[i].corrPOA = 1.0;
-        // s->pixel[i].corrPOB = 0.0;
-        // s->pixel[i].corrPDA = 1.0;
-        // s->pixel[i].corrPDB = 0.0;
+        s->pixel[i].corrPOA = 1.0;
+        s->pixel[i].corrPOB = 0.0;
+        s->pixel[i].corrPDA = 1.0;
+        s->pixel[i].corrPDB = 0.0;
     }
 
     // give each pixel a profile
@@ -79,20 +80,18 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
             // these correction come from calculations based on Saxton and rawls
             // Ks in mm/h convert to cm/s, affects factor B of the regression
             double OM2 = OMcorr->Drc*OMcorr->Drc;
-            s->pixel[i_].corrKsOA = 0.0359*OMcorr->Drc + 1.0026; //0.0359x + 1.0026
-            s->pixel[i_].corrKsOB = 0.1/3600.0*(2.9368*OMcorr->Drc + 0.2537); //2.9368x + 0.2537
-            //7E-06*OM2 + 8E-05*OMcorr->Drc + 2E-08; // = 8E-05x + 7E-06
-            s->pixel[i_].corrPOA =  -0.1065*(OM2) - 0.0519*OMcorr->Drc + 0.9932;
-            s->pixel[i_].corrPOB = 0.0532*(OM2) + 0.008*OMcorr->Drc + 0.0037;
+            s->pixel[i_].corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
+            s->pixel[i_].corrKsOB = 0.1/3600.0*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
+            s->pixel[i_].corrPOA  = -0.1065*OM2 - 0.0519*OMcorr->Drc + 0.9932;
+            s->pixel[i_].corrPOB  = 0.0532*OM2 + 0.008*OMcorr->Drc + 0.0037;
         }
         if (SwitchDensCorrection) {
             double D2 = DensFact->Drc*DensFact->Drc;
             // the regression is made with ks in cm/s, this affects B, not A: mm/h cm/s = *0.1/3600.0
-            s->pixel[i_].corrKsDA = 3.1429*D2 - 9.5657*DensFact->Drc + 7.4229; //-3.28*DensFact->Drc + 4.2957;//-3.28x + 4.2957    //3.1429x2 - 9.5657x + 7.4229
+            s->pixel[i_].corrKsDA = 3.1429*D2 - 9.5657*DensFact->Drc + 7.4229;
             s->pixel[i_].corrKsDB = 0.1/3600.0*(135.4*D2 - 311.07*DensFact->Drc + 175.67);
-            // for D = 1, A = 1 and B = 0
-            s->pixel[i_].corrPDA =  DensFact->Drc;
-            s->pixel[i_].corrPDB = -1.0 * DensFact->Drc + 1.0;
+            s->pixel[i_].corrPDA  = DensFact->Drc;
+            s->pixel[i_].corrPDB   = -1.0 * DensFact->Drc + 1.0;
         }
     }}
 
@@ -206,6 +205,8 @@ void  TWorld::FreeSwatreInfo(void)
         CloseSwatre(SwatreSoilModelCompact);
     if (SwatreSoilModelGrass != nullptr)
         CloseSwatre(SwatreSoilModelGrass);
+
+    initSwatreStructure = false;
 
     DEBUG("SWATRE mem freed");
 }

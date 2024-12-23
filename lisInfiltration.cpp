@@ -41,13 +41,13 @@ functions: \n
 
 //---------------------------------------------------------------------------
 // Calculate effective Ksat based on surface structure, impermeable etc.
-void TWorld::InfilEffectiveKsat(bool first)
+void TWorld::InfilEffectiveKsat()
 {
     // moved to datainit!
     // if (first) {
     //     #pragma omp parallel for num_threads(userCores)
     //     FOR_ROW_COL_MV_L {
-    //         Ksat1->Drc *= _dt/3600000.0; // mm/h to m
+    //         Ksat1->Drc *= _dt/3600000.0; // mm/h to m oper timestep
     //         if (SwitchTwoLayer)
     //             Ksat2->Drc *= _dt/3600000.0;
     //         if (SwitchThreeLayer)
@@ -59,8 +59,7 @@ void TWorld::InfilEffectiveKsat(bool first)
     //     }}
     // }
 
-    if (SwitchInfiltration && InfilMethod != INFIL_SWATRE)
-    {
+    if (SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             Ksateff->Drc = Ksat1->Drc;
@@ -70,7 +69,7 @@ void TWorld::InfilEffectiveKsat(bool first)
             if (SwitchInfilCrust) {
                 double factor = 1.0-exp(-0.2*std::max(0.0, RainCum->Drc/1000-5.0));  //
                 // exponential decline until from no crusting to full crusting at ~ 30 mm,
-                //old research Jean Boiffin, multiple rainfall in a growing season, progressive crusting
+                //old research Jean Boiffin, multiple rainfall events in a growing season, progressive crusting
 
                 double ksatdiff = std::max(0.0,Ksat1->Drc - KsatCrust->Drc);
                 Ksateff->Drc = KsatCrust->Drc + ksatdiff * factor;
@@ -95,24 +94,22 @@ void TWorld::InfilEffectiveKsat(bool first)
             // density factor and OM corrections directly in LISEM (instead of dbase creator)
             // because SWATRE also needs this
             // these correction come from calculations based on Saxton and Rawls
+            // note ksat is in m/timestep, affects B of the regression eq for Ks, 0.001/3600.0*_dt
             if (SwitchOMCorrection) {
-                double f = 0.001/3600*_dt;//mm/h to m/timestep
                 double OM2 = OMcorr->Drc*OMcorr->Drc;
-                double corrKsOA = 0.0359*OMcorr->Drc + 1.0026; //0.0359x + 1.0026
-                double corrKsOB = 2.9368*f*OMcorr->Drc + 0.2537*f; //2.9368x + 0.2537
-                double corrPOA =  -0.1065*OM2 - 0.0519*OMcorr->Drc + 0.9932;
-                double corrPOB = 0.0532*OM2 + 0.008*OMcorr->Drc + 0.0037;
-
+                double corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
+                double corrKsOB = 0.001/3600*_dt*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
+                double corrPOA  = -0.1065*OM2 - 0.0519*OMcorr->Drc + 0.9932;
+                double corrPOB  = 0.0532*OM2 + 0.008*OMcorr->Drc + 0.0037;
                 Ksateff->Drc = corrKsOA*Ksateff->Drc + corrKsOB;
                 Poreeff->Drc = corrPOA*Poreeff->Drc + corrPOB;
             }
             if (SwitchDensCorrection) {
-                double f = 0.001/3600*_dt;//mm/h to m/timestep
-                double corrKsDA =  -3.28*DensFact->Drc + 4.2957;//-3.28x + 4.2957
-                double corrKsDB = 135.4*f*(DensFact->Drc*DensFact->Drc) - 311.07*f*DensFact->Drc + 175.67*f;
-                double corrPDA = DensFact->Drc;
-                double corrPDB = -1.0 * DensFact->Drc + 1.0;
-
+                double D2 = DensFact->Drc*DensFact->Drc;
+                double corrKsDA = 3.1429*D2 - 9.5657*DensFact->Drc + 7.4229;
+                double corrKsDB = 0.001/3600.0*_dt*(135.4*D2 - 311.07*DensFact->Drc + 175.67);
+                double corrPDA  = DensFact->Drc;
+                double corrPDB   = -1.0 * DensFact->Drc + 1.0;
                 Ksateff->Drc = corrKsDA*Ksateff->Drc + corrKsDB;
                 Poreeff->Drc = corrPDA*Poreeff->Drc + corrPDB;
             }
@@ -141,13 +138,14 @@ void TWorld::InfilEffectiveKsat(bool first)
             }
 
         }}
-    }
+    } // !swatre
 
 }
 //---------------------------------------------------------------------------
 // this function is not used!
 void TWorld::Infiltration()
 {
+    /*
     if (!SwitchInfiltration)
         return;
 
@@ -166,6 +164,7 @@ void TWorld::Infiltration()
             cell_InfilMethods(r, c);
         }}
     }
+    */
 }
 
 //---------------------------------------------------------------------------
@@ -659,38 +658,38 @@ void TWorld::InfilSwatre()
     FOR_ROW_COL_MV_L {
 
         // profile 0 is for impermeable surfaces
-        if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.99) {
+        if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
             fact->Drc = 0;
             InfilVol->Drc = 0;
             continue;
         }
 
         if (FloodDomain->Drc == 0)
-            tm->Drc = WH->Drc;
+            WHold->Drc = WH->Drc;
         else
-            tm->Drc = hmx->Drc;
+            WHold->Drc = hmx->Drc;
 
-        WHbef->Drc = tm->Drc;
+        WHnew->Drc = WHold->Drc;
 
-        SwatreStep(i_, r, c, SwatreSoilModel, tm, TileDrainSoil, thetaTop);        
-        // tm = new water level after infiltration
+        SwatreStep(i_, r, c, SwatreSoilModel, WHnew, TileDrainSoil, thetaTop);
+        // WHnew = new water level after infiltration
         // thetatop is not used, meant for pesticides
 
-        fact->Drc = std::max(0.0, WHbef->Drc - tm->Drc);
+        fact->Drc = std::max(0.0, WHold->Drc - WHnew->Drc);
         // actual infil is dif between WH before and after
 
         if (FloodDomain->Drc == 0)
-            WH->Drc = tm->Drc;
+            WH->Drc = WHnew->Drc;
         else
-            hmx->Drc = tm->Drc;
+            hmx->Drc = WHnew->Drc;
 
         //TODO test infil swatre for crusts and compaction
         if (CrustFraction->Drc > 0) {
-            tm->Drc = WHbef->Drc;
+            WHnew->Drc = WHold->Drc;
             tma->Drc = 0;
             tmb->Drc = 0;
 
-            SwatreStep(i_, r, c, SwatreSoilModelCrust, tm, tma, tmb);
+            SwatreStep(i_, r, c, SwatreSoilModelCrust, WHnew, tma, tmb);
             // calculate crust SWATRE and get the soil moisture of the top node
 
             double _wh;
@@ -700,23 +699,23 @@ void TWorld::InfilSwatre()
                 _wh = hmx->Drc;
             // new water level from regular swatre
 
-            double wha = tm->Drc*CrustFraction->Drc + _wh*(1-CrustFraction->Drc);
+            double whn = WHnew->Drc*CrustFraction->Drc + _wh*(1-CrustFraction->Drc);
             // weighed average
             if (FloodDomain->Drc == 0)
-                WH->Drc = wha;
+                WH->Drc = whn;
             else
-                hmx->Drc = wha;
+                hmx->Drc = whn;
 
-            fact->Drc = (WHbef->Drc - wha);
+            fact->Drc = (WHold->Drc - whn);
             thetaTop->Drc = tmb->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
         }
 
         if (SwitchInfilCompact) {
-            tm->Drc = WHbef->Drc;
+            WHnew->Drc = WHold->Drc;
             tma->Drc = 0;
             tmb->Drc = 0;
 
-            SwatreStep(i_, r, c, SwatreSoilModelCompact, tm, tma, tmb);
+            SwatreStep(i_, r, c, SwatreSoilModelCompact, WHnew, tma, tmb);
             // calculate crust SWATRE and get the soil moisture of the top node
 
             double _wh;
@@ -726,19 +725,19 @@ void TWorld::InfilSwatre()
                 _wh = hmx->Drc;
             // water level on crusted areas
 
-            double wha = tm->Drc*CompactFraction->Drc + _wh*(1-CompactFraction->Drc);
+            double whn = WHnew->Drc*CompactFraction->Drc + _wh*(1-CompactFraction->Drc);
             // weighted average
             if (FloodDomain->Drc == 0)
-                WH->Drc = wha;
+                WH->Drc = whn;
             else
-                hmx->Drc = wha;
+                hmx->Drc = whn;
 
-            fact->Drc = (WHbef->Drc - wha);
+            fact->Drc = (WHold->Drc - whn);
             thetaTop->Drc = tmb->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
         }
 
         if (SwitchGrassStrip) {
-            tm->Drc = WHbef->Drc;
+            WHnew->Drc = WHold->Drc;
             tma->Drc = 0;
             tmb->Drc = 0;
 
@@ -752,14 +751,14 @@ void TWorld::InfilSwatre()
                 _wh = hmx->Drc;
             // water level on crusted areas
 
-            double wha = tm->Drc*GrassFraction->Drc + _wh*(1-GrassFraction->Drc);
+            double whn = WHnew->Drc*GrassFraction->Drc + _wh*(1-GrassFraction->Drc);
             // weighted average
             if (FloodDomain->Drc == 0)
-                WH->Drc = wha;
+                WH->Drc = whn;
             else
-                hmx->Drc = wha;
+                hmx->Drc = whn;
 
-            fact->Drc = (WHbef->Drc - wha);
+            fact->Drc = (WHold->Drc - whn);
             thetaTop->Drc = tmb->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
         }
 
@@ -768,7 +767,7 @@ void TWorld::InfilSwatre()
 
     }}
 
-    //find depth wetting front
+    //find depth wetting front, estimated at deopth where h is initial value, very crude
     Fill(*Lwmm,0);
     for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
         cTMap *map = inith->at(i);
@@ -782,21 +781,21 @@ void TWorld::InfilSwatre()
         }}
     }
 
+    // dump a map with h at every node
     if(SwitchDumphead) {
         for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
-            // QString name = QString("head%1").arg(runstep,2, 10, QLatin1Char('0'));
-            // QString dig = QString("%1").arg(i, 12-name.length(), 10, QLatin1Char('0'));
-            // name=name+dig;
-            // name.insert(8, ".");
 
             QString dig = QString("%1").arg(i+1, 3, 10, QLatin1Char('0'));
-            QString name = QString("head0000.") + dig;
+            QString hname = QString("head0000.") + dig;
+            QString tname = QString("theta000.") + dig;
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                Hswatre->Drc = SwatreSoilModel->pixel[i_].h[i];
+                hSwatre->Drc = SwatreSoilModel->pixel[i_].h[i];
+                thetaSwatre->Drc = FindValue(hSwatre->Drc, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
             }}
-            report(*Hswatre, name);
+            report(*hSwatre, hname);
+            report(*thetaSwatre, tname);
         }
     }
 }

@@ -182,9 +182,8 @@ void lisemqt::runmodel()
         ClearOP(); // clear most of the op structure
 
         // destroy swatre structures
-        if (W->SwitchInfiltration && W->InfilMethod == INFIL_SWATRE && W->initSwatreStructure)
-        {
-            W->FreeSwatreInfo(); // free horizon structures
+        if (W->initSwatreStructure) {
+            W->FreeSwatreInfo(); // free horizon structures, this calls also closeswatre
         }
 
         // drawing riuvers on screen structures

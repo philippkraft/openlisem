@@ -14,11 +14,12 @@ NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, 
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, openmp, gdal and (minimal) pcraster
 
 241223 - v7.4.5
+- BUG FIX: Delete all map and swatre data after no GUI run
 - BUG FIX: Update Lisem, wrong check
 - BUG FIX: Swatre compacted profiles incorrectly named
 - BUG FIX: Swatre impermeable surfaces no longer ignored
 - BUG FIX: check if compacted or crusted porosity is smaller than ninitial moisture
-- SWATRE improved
+- Swatre input matrix potential as one value or user maps, output as maps of h and theta for each node
 - Added options of dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
 - Interface: make LISEM update optional and reacitivate in advanced options
 - Save fontsize and dark lisem in openlisem.ini

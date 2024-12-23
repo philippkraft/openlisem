@@ -87,7 +87,6 @@ void TWorld::InitParameters(void)
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
-    //GW_inflow = getvaluedouble("GW river inflow factor");
     GW_slope = getvaluedouble("GW slope factor");
     GW_deep = getvaluedouble("GW deep percolation"); // in mm/day
     GW_deep *= 0.001/3600*_dt; //mm/h to m/s
@@ -113,8 +112,8 @@ void TWorld::InitParameters(void)
 
     thetaCalibration = getvaluedouble("Theta calibration");
     psiCalibration = getvaluedouble("Psi calibration");
-    SD1Calibration = getvaluedouble("SoilDepth1 calibration");
-    SD2Calibration = getvaluedouble("SoilDepth2 calibration");
+  //  SD1Calibration = getvaluedouble("SoilDepth1 calibration");
+  //  SD2Calibration = getvaluedouble("SoilDepth2 calibration");
 
     ChnCalibration = getvaluedouble("Channel N calibration");
 
@@ -613,7 +612,7 @@ void TWorld::InitSoilInput(void)
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
-        calcValue(*SoilDepth1, SD1Calibration, MUL);
+        //calcValue(*SoilDepth1, SD1Calibration, MUL);
         SoilDepth1init = NewMap(0);
         copy(*SoilDepth1init, *SoilDepth1);
 
@@ -690,7 +689,7 @@ void TWorld::InitSoilInput(void)
 
             SoilDepth2 = ReadMap(LDD,getvaluename("soilDep2"));
             calcValue(*SoilDepth2, 1000, DIV);
-            calcValue(*SoilDepth2, SD2Calibration, MUL);
+            //calcValue(*SoilDepth2, SD2Calibration, MUL);
 
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
@@ -879,13 +878,11 @@ void TWorld::InitSoilInput(void)
     if (InfilMethod == INFIL_SWATRE) {
 
         inith = new QVector<cTMap*>();
+        hSwatre = NewMap(0);
+        thetaSwatre = NewMap(0);
 
-        Hswatre = NewMap(0);
         // read all Swatre profile maps
         ProfileID = ReadMap(LDD,getvaluename("profmap"));
-
-        // if (SwitchDumphead)
-        //     SwatreOutput = ReadMap(LDD,getvaluename("swatreout"));
 
         if (SwitchGrassStrip)
             ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
@@ -1818,7 +1815,6 @@ void TWorld::IntializeData(void)
     QpeakTime = 0;
 
     WH = NewMap(0);
-    WHbef = NewMap(0);
     WHrunoff = NewMap(0);
     WHmax = NewMap(0);
     WHstore = NewMap(0);
@@ -1854,12 +1850,9 @@ void TWorld::IntializeData(void)
         }}
         WHbound = NewMap(0);
         WHboundRain = NewMap(0);
-        report(*WHboundarea,"b.map"); // test delete later?
     }
 
-    //flowmask = NewMap(0);
     K2DOutlets = NewMap(0);
-    //K2DQ = NewMap(0);
 
     if(SwitchPesticide)
     {
@@ -1888,34 +1881,33 @@ void TWorld::IntializeData(void)
 
     if (SwitchFloodInitial) {
         hmxInit = ReadMap(LDD, getvaluename("whinit"));
-        report(*hmxInit,"wh_init.map");
     } else {
         hmxInit = NewMap(0);
     }
 
     // needs to be done here because profile uses data like impermable fration, tiledrain etc
     if (InfilMethod == INFIL_SWATRE) {
-        thetaTop = NewMap(0);
+
+        thetaTop = NewMap(0); // for pesticides
+        WHold= NewMap(0);
+        WHnew = NewMap(0);
 
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
         SwatreSoilModel = InitSwatre(ProfileID);
         if (SwatreSoilModel == nullptr)
             throw 3;
 
-        if (SwitchInfilCrust)
-        {
+        if (SwitchInfilCrust) {
             SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);
             if (SwatreSoilModelCrust == nullptr)
                 throw 3;
         }
-        if (SwitchInfilCompact)
-        {
+        if (SwitchInfilCompact) {
             SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);
             if (SwatreSoilModelCompact == nullptr)
                 throw 3;
         }
-        if (SwitchGrassStrip)
-        {
+        if (SwitchGrassStrip) {
             SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);
             if (SwatreSoilModelGrass == nullptr)
                 throw 3;

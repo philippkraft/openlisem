@@ -76,9 +76,8 @@ cTMap
 *SnowmeltCum,                //!< cumulative showmelt depth [m]
 
 *WH,                         //!< water height on the surface [m]
-*WHbef,                      //!< water height on the surface before infiltration [m]
-//*WHroad,                     //!< water height on the roads [m]
-//*WHrunoffOutput,                     //!< water height on the roads [m]
+*WHold,                      //!< water height on the surface before infiltration [m]
+*WHnew,                      //!< water height on the surface before infiltration [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
@@ -139,7 +138,8 @@ cTMap
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
 *fractionImperm,            //!<// 0 is fully permeable, 1 = impermeable [-]
 *runoffTotalCell,
-*Hswatre,
+*hSwatre,
+*thetaSwatre,
 
 *PlantHeight,                //!< height of vegetation/crops [m]
 *Cover,                      //!< vegetation canopy cover fraction [-]
