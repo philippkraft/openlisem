@@ -401,7 +401,7 @@ cTMap
 *hmxflood,
 *FloodDomain,                //!<
 *Buffers,                    //!<
-*BufferNr,                    //!<
+*GridRetention,                    //!<
 *ChannelMaxQ,                //!<
 *ChannelMaxAlpha,                //!<
 *FloodWaterVol,                //!<

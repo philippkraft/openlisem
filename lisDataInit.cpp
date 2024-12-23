@@ -419,6 +419,11 @@ void TWorld::InitLULCInput(void)
     checkMap(*RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
+    if (SwitchGridRetention) {
+        GridRetention = ReadMap(LDD, getvaluename("gridretention"));
+    }
+
+
     //===== interception =====
     LAI = ReadMap(LDD,getvaluename("lai"));
     checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");

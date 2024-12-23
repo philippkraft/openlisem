@@ -145,6 +145,7 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("0;Mitigation");
     DEFmaps.append("2;Buffers;buffers.map;Dams (negative) and bariers and obstacles (positive) in m;buffers");
+    DEFmaps.append("2;Grid retention;gridretention.map; Gridcell level retention (m3);gridretention");
     DEFmaps.append("2;Sediment traps;sedretmax.map;Max sediment volume in m2 per cell that can be trapped;sedretmax");
     DEFmaps.append("2;Grass strips;grasswid.map;Width of grass strips (m);grasswidth");
     DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");

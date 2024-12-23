@@ -85,6 +85,9 @@ void TWorld::GridCell()
         MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
 
+        if(SwitchGridRetention)
+            GridRetention->Drc = GridRetention->Drc/CHAdjDX->Drc;
+
         FlowWidth->Drc = ChannelAdj->Drc;
         // water can flow everywhere, a house is permeable and a migh mannings n, roads are smooth
         // if hosues are part of the dem than the water automatically flows around it
@@ -154,10 +157,15 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     double WHs = std::max(0.0, std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc)))));
     // surface storage on rough surfaces
     // non-linear release fo water from depression storage
-    // resemles curves from GIS surface tests, unpublished
-    // note: roads and houses are assumed to be smooth!
+    // resembles curves from GIS surface tests, unpublished
 
-    WHrunoff->Drc = wh-WHs;// ((wh - WHs)*SW + WHr*RW)/(SW+RW);
+    double retm = 0;
+    // additional Fayna Yuu type storage in m3 per cell
+    if (SwitchGridRetention)
+        WHs += GridRetention->Drc;
+
+    WHrunoff->Drc = std::max(0.0, wh-WHs);
+    // used to be ((wh - WHs)*SW + WHr*RW)/(SW+RW);
     // WH of overlandflow above surface storage
 
     WHstore->Drc = WHs;

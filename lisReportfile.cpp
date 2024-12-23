@@ -948,7 +948,7 @@ void TWorld::ReportMapSeries(void)
         }}
         report(*tm, Outss);
 
-    }
+}
 
     if (SwitchIncludeTile|| SwitchIncludeStormDrains)
     {

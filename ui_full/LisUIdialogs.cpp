@@ -249,11 +249,11 @@ void lisemqt::on_check2DDiagonalFlow_toggled(bool checked)
 //}
 //--------------------------------------------------------------------
 
-void lisemqt::on_checkHouses_toggled(bool checked)
-{
-    checkRaindrum->setEnabled(checked);
-    label_78->setEnabled(checked);
-}
+// void lisemqt::on_checkHouses_toggled(bool checked)
+// {
+//     checkRaindrum->setEnabled(checked);
+//     label_78->setEnabled(checked);
+// }
 //--------------------------------------------------------------------
 
 // select a file or directory

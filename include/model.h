@@ -505,6 +505,7 @@ public:
         SwitchInfrastructure,
         SwitchRaindrum,
         SwitchAddBuildingsDEM,
+        SwitchGridRetention,
 
         //pesticide
         SwitchPesticide,
