@@ -19,9 +19,12 @@ NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, op
 - BUG FIX: Swatre compacted profiles incorrectly named
 - BUG FIX: Swatre impermeable surfaces no longer ignored
 - BUG FIX: check if compacted or crusted porosity is smaller than ninitial moisture
+- BUG FIX: wrong help file shown in certain pages, help text updated
+- Included gridretention (Fanyaa Yuu, trenches etc) in water mitigation measures
 - Swatre input matrix potential as one value or user maps, output as maps of h and theta for each node
 - Added options of dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
 - Interface: make LISEM update optional and reacitivate in advanced options
+- Updated help files
 - Save fontsize and dark lisem in openlisem.ini
 
 241203 - v7.4.4
