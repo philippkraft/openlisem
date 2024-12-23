@@ -88,7 +88,7 @@ void lisemqt::GetRunfile()
 
     for (int i = 0; i < nrnamelist; i++) {
         if (!namelist[i].value.isEmpty() && !namelist[i].gotit) {
-            qDebug() << i << namelist[i].name << namelist[i].value;
+         //   qDebug() << i << namelist[i].name << namelist[i].value << "map not found";
             saveRunFileOnce = true;            
         }
     }

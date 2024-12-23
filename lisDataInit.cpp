@@ -1591,7 +1591,6 @@ void TWorld::InitErosion(void)
     FS_SS_Method = FSGOVERS;
 
     FS_SS_Method = getvalueint("Flooding SS method")-1;
-    qDebug() << FS_SS_Method ;
     FS_BL_Method = getvalueint("Flooding BL method")-1;
     R_SS_Method  = getvalueint("River SS method")-1;
     R_BL_Method  = getvalueint("River BL method")-1;
@@ -2762,7 +2761,7 @@ void TWorld::InitNewSoilProfile()
     SwitchVanGenuchten = !SwitchBrooksCorey;
 
     nNodes = nN1_ + nN2_ + nN3_ + 1;
-    qDebug() << SwitchThreeLayer << nN3_ << nNodes;
+  //  qDebug() << SwitchThreeLayer << nN3_ << nNodes;
 
     FOR_ROW_COL_MV {
         SOIL_LIST sr;

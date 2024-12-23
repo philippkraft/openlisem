@@ -82,8 +82,10 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
             double OM2 = OMcorr->Drc*OMcorr->Drc;
             s->pixel[i_].corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
             s->pixel[i_].corrKsOB = 0.1/3600.0*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
-            s->pixel[i_].corrPOA  = -0.1065*OM2 - 0.0519*OMcorr->Drc + 0.9932;
-            s->pixel[i_].corrPOB  = 0.0532*OM2 + 0.008*OMcorr->Drc + 0.0037;
+            s->pixel[i_].corrPOA  = -0.001*OM2 + 0.1014*OMcorr->Drc + 1.0;
+            s->pixel[i_].corrPOB  = 0.0006*OM2 - 0.0282*OMcorr->Drc;
+            // pore A -0.001x2 + 0.1014x + 1
+            // pore B 0.0006x2 - 0.0282x
         }
         if (SwitchDensCorrection) {
             double D2 = DensFact->Drc*DensFact->Drc;

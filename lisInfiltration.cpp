@@ -99,8 +99,8 @@ void TWorld::InfilEffectiveKsat()
                 double OM2 = OMcorr->Drc*OMcorr->Drc;
                 double corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
                 double corrKsOB = 0.001/3600*_dt*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
-                double corrPOA  = -0.1065*OM2 - 0.0519*OMcorr->Drc + 0.9932;
-                double corrPOB  = 0.0532*OM2 + 0.008*OMcorr->Drc + 0.0037;
+                double corrPOA  = -0.001*OM2 + 0.1014*OMcorr->Drc + 1.0;
+                double corrPOB  = 0.0006*OM2 - 0.0282*OMcorr->Drc;
                 Ksateff->Drc = corrKsOA*Ksateff->Drc + corrKsOB;
                 Poreeff->Drc = corrPOA*Poreeff->Drc + corrPOB;
             }

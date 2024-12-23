@@ -162,14 +162,14 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         if (SwitchOMCorrection) {
             for (int j = 0; j < nN && p->zone->endComp[j] <= 30 && h[j] > -10; j++) {
                 k[j] = pixel->corrKsOA*k[j] + pixel->corrKsOB;
-                theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
+               // theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
             }
         }
 
         if (SwitchDensCorrection) {
             for (int j = 0; j < nN  && p->zone->endComp[j] <= 30 && h[j] > -10.0; j++) {
                 k[j] = pixel->corrKsDA*k[j] + pixel->corrKsDB;
-                theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
+              //  theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
             }
         }
 
@@ -299,10 +299,10 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         for (int i = 0; i < nN; i++) {
             double thetaNew = FindValue(h[i], p->horizon[i], H_COL, THETA_COL);
 
-            if (SwitchDensCorrection && p->zone->endComp[i] <= 30 && h[i] > -10.0)
-                thetaNew = pixel->corrPDA*thetaNew + pixel->corrPDB;
-            if (SwitchOMCorrection && p->zone->endComp[i] <= 30 && h[i] > -10.0)
-                thetaNew = pixel->corrPOA*thetaNew + pixel->corrPOB;
+            // if (SwitchDensCorrection && p->zone->endComp[i] <= 30 && h[i] > -10.0)
+            //     thetaNew = pixel->corrPDA*thetaNew + pixel->corrPDB;
+            // if (SwitchOMCorrection && p->zone->endComp[i] <= 30 && h[i] > -10.0)
+            //     thetaNew = pixel->corrPOA*thetaNew + pixel->corrPOB;
 
             double dimocaNew = FindValue(h[i], p->horizon[i], DMCH_COL, DMCC_COL);
             thomb[i] = thomb[i] - dimoca[i] + dimocaNew;

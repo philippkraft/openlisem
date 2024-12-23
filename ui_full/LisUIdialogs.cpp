@@ -377,7 +377,7 @@ void lisemqt::on_toolButton_DischargeShow_clicked()
 //--------------------------------------------------------------------
 void lisemqt::on_toolButton_WaveShow_clicked()
 {
-    qDebug() <<WaveinDir + WaveinFileName;
+    //qDebug() <<WaveinDir + WaveinFileName;
     showTextfile(WaveinDir + WaveinFileName);
 }
 //--------------------------------------------------------------------

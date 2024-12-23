@@ -45,42 +45,31 @@ functions: \n
 //---------------------------------------------------------------------------
 QString TWorld::getvaluename(QString vname)
 {
-    for (int i = 0; i < nrrunnamelist; i++)
-    {
-        if(vname.toUpper() == runnamelist[i].name.toUpper())
-        {
-            // VJ 110420 special case
+    for (int i = 0; i < nrrunnamelist; i++) {
+        if(vname.toUpper() == runnamelist[i].name.toUpper()) {
             if (InfilMethod == INFIL_SWATRE && runnamelist[i].name.toUpper() == QString("INITHEAD"))
             {
                 QFileInfo info(inputDir + runnamelist[i].value + QString(".001"));
-                if (!info.exists())
-                {
+                if (!info.exists()) {
                     ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
                     throw 1;
-                }
-                else
-                {
+                } else {
                     return inputDir + info.baseName();
                 }
-            }
-            else
-            {
+            } else {
                 //qDebug() << runnamelist[i].value << runnamelist[i].name ;
                 QFileInfo info(inputDir + runnamelist[i].value);
-                if (runnamelist[i].value.isEmpty() || !info.exists())
-                {
+                if (runnamelist[i].value.isEmpty() || !info.exists()) {
                     ErrorString = "Filename not found for map (VAR NAME: " +runnamelist[i].value+ ")\"<I>"+runnamelist[i].name + "\" - " + info.fileName();
                     throw 1;
-                }
-                else
-                {
+                } else {
                     return inputDir + info.fileName();
                 }
             }
         }
     }
 
-    ErrorString = QString("Map ID: \"%1\" not found! You could be using an old runfile,\nor a map is not present.").arg(vname);
+    ErrorString = QString("File for map ID: \"%1\" not found! Check your map list.").arg(vname);
     throw 3;
 }
 //---------------------------------------------------------------------------

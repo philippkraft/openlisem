@@ -99,7 +99,7 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("1;Surafce features influencing infiltration");
     DEFmaps.append("2;Organic Matter;omcorr.map;Organic matter correction increase or decrease (%);OMmap");
-    DEFmaps.append("2;Density Factor;densfact.map;Density factor relative to 2650 kg/m3 (-1 to 1);Densmap");
+    DEFmaps.append("2;Density Factor;densfact.map;Density factor relative to 1350 kg/m3 (= 1.0, range 0.9 to 1.2);Densmap");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
     DEFmaps.append("2;Porosity Crust;porecrst.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
     DEFmaps.append("2;Ksat Compacted;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
