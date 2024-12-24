@@ -131,7 +131,7 @@ SET(APP_SOURCES
     model/lisModel.cpp
     model/lisDataInit.cpp
     model/lisDataFunctions.cpp
-    floww/lisSWOF2Daux.cpp
+    flow/lisSWOF2Daux.cpp
     flow/lisSWOF2Dopen.cpp
     flow/lisSWOF2DopenMUSCL.cpp
     flow/lisTiledrainflow.cpp
