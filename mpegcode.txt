@@ -1,0 +1,114 @@
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+}
+
+void convertScreenshotsToVideo(const QString &screenshotsDir, const QString &outputVideo) {
+    // Initialize FFmpeg libraries
+    av_register_all();
+    avcodec_register_all();
+    avformat_network_init();
+
+    AVCodec *codec;
+    AVCodecContext *codecCtx = nullptr;
+    AVFormatContext *formatCtx = nullptr;
+    AVStream *videoStream = nullptr;
+    AVFrame *frame = nullptr;
+    SwsContext *swsCtx = nullptr;
+    int ret;
+
+    // Open output video file
+    ret = avformat_alloc_output_context2(&formatCtx, nullptr, nullptr, outputVideo.toUtf8().constData());
+    if (ret < 0) {
+        qDebug() << "Error allocating output context";
+        return;
+    }
+
+    codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+    if (!codec) {
+        qDebug() << "Codec not found";
+        return;
+    }
+
+    videoStream = avformat_new_stream(formatCtx, codec);
+    if (!videoStream) {
+        qDebug() << "Failed allocating video stream";
+        return;
+    }
+
+    codecCtx = avcodec_alloc_context3(codec);
+    if (!codecCtx) {
+        qDebug() << "Failed to allocate codec context";
+        return;
+    }
+
+    videoStream->codecpar->codec_id = codec->id;
+    videoStream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+    videoStream->codecpar->width = /* width */;
+    videoStream->codecpar->height = /* height */;
+    videoStream->time_base = (AVRational){1, 30};
+
+    ret = avcodec_parameters_to_context(codecCtx, videoStream->codecpar);
+    if (ret < 0) {
+        qDebug() << "Failed to copy codec parameters to codec context";
+        return;
+    }
+
+    ret = avcodec_open2(codecCtx, codec, nullptr);
+    if (ret < 0) {
+        qDebug() << "Failed to open codec";
+        return;
+    }
+
+    // Open input images
+    QString pattern = screenshotsDir + "screenshot_%d.png";
+    avformat_open_input(&formatCtx, pattern.toUtf8().constData(), nullptr, nullptr);
+    if (!formatCtx) {
+        qDebug() << "Failed to open input images";
+        return;
+    }
+
+    avformat_find_stream_info(formatCtx, nullptr);
+
+    frame = av_frame_alloc();
+    if (!frame) {
+        qDebug() << "Failed to allocate frame";
+        return;
+    }
+
+    int gotFrame;
+    AVPacket pkt;
+    pkt.data = nullptr;
+    pkt.size = 0;
+
+    while (/* loop through input images */) {
+        // Read input image
+        // AVPacket pkt;
+        av_read_frame(formatCtx, &pkt);
+
+        // Convert image to YUV format
+        swsCtx = sws_getContext(/* parameters */, nullptr);
+        sws_scale(swsCtx, /* parameters */);
+
+        // Encode frame
+        avcodec_encode_video2(codecCtx, &pkt, frame, &gotFrame);
+        if (gotFrame) {
+            // Write encoded frame to output file
+            av_write_frame(formatCtx, &pkt);
+        }
+    }
+
+    // Flush encoder
+    avcodec_encode_video2(codecCtx, &pkt, nullptr, &gotFrame);
+    if (gotFrame) {
+        // Write encoded frame to output file
+        av_write_frame(formatCtx, &pkt);
+    }
+
+    // Free resources
+    av_frame_free(&frame);
+    avcodec_close(codecCtx);
+    avformat_free_context(formatCtx);
+    sws_freeContext(swsCtx);
+}
