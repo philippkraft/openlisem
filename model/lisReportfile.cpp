@@ -60,7 +60,6 @@ void TWorld::reportAll(void)
 
     ReportTotalSeries();
 
-
     if (!SwitchEndRun) {
         ReportMaps();
         ReportMapSeries();

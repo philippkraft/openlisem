@@ -89,9 +89,6 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-
-    //DestroyData(); // clear all structures in case this is not the first run.
-
     if (!op.doBatchmode)
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
     else
@@ -229,7 +226,7 @@ void TWorld::DoModel()
         //VJ 110110 for output totals per landunit
 
         runstep = 0; //  runstep is used to initialize graph!
-        printstep = 1; // printstep determines report frequency
+        printstep = 1; // printstep determines report frequency in report()
 
       //  DEBUG("setupHydrographData()");
         setupHydrographData(); // reset hydrograph display
@@ -237,7 +234,6 @@ void TWorld::DoModel()
         //bool saveMBerror = true;
         //saveMBerror2file(true); //saveMBerror,
 
-      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once, moved inside loop!
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
@@ -252,9 +248,10 @@ void TWorld::DoModel()
 
         for (time = BeginTime; time < EndTime; time += _dt)
         {            
+            // printstep determines report frequency in #define report(...)
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
-            //TODO this does nothing????
+
             runstep++;
 
             if(stopRequested) {
