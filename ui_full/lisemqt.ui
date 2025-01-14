@@ -2217,7 +2217,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>6</number>
+                  <number>5</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -6175,19 +6175,6 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="2">
-                    <spacer name="horizontalSpacer_9">
-                     <property name="orientation">
-                      <enum>Qt::Orientation::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
                    <item row="0" column="1">
                     <widget class="QToolButton" name="toolButton_resetInfra">
                      <property name="text">
@@ -6201,6 +6188,9 @@
                    </item>
                    <item row="2" column="0">
                     <widget class="QGroupBox" name="groupMitigationWater">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -6424,6 +6414,9 @@
                    </item>
                    <item row="3" column="0">
                     <widget class="QGroupBox" name="groupConservationSed">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -6520,7 +6513,7 @@
                         <item>
                          <widget class="QLabel" name="label_104">
                           <property name="enabled">
-                           <bool>false</bool>
+                           <bool>true</bool>
                           </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -6544,7 +6537,7 @@
                         <item>
                          <widget class="QDoubleSpinBox" name="E_SedTrapN">
                           <property name="enabled">
-                           <bool>false</bool>
+                           <bool>true</bool>
                           </property>
                           <property name="font">
                            <font>
@@ -6612,7 +6605,7 @@
                         <item>
                          <widget class="QLabel" name="label_33">
                           <property name="enabled">
-                           <bool>false</bool>
+                           <bool>true</bool>
                           </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
@@ -6646,7 +6639,7 @@
                         <item>
                          <widget class="QDoubleSpinBox" name="E_BulkDens">
                           <property name="enabled">
-                           <bool>false</bool>
+                           <bool>true</bool>
                           </property>
                           <property name="font">
                            <font>
@@ -7068,6 +7061,19 @@
                       <string>Buildings, Roads and Conservation Measures</string>
                      </property>
                     </widget>
+                   </item>
+                   <item row="2" column="2">
+                    <spacer name="horizontalSpacer_9">
+                     <property name="orientation">
+                      <enum>Qt::Orientation::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
                    </item>
                   </layout>
                  </widget>

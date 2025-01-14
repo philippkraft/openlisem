@@ -123,12 +123,12 @@ void lisemqt::on_toolButton_resetFlow_clicked()
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetChannel_clicked()
 {
-   // resetTabChannel();
+   resetTabChannel();
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetInfra_clicked()
 {
-   // resetTabInfra();
+   resetTabInfra();
 }
 //---------------------------------------------------------------
 void lisemqt::on_toolButton_resetErosion_clicked()

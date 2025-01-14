@@ -584,8 +584,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                     N->Drc = Norg->Drc;
                     // if sed trap is full, no effect of N increase
                 }
-                if (SwitchSedtrap && SedMaxVolume->Drc > 0)
-                {
+                if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
                     if (SS > 0) {
                         double maxvol = SedMaxVolume->Drc;
                         double depvol = SS * 1.0/BulkDens; // m3
@@ -597,6 +596,19 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                         }
                         SedMaxVolume->Drc = maxvol - depvol;
                         SedimentFilter->Drc += depvol*BulkDens;
+                    }
+                }
+
+                if(SwitchGridRetention) {
+                    if (Sed->Drc > 0) {
+                        double depvol = SS/BulkDens; // sed in m3
+                        if (GridRetention->Drc < depvol)
+                            depvol = GridRetention->Drc;
+                        if (GridRetention->Drc > 0){
+                            deposition = -depvol*BulkDens;  // deposition is all that goes into trench
+                            maxTC = 0;
+                        }
+                        GridRetention->Drc = GridRetention->Drc - depvol;
                     }
                 }
 
@@ -643,6 +655,9 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                     //is there erosion and sedimentation under the snowdeck?
 
                     if (SwitchSedtrap && SedMaxVolume->Drc > 0)
+                        detachment = 0;
+
+                    if (SwitchGridRetention && GridRetention->Drc > 0)
                         detachment = 0;
                     //if there is still room in the sed trap then no detahcment on those cells
 
@@ -698,8 +713,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                             deposition = 0;
                         // prevent any activity on the boundary!
 
-                        if (SwitchSedtrap && SedMaxVolume->Drc > 0)
-                        {
+                        if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
                             if (BL > 0) {
                                 double maxvol = SedMaxVolume->Drc;
                                 double depvol = BL * 1.0/BulkDens; // m3
@@ -714,6 +728,18 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                             }
                         }
 
+                        if(SwitchGridRetention) {
+                            if (Sed->Drc > 0) {
+                                double depvol = BL/BulkDens; // sed in m3
+                                if (GridRetention->Drc < depvol)
+                                    depvol = GridRetention->Drc;
+                                if (GridRetention->Drc > 0){
+                                    deposition = -depvol*BulkDens;  // deposition is all that goes into trench
+                                    maxTC = 0;
+                                }
+                                GridRetention->Drc = GridRetention->Drc - depvol;
+                            }
+                        }
                         // if(SwitchUseMaterialDepth)
                         // {
                         //     StorageDep->Drc += -deposition;
@@ -771,9 +797,11 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
                                 detachment = MAXCONC * blwatervol - BL;
                             // limit detachment to what BLflood can carry
 
-                            if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
+                            if (SwitchSedtrap && SedMaxVolume->Drc > 0)
                                 detachment = 0;
-                            }
+
+                            if (SwitchGridRetention && GridRetention->Drc > 0)
+                                detachment = 0;
                         }
                     }
                     //### sediment balance IN KG/CELL

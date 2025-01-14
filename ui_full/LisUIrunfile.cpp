@@ -226,9 +226,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Swatre output")==0)                 checkSwatreOutput->setChecked(check);
 
         // FLOW
-        if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
-        if (p1.compare("Flow barrier table filename")==0)    line_FlowBarriers->setText(p);
-        if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
         if (p1.compare("Flood solution")==0)                 checkMUSCL->setChecked(check);
@@ -347,10 +344,15 @@ void lisemqt::ParseInputData()
 //        }
 
         // CONSERVATION
+        if (p1.compare("Include Mitigation/Conservation")==0)   checkConservation->setChecked(check);
+        if (p1.compare("Include flow barriers")==0)             checkFlowBarriers->setChecked(check);
+        if (p1.compare("Flow barrier table filename")==0)       line_FlowBarriers->setText(p);
+        if (p1.compare("Include buffers")==0)                   checkBuffers->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)          E_SedTrapN->setValue(valc);
         if (p1.compare("Include Sediment traps")==0)            checkSedtrap->setChecked(check);
         if (p1.compare("Include grass strips")==0)              checkInfilGrass->setChecked(check);
         if (p1.compare("Grassstrip Mannings n")==0)             E_GrassStripN->setValue(valc);
+        if (p1.compare("Include subgridcell retention")==0)     checkGridRentention->setChecked(check);
 
         //ADVANCED
         if (p1.compare("Advanced Options")==0)                  checkAdvancedOptions->setChecked(check);
@@ -851,6 +853,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Infil Kavg")==0)                    namelist[j].value.setNum(comboBox_Kmean->currentIndex());
         if (p1.compare("Van Genuchten")==0)                 namelist[j].value.setNum(spinSoilPhysics->value());
         if (p1.compare("Swatre output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
+
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
@@ -858,6 +861,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
         if (p1.compare("Include water height inflow")==0)    namelist[j].value.setNum((int)checkWaterUserIn->isChecked());
+
         // groundwater
         if (p1.compare("Include GW flow")==0)                namelist[j].value.setNum((int)checkGWflow->isChecked());
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
@@ -869,9 +873,6 @@ void lisemqt::updateModelData()
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
         if (p1.compare("GW deep percolation")==0)            namelist[j].value = GW_deep->text();
         if (p1.compare("GW threshold factor")==0)            namelist[j].value = GW_threshold->text();
-        if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
-        if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
-        if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
 
         // overland flow
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
@@ -910,9 +911,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkDiffusion->isChecked());
-
         if (p1.compare("Use 2 phase flow")==0)               namelist[j].value.setNum((int) checkSed2Phase->isChecked());
-
        // if (p1.compare("Use material depth")==0)             namelist[j].value.setNum((int)checkMaterialDepth->isChecked());
         if (p1.compare("No detachment boundary")==0)         namelist[j].value.setNum((int)checkNoSedBoundary->isChecked());
         if (p1.compare("Flooding BL method")==0)             namelist[j].value = QString::number(E_BLMethod->currentIndex()+1);
@@ -938,12 +937,19 @@ void lisemqt::updateModelData()
             if (checkStormDrainCirc->isChecked())           namelist[j].value.setNum(1);
         }
 
-        if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
+        // conservation mtigation
+        if (p1.compare("Include Mitigation/Conservation")==0) namelist[j].value.setNum((int)checkConservation->isChecked());
+        if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
+        if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
+        if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
         if (p1.compare("Include Sediment traps")==0)        namelist[j].value.setNum((int)checkSedtrap->isChecked());
         if (p1.compare("Include grass strips")==0)          namelist[j].value.setNum((int)checkInfilGrass->isChecked());
         if (p1.compare("Grassstrip Mannings n")==0)         namelist[j].value = E_GrassStripN->text();
         if (p1.compare("Sediment Trap Mannings n")==0)      namelist[j].value = E_SedTrapN->text();
+        if (p1.compare("Include subgridcell retention")==0) namelist[j].value.setNum((int)checkGridRentention->isChecked());
 
+        // miscellaneous
+        if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
         if (p1.compare("Timeplot as PCRaster")==0)          namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         if (p1.compare("Report point output separate")==0)  namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();

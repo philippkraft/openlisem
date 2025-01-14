@@ -407,12 +407,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Routing Kin Wave 2D");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Flow Boundary 2D");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Include buffers");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include flow barriers");
-    namelist[i].value = QString("flowbarriers.txt");
-    namelist[i++].name = QString("Flow barrier table filename");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood initial level map");
     namelist[i].value = QString("0.2");
@@ -542,6 +536,14 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Conservation]");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Mitigation/Conservation");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include buffers");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include flow barriers");
+    namelist[i].value = QString("flowbarriers.txt");
+    namelist[i++].name = QString("Flow barrier table filename");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include grass strips");
     namelist[i].value = QString("0.1");
     namelist[i++].name = QString("Grassstrip Mannings n");
@@ -549,6 +551,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include Sediment traps");
     namelist[i].value = QString("0.8");
     namelist[i++].name = QString("Sediment Trap Mannings n");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include subgricell retention");
 
     //### Calibration
     namelist[i++].name = QString("");
