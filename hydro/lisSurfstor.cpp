@@ -62,10 +62,9 @@ void TWorld::GridCell()
         // adjust roads+hardsurf to cell with channels
         RoadWidthHSDX_ = std::min(dxa, RoadWidthHSDX_);
         // decrease roadwidth if roads + houses > dx-channel
-        RoadWidthHSDX_ = std::max(0.0, std::min(dxa-HouseWidthDX_, RoadWidthHSDX_));
-        //HouseWidthDX_ = std::min(dxa-RoadWidthHSDX->Drc , HouseWidthDX_);
-        // you cannot have houses and a road larger than a pixel
-        //    SoilWidthDX->Drc = std::max(0.0,dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
+        if (RoadWidthHSDX_ + HouseWidthDX_ > dxa)
+            RoadWidthHSDX_ = std::max(0.0, dxa-HouseWidthDX_);
+
         SoilWidthDX->Drc = std::max(0.0, dxa - RoadWidthHSDX->Drc - HouseWidthDX_);
         // soilwidth is used in infil, evap and erosion, NOT flow
 
@@ -84,6 +83,9 @@ void TWorld::GridCell()
         double RRmm = 10 * RR->Drc;
         MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
+
+        if(SwitchGridRetention)
+            GridRetention->Drc = GridRetention->Drc/CHAdjDX->Drc;
 
         FlowWidth->Drc = ChannelAdj->Drc;
         // water can flow everywhere, a house is permeable and a migh mannings n, roads are smooth
@@ -154,10 +156,15 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     double WHs = std::max(0.0, std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc)))));
     // surface storage on rough surfaces
     // non-linear release fo water from depression storage
-    // resemles curves from GIS surface tests, unpublished
-    // note: roads and houses are assumed to be smooth!
+    // resembles curves from GIS surface tests, unpublished
 
-    WHrunoff->Drc = wh-WHs;// ((wh - WHs)*SW + WHr*RW)/(SW+RW);
+    double retm = 0;
+    // additional Fayna Yuu type storage in m3 per cell
+    if (SwitchGridRetention)
+        WHs += GridRetention->Drc;
+
+    WHrunoff->Drc = std::max(0.0, wh-WHs);
+    // used to be ((wh - WHs)*SW + WHr*RW)/(SW+RW);
     // WH of overlandflow above surface storage
 
     WHstore->Drc = WHs;

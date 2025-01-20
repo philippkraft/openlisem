@@ -369,9 +369,9 @@ void TWorld::cell_FlowDetachment(int r, int c)
         // negative difference: TC surplus becomes deposition (negative)
         // unit kg/m3
 
+        //### deposition ###
         if (minTC < 0) {
 
-            //### deposition
             TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/erosionwh)) * erosionwv;
             // in m3
             // deposition can occur on roads and on soil (so use flowwidth)
@@ -389,10 +389,9 @@ void TWorld::cell_FlowDetachment(int r, int c)
             }
             // mannings N becomes normal when sedtrap is full
 
-            if (SwitchSedtrap && SedMaxVolume->Drc > 0)
-            {
+            if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
                 if (Sed->Drc > 0) {
-                    double depvol = Sed->Drc * 1.0/BulkDens; // m3
+                    double depvol = Sed->Drc/BulkDens; // m3
                     if (SedMaxVolume->Drc < depvol)
                         depvol = SedMaxVolume->Drc;
                     if (SedMaxVolume->Drc > 0){
@@ -404,13 +403,26 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 }
             }
 
+            if(SwitchGridRetention) {
+                if (Sed->Drc > 0) {
+                    double depvol = Sed->Drc/BulkDens; // sed in m3
+                    if (GridRetention->Drc < depvol)
+                        depvol = GridRetention->Drc;
+                    if (GridRetention->Drc > 0){
+                        deposition = -depvol*BulkDens;  // deposition is all that goes into trench
+                        maxTC = 0;
+                    }
+                    GridRetention->Drc = GridRetention->Drc - depvol;
+                }
+            }
+
             //add deposition to soil layer
             // if (SwitchUseMaterialDepth)
             //     StorageDep->Drc += -deposition;
 
         } else
-            if (maxTC > 0 && Y->Drc > 0) {
-            //### detachment
+          //### detachment ###
+          if (maxTC > 0 && Y->Drc > 0) {
 
             TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc;
             // soilwidth is erodible surface
@@ -460,7 +472,10 @@ void TWorld::cell_FlowDetachment(int r, int c)
 
             if (SwitchSedtrap && SedMaxVolume->Drc > 0)
                 detachment = 0;
-        } // minv > 0
+
+            if (SwitchGridRetention && GridRetention->Drc > 0)
+                detachment = 0;
+          } // minv > 0
 
         //### sediment balance
         // add to sediment in flow (IN KG/CELL)

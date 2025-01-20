@@ -98,7 +98,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setupMapPlot();
     // set up the raster map drawing
-
     if (!doBatch) {
         GetStorePath();
         // openlisem.ini file, contains runfile list als darkmode and fontsize and checkforpatch
@@ -110,7 +109,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
-    lisMpeg = new lismpeg(this);
+    lisMpeg = new lismpeg(this);    
 
     doBatchmode = doBatch; // save as global var in iface
     //batchRunname = runname;
@@ -851,6 +850,9 @@ void lisemqt::GetStorePath()
             if (line.contains("font=")) {
                 QStringList s = line.split("=");
                 genfontsize = s[1].toInt();
+                if (genfontsize == 0)
+                    genfontsize = 11;
+                setfontSize();
             } else {
                 if (line.contains("patch=")) {
                     QStringList s = line.split("=");
@@ -955,28 +957,26 @@ void lisemqt::resetTabRainfall()
 //--------------------------------------------------------------------
 void lisemqt::resetTabOptions()
 {
+    // main options
     checkRainfall->setChecked(true);
     checkET->setChecked(false);
 
+    checkInterception->setChecked(true);
+
+    checkInfiltration->setChecked(true);
+
     E_OFWaveType->setCurrentIndex(2);
-    checkDoErosion->setChecked(false);
 
     checkIncludeChannel->setChecked(true);
-    checkChannelInfil->setChecked(false);
-    //checkChannelBaseflow->setChecked(false);
-    groupBaseflowParams->setEnabled(true);
 
-    checkDischargeUser->setChecked(false);
-    //checkChannelAdjustCHW->setChecked(true);
+    checkGWflow->setChecked(false);
+
+    checkDoErosion->setChecked(false);
 
     checkInfrastructure->setChecked(false);
-    checkRoadsystem->setChecked(false);
-    checkHouses->setChecked(false);
-    checkAddBuildingDEM->setChecked(false);
-    checkHardsurface->setChecked(false);
-    checkRaindrum->setChecked(false);
-    checkStormDrains->setChecked(false);
-}
+
+    checkConservation->setChecked(false);
+ }
 //--------------------------------------------------------------------
 void lisemqt::resetTabCalibration()
 {
@@ -985,21 +985,23 @@ void lisemqt::resetTabCalibration()
     E_CalibrateRR->setValue(1.0);
     E_CalibrateKsat->setValue(1.0);
     E_CalibrateKsat2->setValue(1.0);
-    E_CalibrateN->setValue(1.0);
+    E_CalibrateKsat3->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
-    E_CalibrateSD1->setValue(1.0);
-    E_CalibrateSD2->setValue(1.0);
+//    E_CalibrateSD1->setValue(1.0);
+//    E_CalibrateSD2->setValue(1.0);
+    E_CalibrateN->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
     E_CalibrateWave->setValue(0.0);
-    E_CalibrateChTor->setValue(1.0);
+
     E_CalibrateAS->setValue(1.0);
     E_CalibrateCOH->setValue(1.0);
     E_CalibrateD50->setValue(1.0);
     E_CalibrateD90->setValue(1.0);
     E_CalibrateCHCOH->setValue(1.0);
-    E_CalibrateCHUcr->setValue(1.0);
+    // not visible, experimental
+    E_CalibrateCHUcr->setValue(1.0);    
     E_CalibrateCHSV->setValue(1.0);
 }
 //--------------------------------------------------------------------
@@ -1007,7 +1009,7 @@ void lisemqt::resetTabInterception()
 {
     checkInterception->setChecked(true);
     radioButton_1->setChecked(true); //<= crops interception
-    E_CanopyOpeness->setValue(0.45);
+    E_CanopyOpeness->setValue(0.45); // not visible
     //    E_StemflowFraction->setValue(0.054);
     checkIncludeLitter->setChecked(false);
     E_LitterSmax->setValue(1.0);
@@ -1029,6 +1031,7 @@ void lisemqt::resetTabInfiltration()
     checkInfilCrust->setChecked(false);
     //checkInfil2layer->setChecked(false);
     checkInfilImpermeable->setChecked(false);
+    checkInfilHinit->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
     checkSwatreOutput->setChecked(false);
     //checkGeometric->setChecked(true);
@@ -1048,19 +1051,11 @@ void lisemqt::resetTabChannel()
     checkGWflow->setChecked(false);
 }
 //--------------------------------------------------------------------
-void lisemqt::resetTabInfra()
-{
-
-}
-//--------------------------------------------------------------------
 void lisemqt::resetTabFlow()
 {
     E_FlowBoundary->setValue(1);
     E_floodMinHeight->setValue(0.05);
     checkFloodInitial->setChecked(false);
-    checkFlowBarriers->setChecked(false);
-    line_FlowBarriers->setText("flowbarriers.txt");
-    checkBuffers->setChecked(false);
     check2DDiagonalFlow->setChecked(true);
     //check2DDiagonalFlowNew->setChecked(false);
     checkCorrectDem->setChecked(false);
@@ -1106,20 +1101,39 @@ void lisemqt::resetTabErosion()
 
     checkSed2Phase->setChecked(false);
 
-    checkSedtrap->setChecked(false);
-
     checkMaterialDepth->setChecked(false);
     E_DepositedCohesion->setValue(0.5);
-    E_BulkDens->setValue(1500);
     //E_BulkDens2->setText("1500.00");
 
     E_SplashDelibery->setValue(0.1);
+}
+//--------------------------------------------------------------------
+void lisemqt::resetTabInfra()
+{
+
+    checkHouses->setChecked(false);
+    checkAddBuildingDEM->setChecked(false);
+    checkRaindrum->setChecked(false);
+
+    checkRoadsystem->setChecked(false);
+    checkHardsurface->setChecked(false);
+    checkStormDrains->setChecked(false);
+    checkStormDrainRect->setChecked(false);
+    checkStormDrainCirc->setChecked(true);
+
+    checkFlowBarriers->setChecked(false);
+    line_FlowBarriers->setText("flowbarriers.txt");
+    checkBuffers->setChecked(false);
+    checkSedtrap->setChecked(false);
+    checkGridRentention->setChecked(false);
+
     checkInfilGrass->setChecked(false);
     E_GrassStripN->setValue(0.2);
     E_SedTrapN->setValue(0.8);
+    E_BulkDens->setValue(1500);
 
 }
-
+//--------------------------------------------------------------------
 void lisemqt::resetTabAdvanced()
 {
     E_FloodMaxIter->setValue(200);
@@ -1139,6 +1153,7 @@ void lisemqt::resetTabAdvanced()
     checkChanMaxVelocity->setChecked(true);
     checkChannel2DflowConnect->setChecked(false);
 }
+/--------------------------------------------------------------------
 
 void lisemqt::resetAll()
 {
@@ -1244,7 +1259,7 @@ void lisemqt::resetAll()
     checkBoxComboMaps->setEnabled(true);
     checkBoxComboMaps->setChecked(true);
     checkBoxComboMaps2->setEnabled(true);
-    checkBoxComboMaps2->setChecked(false);
+    checkBoxComboMaps2->setChecked(false); // if not enabled you cannot set checked
     checkBoxComboMaps2->setEnabled(false);
 
     showOutputData();

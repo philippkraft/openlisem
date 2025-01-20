@@ -64,8 +64,7 @@ void lisemqt::GetRunfile()
     int i = 0;
     //int found = 0;
 
-    while (!fin.atEnd())
-    {
+    while (!fin.atEnd()) {
         QString S = fin.readLine().trimmed();
 
         if (i == 0 && !S.contains("openLISEM"))
@@ -74,8 +73,7 @@ void lisemqt::GetRunfile()
             saveRunFileOnce = true;
 
         i++;
-        if (S.contains("="))
-        {
+        if (S.contains("=")) {
             QStringList SL = S.split(QRegularExpression("="));
 
             for (int j = 0; j < nrnamelist; j++) {
@@ -89,10 +87,10 @@ void lisemqt::GetRunfile()
     }
 
     for (int i = 0; i < nrnamelist; i++) {
- //      if (!namelist[i].value.isEmpty() && namelist[i].gotit)
-   //       qDebug() << namelist[i].name << namelist[i].value << namelist[i].gotit;
-        if (!namelist[i].value.isEmpty() && !namelist[i].gotit)
-            saveRunFileOnce = true;
+        if (!namelist[i].value.isEmpty() && !namelist[i].gotit) {
+         //   qDebug() << i << namelist[i].name << namelist[i].value << "map not found";
+            saveRunFileOnce = true;            
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -210,8 +208,12 @@ void lisemqt::ParseInputData()
             case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(3); break;
             }
         }
+        if (p1.compare("Use OM correction")==0)             checkInfilOMcorrection->setChecked(check);
+        if (p1.compare("Use Density correction")==0)        checkInfilDensfactor->setChecked(check);
         if (p1.compare("Include compacted")==0)             checkInfilCompact->setChecked(check);
         if (p1.compare("Include crusts")==0)                checkInfilCrust->setChecked(check);
+        if (p1.compare("Use one matrix potential")==0)      checkInfilHinit->setChecked(check);
+        if (p1.compare("Initial matrix potential")==0)      spinHinit->setValue(valc);
         if (p1.compare("Impermeable sublayer")==0)          checkInfilImpermeable->setChecked(check);
         if (p1.compare("Nr input layers")==0)               spinSoilLayers->setValue(iii);
         if (p1.compare("Psi user input")==0)                checkPsiUser->setChecked(check);
@@ -221,12 +223,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("SoilWB dt factor")==0)              spinInfdt->setValue(valc);
         if (p1.compare("Infil Kavg")==0)                    comboBox_Kmean->setCurrentIndex(iii);
         if (p1.compare("Van Genuchten")==0)                 spinSoilPhysics->setValue(valc);
-        if (p1.compare("Swatre Output")==0)                 checkSwatreOutput->setChecked(check);
+        if (p1.compare("Swatre output")==0)                 checkSwatreOutput->setChecked(check);
 
         // FLOW
-        if (p1.compare("Include flow barriers")==0)          checkFlowBarriers->setChecked(check);
-        if (p1.compare("Flow barrier table filename")==0)    line_FlowBarriers->setText(p);
-        if (p1.compare("Include buffers")==0)                checkBuffers->setChecked(check);
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
         if (p1.compare("Flood solution")==0)                 checkMUSCL->setChecked(check);
@@ -345,10 +344,15 @@ void lisemqt::ParseInputData()
 //        }
 
         // CONSERVATION
+        if (p1.compare("Include Mitigation/Conservation")==0)   checkConservation->setChecked(check);
+        if (p1.compare("Include flow barriers")==0)             checkFlowBarriers->setChecked(check);
+        if (p1.compare("Flow barrier table filename")==0)       line_FlowBarriers->setText(p);
+        if (p1.compare("Include buffers")==0)                   checkBuffers->setChecked(check);
         if (p1.compare("Sediment trap Mannings n")==0)          E_SedTrapN->setValue(valc);
         if (p1.compare("Include Sediment traps")==0)            checkSedtrap->setChecked(check);
         if (p1.compare("Include grass strips")==0)              checkInfilGrass->setChecked(check);
         if (p1.compare("Grassstrip Mannings n")==0)             E_GrassStripN->setValue(valc);
+        if (p1.compare("Include subgridcell retention")==0)     checkGridRentention->setChecked(check);
 
         //ADVANCED
         if (p1.compare("Advanced Options")==0)                  checkAdvancedOptions->setChecked(check);
@@ -379,8 +383,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("N calibration")==0)                     E_CalibrateN->setValue(valc);
         if (p1.compare("Theta calibration")==0)                 E_CalibrateTheta->setValue(valc);
         if (p1.compare("Psi calibration")==0)                   E_CalibratePsi->setValue(valc);
-        if (p1.compare("SoilDepth1 calibration")==0)            E_CalibrateSD1->setValue(valc);
-        if (p1.compare("SoilDepth2 calibration")==0)            E_CalibrateSD2->setValue(valc);
+//        if (p1.compare("SoilDepth1 calibration")==0)            E_CalibrateSD1->setValue(valc);
+//        if (p1.compare("SoilDepth2 calibration")==0)            E_CalibrateSD2->setValue(valc);
         if (p1.compare("Channel Ksat calibration")==0)          E_CalibrateChKsat->setValue(valc);
         if (p1.compare("Channel N calibration")==0)             E_CalibrateChN->setValue(valc);
         if (p1.compare("Boundary water level calibration")==0)  E_CalibrateWave->setValue(valc);
@@ -831,9 +835,15 @@ void lisemqt::updateModelData()
             swatreDT = E_Timestep->text().toDouble()*fraction;
             namelist[j].value.setNum(swatreDT,'g',6);
         }
-        if (p1.compare("Include crusts")==0)                 namelist[j].value.setNum((int)checkInfilCrust->isChecked());
-        if (p1.compare("Impermeable sublayer")==0)           namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
-        if (p1.compare("Psi user input")==0)                 namelist[j].value.setNum((int)checkPsiUser->isChecked());
+
+        if (p1.compare("Use OM correction")==0)             namelist[j].value.setNum((int)checkInfilOMcorrection->isChecked());
+        if (p1.compare("Use Density correction")==0)        namelist[j].value.setNum((int)checkInfilDensfactor->isChecked());
+        if (p1.compare("Include compacted")==0)             namelist[j].value.setNum((int)checkInfilCompact->isChecked());
+        if (p1.compare("Include crusts")==0)                namelist[j].value.setNum((int)checkInfilCrust->isChecked());
+        if (p1.compare("Use one matrix potential")==0)      namelist[j].value.setNum((int)checkInfilHinit->isChecked());
+        if (p1.compare("Initial matrix potential")==0)      namelist[j].value.setNum(spinHinit->value());
+        if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
+        if (p1.compare("Psi user input")==0)                namelist[j].value.setNum((int)checkPsiUser->isChecked());
        // if (p1.compare("Geometric mean Ksat")==0)           namelist[j].value.setNum((int)checkGeometric->isChecked());
         if (p1.compare("Nr input layers")==0)               namelist[j].value.setNum(spinSoilLayers->value());
         if (p1.compare("SoilWB nodes 1")==0)                namelist[j].value.setNum(spinNodes1->value());
@@ -842,7 +852,8 @@ void lisemqt::updateModelData()
         if (p1.compare("SoilWB dt factor")==0)              namelist[j].value.setNum(spinInfdt->value());
         if (p1.compare("Infil Kavg")==0)                    namelist[j].value.setNum(comboBox_Kmean->currentIndex());
         if (p1.compare("Van Genuchten")==0)                 namelist[j].value.setNum(spinSoilPhysics->value());
-        if (p1.compare("Swatre Output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
+        if (p1.compare("Swatre output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
+
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
@@ -850,6 +861,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
         if (p1.compare("Include water height inflow")==0)    namelist[j].value.setNum((int)checkWaterUserIn->isChecked());
+
         // groundwater
         if (p1.compare("Include GW flow")==0)                namelist[j].value.setNum((int)checkGWflow->isChecked());
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
@@ -861,9 +873,6 @@ void lisemqt::updateModelData()
         if (p1.compare("GW slope factor")==0)                namelist[j].value = GW_slope->text();
         if (p1.compare("GW deep percolation")==0)            namelist[j].value = GW_deep->text();
         if (p1.compare("GW threshold factor")==0)            namelist[j].value = GW_threshold->text();
-        if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
-        if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
-        if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
 
         // overland flow
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
@@ -902,9 +911,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();
         if (p1.compare("Include River diffusion")==0)        namelist[j].value.setNum((int)checkDiffusion->isChecked());
-
         if (p1.compare("Use 2 phase flow")==0)               namelist[j].value.setNum((int) checkSed2Phase->isChecked());
-
        // if (p1.compare("Use material depth")==0)             namelist[j].value.setNum((int)checkMaterialDepth->isChecked());
         if (p1.compare("No detachment boundary")==0)         namelist[j].value.setNum((int)checkNoSedBoundary->isChecked());
         if (p1.compare("Flooding BL method")==0)             namelist[j].value = QString::number(E_BLMethod->currentIndex()+1);
@@ -930,13 +937,19 @@ void lisemqt::updateModelData()
             if (checkStormDrainCirc->isChecked())           namelist[j].value.setNum(1);
         }
 
-        if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
+        // conservation mtigation
+        if (p1.compare("Include Mitigation/Conservation")==0) namelist[j].value.setNum((int)checkConservation->isChecked());
+        if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
+        if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
+        if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
         if (p1.compare("Include Sediment traps")==0)        namelist[j].value.setNum((int)checkSedtrap->isChecked());
-        if (p1.compare("Include compacted")==0)             namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include grass strips")==0)          namelist[j].value.setNum((int)checkInfilGrass->isChecked());
         if (p1.compare("Grassstrip Mannings n")==0)         namelist[j].value = E_GrassStripN->text();
         if (p1.compare("Sediment Trap Mannings n")==0)      namelist[j].value = E_SedTrapN->text();
+        if (p1.compare("Include subgridcell retention")==0) namelist[j].value.setNum((int)checkGridRentention->isChecked());
 
+        // miscellaneous
+        if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
         if (p1.compare("Timeplot as PCRaster")==0)          namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         if (p1.compare("Report point output separate")==0)  namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
@@ -1027,8 +1040,8 @@ void lisemqt::updateModelData()
         if (p1.compare("N calibration")==0) namelist[j].value = E_CalibrateN->text();
         if (p1.compare("Theta calibration")==0) namelist[j].value = E_CalibrateTheta->text();
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
-        if (p1.compare("SoilDepth1 calibration")==0) namelist[j].value = E_CalibrateSD1->text();
-        if (p1.compare("SoilDepth2 calibration")==0) namelist[j].value = E_CalibrateSD2->text();
+//        if (p1.compare("SoilDepth1 calibration")==0) namelist[j].value = E_CalibrateSD1->text();
+//        if (p1.compare("SoilDepth2 calibration")==0) namelist[j].value = E_CalibrateSD2->text();
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
         if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
