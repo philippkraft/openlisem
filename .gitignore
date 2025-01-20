@@ -1,2 +1,10 @@
+<<<<<<< HEAD
 CMakeLists.txt.user
 doxygen/html/*
+=======
+.idea
+build
+*.autosave
+CMakeLists.txt.user*
+
+>>>>>>> 7f0f3f8c1bb57459822e35935c6e16a1b95a7ec5
